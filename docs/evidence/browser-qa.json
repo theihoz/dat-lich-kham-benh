@@ -1,0 +1,16 @@
+{
+  "time": "2026-10-21T11:33:36.878Z",
+  "checks": [
+    "Patient login and persisted doctor list",
+    "Strategy feeAsc changes server-side order",
+    "Builder booking through UI persists real appointment",
+    "Cancellation updates persisted status",
+    "Doctor sees persisted medical record after login",
+    "Doctor edit survives page reload and real API read",
+    "Admin analytics uses completed fees without fake payments",
+    "Observer + Factory Method + Adapter delivered confirmed/cancelled messages into demo inbox"
+  ],
+  "errors": [],
+  "failed": [],
+  "scope": "Local demo H2; no SMTP/RabbitMQ; responsive smoke at 375/768/1440. No visual baseline or full accessibility audit."
+}

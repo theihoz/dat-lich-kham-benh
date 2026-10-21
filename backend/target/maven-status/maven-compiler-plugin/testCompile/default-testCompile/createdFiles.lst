@@ -1,5 +1,9 @@
-com\datlichkhambenh\backend\BackendApplicationTests.class
-com\datlichkhambenh\backend\service\OwnershipServiceTests.class
-com\datlichkhambenh\backend\AuthSecurityIntegrationTests.class
-com\datlichkhambenh\backend\service\AuthServiceImplTests.class
-com\datlichkhambenh\backend\service\BookingServiceImplTests.class
+com/datlichkhambenh/backend/pattern/DesignPatternTests$1.class
+com/datlichkhambenh/backend/AuthSecurityIntegrationTests.class
+com/datlichkhambenh/backend/service/TruthfulDataTests.class
+com/datlichkhambenh/backend/service/OwnershipServiceTests.class
+com/datlichkhambenh/backend/service/AuthServiceImplTests.class
+com/datlichkhambenh/backend/BookingFlowIntegrationTests.class
+com/datlichkhambenh/backend/service/BookingServiceImplTests.class
+com/datlichkhambenh/backend/BackendApplicationTests.class
+com/datlichkhambenh/backend/pattern/DesignPatternTests.class

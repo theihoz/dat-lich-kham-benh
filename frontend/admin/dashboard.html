@@ -8,7 +8,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <style>
     body { background-color: #f8fafc; color: #1e293b; font-family: system-ui, -apple-system, sans-serif; }
     .sidebar { background: #0f172a; color: #fff; min-height: 100vh; }
@@ -55,6 +55,7 @@
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease;
+      white-space: nowrap;
     }
     .month-pill:hover, .month-pill.active {
       background: #0284c7;
@@ -64,6 +65,8 @@
     }
 
     .table-custom th { background-color: #f8fafc; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { display: inline-block; animation: spin 1s linear infinite; }
   </style>
 </head>
 <body>
@@ -220,8 +223,11 @@
               <button class="btn btn-outline-primary rounded-pill px-3 border-0" id="btn-chart-line" onclick="switchChartType('line')">Biểu Đồ Đường</button>
             </div>
           </div>
-          <div style="position: relative; height: 330px;">
-            <canvas id="revenueChart"></canvas>
+          <div style="position: relative; height: 330px;" id="chart-wrapper">
+            <div id="chart-loading" style="display:flex;align-items:center;justify-content:center;height:100%;color:#94a3b8;">
+              <div class="text-center"><i class="bi bi-arrow-repeat spin fs-2 d-block mb-2"></i>Đang tải dữ liệu biểu đồ...</div>
+            </div>
+            <canvas id="revenueChart" style="display:none;"></canvas>
           </div>
         </div>
 
@@ -239,7 +245,7 @@
             <div class="d-flex gap-2">
               <div class="input-group shadow-sm" style="max-width: 280px;">
                 <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
-                <input type="text" id="searchTxInput" class="form-control border-start-0 ps-0" placeholder="Tìm tên bệnh nhân / mã GD..." onkeyup="renderTxTable()">
+                <input type="text" id="searchTxInput" class="form-control border-start-0 ps-0" placeholder="Tìm tên bệnh nhân / mã GD..." oninput="onSearchTx()">
               </div>
             </div>
           </div>
@@ -315,10 +321,28 @@
   <script src="../js/auth.js"></script>
   <script>
     Auth.checkAuth(['ADMIN']);
+
     let chartInstance = null;
     let analyticsData = null;
     let selectedMonth = 0; // 0 = Tất cả
     let currentChartType = 'bar';
+    let txCurrentPage = 1;
+    const txPageSize = 15;
+
+    function formatVND(val) {
+      const n = Number(val) || 0;
+      return n.toLocaleString('vi-VN') + ' ₫';
+    }
+
+    function getMethodBadge(method) {
+      switch(method) {
+        case 'VietQR Banking': return '<span class="badge badge-method method-vietqr"><i class="bi bi-qr-code-scan me-1"></i>VietQR</span>';
+        case 'Ví MoMo': return '<span class="badge badge-method method-momo"><i class="bi bi-wallet2 me-1"></i>MoMo</span>';
+        case 'ZaloPay': return '<span class="badge badge-method method-zalopay"><i class="bi bi-wallet-fill me-1"></i>ZaloPay</span>';
+        case 'Thẻ ATM/Visa': return '<span class="badge badge-method method-card"><i class="bi bi-credit-card me-1"></i>Thẻ ATM</span>';
+        default: return '<span class="badge badge-method method-cash"><i class="bi bi-cash me-1"></i>Tiền mặt</span>';
+      }
+    }
 
     async function loadDashboardData() {
       try {
@@ -334,7 +358,7 @@
         const resAnalytics = await Api.admin.analytics(year);
         analyticsData = resAnalytics.data || {};
 
-        document.getElementById('stat-revenue').innerText = Utils.formatCurrency(analyticsData.yearRevenue || stats.totalRevenue || 0);
+        document.getElementById('stat-revenue').innerText = formatVND(analyticsData.yearRevenue || stats.totalRevenue || 0);
 
         // Render Month Pills
         renderMonthPills();
@@ -352,15 +376,12 @@
 
     function renderMonthPills() {
       const container = document.getElementById('month-pills-container');
-      let html = `<button class="month-pill ${selectedMonth === 0 ? 'active' : ''}" onclick="selectMonth(${0})">Tất Cả 12 Tháng</button>`;
+      let html = `<button class="month-pill ${selectedMonth === 0 ? 'active' : ''}" onclick="selectMonth(0)">Tất Cả 12 Tháng</button>`;
       for (let m = 1; m <= 12; m++) {
         html += `<button class="month-pill ${selectedMonth === m ? 'active' : ''}" onclick="selectMonth(${m})">Tháng ${m}</button>`;
       }
       container.innerHTML = html;
     }
-
-    let txCurrentPage = 1;
-    const txPageSize = 15;
 
     function selectMonth(m) {
       selectedMonth = m;
@@ -374,6 +395,108 @@
       } else {
         subtitle.innerText = `Hiển thị danh sách bệnh nhân đã chuyển tiền thanh toán trong Tháng ${m}`;
       }
+    }
+
+    function switchChartType(type) {
+      currentChartType = type;
+      document.getElementById('btn-chart-bar').className = type === 'bar' ? 'btn btn-primary rounded-pill px-3 active' : 'btn btn-outline-primary rounded-pill px-3 border-0';
+      document.getElementById('btn-chart-line').className = type === 'line' ? 'btn btn-primary rounded-pill px-3 active' : 'btn btn-outline-primary rounded-pill px-3 border-0';
+      renderRevenueChart();
+    }
+
+    function renderRevenueChart() {
+      const months = (analyticsData && analyticsData.months) ? analyticsData.months : [];
+      const loader = document.getElementById('chart-loading');
+      const canvas = document.getElementById('revenueChart');
+
+      if (!months.length) {
+        if (loader) loader.innerHTML = '<span class="text-muted">Không có dữ liệu biểu đồ</span>';
+        return;
+      }
+
+      if (loader) loader.style.display = 'none';
+      if (canvas) canvas.style.display = 'block';
+
+      const labels = months.map(m => 'Tháng ' + m.month);
+      const revenues = months.map(m => Number(m.revenue) || 0);
+      const appCounts = months.map(m => Number(m.appointments) || 0);
+
+      if (chartInstance) {
+        chartInstance.destroy();
+        chartInstance = null;
+      }
+
+      chartInstance = new Chart(canvas, {
+        type: currentChartType,
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Doanh Thu (VNĐ)',
+              data: revenues,
+              backgroundColor: currentChartType === 'bar' ? 'rgba(2, 132, 199, 0.85)' : 'rgba(2, 132, 199, 0.15)',
+              borderColor: '#0284c7',
+              borderWidth: 2,
+              borderRadius: currentChartType === 'bar' ? 6 : 0,
+              fill: currentChartType === 'line',
+              tension: 0.35,
+              yAxisID: 'y'
+            },
+            {
+              label: 'Số Lượt Khám',
+              data: appCounts,
+              type: 'line',
+              borderColor: '#10b981',
+              backgroundColor: '#10b981',
+              borderWidth: 2,
+              pointRadius: 4,
+              yAxisID: 'y1'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          onClick: (e, elements) => {
+            if (elements.length > 0) {
+              const index = elements[0].index;
+              selectMonth(index + 1);
+            }
+          },
+          plugins: {
+            legend: { position: 'top' },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  if (context.dataset.yAxisID === 'y') {
+                    return 'Doanh thu: ' + formatVND(context.raw);
+                  }
+                  return 'Lượt khám: ' + context.raw + ' ca';
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: value => (value / 1000000).toFixed(0) + ' Tr ₫'
+              }
+            },
+            y1: {
+              beginAtZero: true,
+              position: 'right',
+              grid: { display: false },
+              ticks: { precision: 0 }
+            }
+          }
+        }
+      });
+    }
+
+    function onSearchTx() {
+      txCurrentPage = 1;
+      renderTxTable();
     }
 
     function renderTxTable() {
@@ -429,7 +552,7 @@
           </td>
           <td>${getMethodBadge(t.paymentMethod)}</td>
           <td class="text-end">
-            <strong class="text-success fs-6">+${Utils.formatCurrency(t.amount)}</strong>
+            <strong class="text-success fs-6">+${formatVND(t.amount)}</strong>
           </td>
           <td class="text-center">
             <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1">

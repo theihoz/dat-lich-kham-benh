@@ -68,7 +68,7 @@
             <i class="bi bi-info-circle-fill mt-1 flex-shrink-0"></i>
             <div>
               <strong>Liên hệ quản trị viên:</strong><br>
-              Email: <a href="mailto:admin@clinic.vn" class="fw-semibold">admin@clinic.vn</a><br>
+              Sử dụng thông tin liên hệ được phòng khám cung cấp.<br>
               Cung cấp email tài khoản để được hỗ trợ đặt lại mật khẩu nhanh chóng.
             </div>
           </div>
@@ -77,7 +77,7 @@
             <input type="email" id="forgot-email" class="form-control" placeholder="Nhập email tài khoản..." autocomplete="email">
           </div>
           <button class="btn btn-primary w-100 rounded-pill fw-semibold" id="btn-forgot-send" onclick="sendForgotPassword()">
-            <i class="bi bi-send me-1"></i> Gửi Yêu Cầu Đặt Lại Mật Khẩu
+            <i class="bi bi-info-circle me-1"></i> Hướng Dẫn Hỗ Trợ
           </button>
         </div>
       </div>
@@ -118,21 +118,7 @@
     }
 
     function sendForgotPassword() {
-      const email = document.getElementById('forgot-email').value.trim();
-      const btn = document.getElementById('btn-forgot-send');
-      if (!email) {
-        Utils.showToast('Vui lòng nhập email tài khoản của bạn.', 'error');
-        return;
-      }
-      // Giả lập gửi yêu cầu (chức năng thực sẽ được tích hợp sau)
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang gửi...';
-      setTimeout(() => {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-send me-1"></i> Gửi Yêu Cầu Đặt Lại Mật Khẩu';
-        forgotModal.hide();
-        Utils.showToast('Yêu cầu đặt lại mật khẩu đã được ghi nhận. Quản trị viên sẽ liên hệ với bạn qua email: ' + email, 'success');
-      }, 1200);
+      Utils.showToast('Chưa có chức năng gửi yêu cầu đặt lại mật khẩu. Vui lòng liên hệ quản trị viên qua kênh hỗ trợ của phòng khám.', 'info');
     }
 
     document.getElementById('login-form').addEventListener('submit', async (e) => {

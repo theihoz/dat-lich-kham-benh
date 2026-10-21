@@ -23,6 +23,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.datlichkhambenh.backend.entity.Appointment;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -111,19 +115,18 @@ public class AdminManagementServiceImpl implements AdminManagementService {
     @Transactional(readOnly = true)
     public Map<String, Object> getSystemStats() {
         Map<String, Object> stats = new HashMap<>();
-        stats.put("totalDoctors", doctorRepository.count() + 512); // Tăng lên 5 trăm mấy
-        stats.put("totalPatients", patientRepository.count() + 3415); // Tăng lên 3 nghìn mấy
-        stats.put("totalAppointments", appointmentRepository.count() + 245);
+        stats.put("totalDoctors", doctorRepository.count());
+        stats.put("totalPatients", patientRepository.count());
+        stats.put("totalAppointments", appointmentRepository.count());
         stats.put("totalSpecialties", specialtyRepository.count());
         long cancelled = appointmentRepository.countByStatus("CANCELLED");
-        long total = appointmentRepository.count() + 245;
+        long total = appointmentRepository.count();
         stats.put("cancelledAppointments", cancelled);
         stats.put("cancellationRate", total == 0 ? 0 : Math.round(cancelled * 10000.0 / total) / 100.0);
         java.math.BigDecimal revenue = appointmentRepository.findAll().stream()
                 .filter(a -> "COMPLETED".equals(a.getStatus()) && a.getPrice() != null)
                 .map(com.datlichkhambenh.backend.entity.Appointment::getPrice)
                 .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
-        revenue = revenue.add(new java.math.BigDecimal("358000000")); // Cộng thêm 358 triệu VNĐ
         stats.put("totalRevenue", revenue);
         stats.put("topDoctors", appointmentRepository.findTopDoctors().stream().limit(5)
                 .map(row -> Map.of("doctorName", row[0], "appointments", row[1])).toList());
@@ -169,125 +172,85 @@ public class AdminManagementServiceImpl implements AdminManagementService {
         specialtyRepository.delete(s); redisCacheService.evictDoctorCache(id);
     }
 
-    @Override @Transactional(readOnly = true)
+    @Override
+    @Transactional(readOnly = true)
     public Map<String, Object> getAnalytics(int year) {
-        List<com.datlichkhambenh.backend.entity.Appointment> yearly = appointmentRepository.findAll().stream()
-                .filter(a -> a.getSchedule() != null && a.getSchedule().getWorkDate().getYear() == year).toList();
-
-        String[] patientNames = {
-            "Nguyễn Văn An", "Trần Thị Mai", "Lê Hoàng Nam", "Phạm Thu Thảo", "Vũ Minh Trí",
-            "Đặng Ngọc Bích", "Bùi Gia Hưng", "Đỗ Khánh Linh", "Hồ Đức Anh", "Nông Thanh Hà",
-            "Ngô Quốc Bảo", "Phan Mỹ Duyên", "Dương Văn Khoa", "Võ Thị Quỳnh", "Trịnh Tấn Tài"
-        };
-        String[] paymentMethods = {"VietQR Banking", "Ví MoMo", "ZaloPay", "Thẻ ATM/Visa", "Tiền mặt"};
-        String[] doctorNamesMock = {
-            "BS.CKII Nguyễn Văn Huỳnh", "PGS.TS Lê Thị Lan", "BS.CKI Trần Minh Đức",
-            "BS. Phạm Hoàng Nam", "BS.CKII Vũ Thị Hương", "BS. Đặng Quốc Việt"
-        };
-        String[] specialtiesMock = {"Tim Mạch", "Nhi Khoa", "Thần Kinh", "Da Liễu", "Sản Phụ Khoa", "Cơ Xương Khớp"};
-
-        List<Map<String, Object>> months = new java.util.ArrayList<>();
-        List<Map<String, Object>> allTransactions = new java.util.ArrayList<>();
-        java.math.BigDecimal totalYearRevenue = java.math.BigDecimal.ZERO;
-        long totalYearApps = 0;
-        java.math.BigDecimal prevMonthRevenue = java.math.BigDecimal.ZERO;
+        // Group earned consultation fees by the scheduled consultation date.
+        // These amounts do not verify payment; this system has no payment ledger.
+        List<Appointment> yearly = appointmentRepository.findAll().stream()
+                .filter(a -> a.getSchedule() != null && a.getSchedule().getWorkDate() != null
+                        && a.getSchedule().getWorkDate().getYear() == year).toList();
+        List<Appointment> completed = yearly.stream()
+                .filter(a -> "COMPLETED".equals(a.getStatus())).toList();
+        BigDecimal yearRevenue = earnedFees(completed);
+        List<Map<String, Object>> months = new ArrayList<>();
+        BigDecimal previousRevenue = BigDecimal.ZERO;
 
         for (int month = 1; month <= 12; month++) {
-            final int m = month;
-            List<com.datlichkhambenh.backend.entity.Appointment> entries = yearly.stream()
-                    .filter(a -> a.getSchedule().getWorkDate().getMonthValue() == m).toList();
-            
-            long completed = entries.stream().filter(a -> "COMPLETED".equals(a.getStatus())).count();
-            long cancelled = entries.stream().filter(a -> "CANCELLED".equals(a.getStatus())).count();
-            
-            java.math.BigDecimal realRevenue = entries.stream().filter(a -> "COMPLETED".equals(a.getStatus()) && a.getPrice() != null)
-                    .map(com.datlichkhambenh.backend.entity.Appointment::getPrice)
-                    .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
-
-            // Mỗi tháng chỉ sinh 5 giao dịch mẫu (đủ demo, không nặng)
-            int monthTxCount = 5;
-            long totalMonthApps = entries.size() + 180 + ((m * 19) % 45);
-            java.math.BigDecimal monthMockRevenue = new java.math.BigDecimal(45000000L + (m * 8200000L) + ((m * m * 3500000L) % 28000000L));
-            java.math.BigDecimal monthTotalRevenue = realRevenue.add(monthMockRevenue);
-
-            // Tăng trưởng % so với tháng trước
-            double growthPercent = 0.0;
-            if (m > 1 && prevMonthRevenue.compareTo(java.math.BigDecimal.ZERO) > 0) {
-                growthPercent = monthTotalRevenue.subtract(prevMonthRevenue)
-                        .divide(prevMonthRevenue, 4, java.math.RoundingMode.HALF_UP)
-                        .doubleValue() * 100;
-            }
-            prevMonthRevenue = monthTotalRevenue;
-
-            totalYearRevenue = totalYearRevenue.add(monthTotalRevenue);
-            totalYearApps += totalMonthApps;
-
-            // Sinh đầy đủ danh sách giao dịch bệnh nhân chuyển tiền cho tháng m
-            for (int t = 1; t <= monthTxCount; t++) {
-                int pIdx = (m * 13 + t * 7) % patientNames.length;
-                int pmIdx = (m * 3 + t * 2) % paymentMethods.length;
-                int dIdx = (m + t * 5) % doctorNamesMock.length;
-                int feeAmount = 250000 + ((m * 50000 + t * 100000) % 600000);
-                String dayStr = String.format("%02d", Math.min(28, (t % 28) + 1));
-                String timeStr = String.format("%02d:%02d", 8 + (t % 9), (t * 13) % 60);
-
-                Map<String, Object> tx = new HashMap<>();
-                tx.put("transactionId", String.format("TXN-%d%02d-%05d", year, m, 10000 + t * 17));
-                tx.put("bookingCode", String.format("BK-%d%02d%02d-%03d", year, m, (t % 28) + 1, t));
-                tx.put("patientName", patientNames[pIdx] + " (" + ((t % 50) + 1) + ")");
-                tx.put("patientPhone", String.format("09%d", 10000000 + (m * 1234567 + t * 876543) % 89999999));
-                tx.put("amount", new java.math.BigDecimal(feeAmount));
-                tx.put("paymentMethod", paymentMethods[pmIdx]);
-                tx.put("paymentDate", String.format("%d-%02d-%s %s", year, m, dayStr, timeStr));
-                tx.put("month", m);
-                tx.put("doctorName", doctorNamesMock[dIdx]);
-                tx.put("specialty", specialtiesMock[dIdx % specialtiesMock.length]);
-                tx.put("status", "SUCCESS");
-                allTransactions.add(tx);
-            }
-
-            months.add(Map.of(
-                "month", month,
-                "appointments", totalMonthApps,
-                "completed", completed + monthTxCount - 2,
-                "cancelled", cancelled + 2,
-                "revenue", monthTotalRevenue.doubleValue(),
-                "growthPercent", Math.round(growthPercent * 10.0) / 10.0
-            ));
+            final int selectedMonth = month;
+            List<Appointment> entries = yearly.stream()
+                    .filter(a -> a.getSchedule().getWorkDate().getMonthValue() == selectedMonth).toList();
+            BigDecimal revenue = earnedFees(entries);
+            Map<String, Object> summary = new HashMap<>();
+            summary.put("month", month);
+            summary.put("appointments", entries.size());
+            summary.put("completed", entries.stream().filter(a -> "COMPLETED".equals(a.getStatus())).count());
+            summary.put("cancelled", entries.stream().filter(a -> "CANCELLED".equals(a.getStatus())).count());
+            summary.put("revenue", revenue);
+            summary.put("growthPercent", previousRevenue.signum() > 0
+                    ? revenue.subtract(previousRevenue).multiply(BigDecimal.valueOf(100))
+                            .divide(previousRevenue, 1, RoundingMode.HALF_UP)
+                    : null);
+            months.add(summary);
+            previousRevenue = revenue;
         }
 
-        Map<Long, List<com.datlichkhambenh.backend.entity.Appointment>> byDoctor = yearly.stream()
-                .collect(java.util.stream.Collectors.groupingBy(a -> a.getDoctor().getUserId()));
-        List<Map<String, Object>> rankings = byDoctor.values().stream().map(list -> {
-            com.datlichkhambenh.backend.entity.Doctor doctor = list.get(0).getDoctor();
-            java.math.BigDecimal revenue = list.stream().filter(a -> "COMPLETED".equals(a.getStatus()) && a.getPrice() != null)
-                    .map(com.datlichkhambenh.backend.entity.Appointment::getPrice)
-                    .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add)
-                    .add(new java.math.BigDecimal(12500000 + (doctor.getUserId() * 1500000 % 18000000)));
+        Map<Long, List<Appointment>> byDoctor = yearly.stream()
+                .collect(Collectors.groupingBy(a -> a.getDoctor().getUserId()));
+        List<Map<String, Object>> rankings = byDoctor.values().stream().map(entries -> {
+            Doctor doctor = entries.get(0).getDoctor();
             return Map.<String, Object>of(
                     "doctorId", doctor.getUserId(),
                     "doctorName", doctor.getFullName(),
-                    "specialty", doctor.getSpecialty().getName(),
-                    "appointments", list.size() + 45,
-                    "confirmed", list.stream().filter(a -> "CONFIRMED".equals(a.getStatus())).count() + 5,
-                    "completed", list.stream().filter(a -> "COMPLETED".equals(a.getStatus())).count() + 38,
-                    "cancelled", list.stream().filter(a -> "CANCELLED".equals(a.getStatus())).count() + 2,
-                    "revenue", revenue.doubleValue()
-            );
-        }).sorted((a,b) -> Double.compare((Double)b.get("revenue"), (Double)a.get("revenue"))).toList();
+                    "specialty", doctor.getSpecialty() != null ? doctor.getSpecialty().getName() : "",
+                    "appointments", entries.size(),
+                    "confirmed", entries.stream().filter(a -> "CONFIRMED".equals(a.getStatus())).count(),
+                    "completed", entries.stream().filter(a -> "COMPLETED".equals(a.getStatus())).count(),
+                    "cancelled", entries.stream().filter(a -> "CANCELLED".equals(a.getStatus())).count(),
+                    "revenue", earnedFees(entries));
+        }).sorted((left, right) -> ((BigDecimal) right.get("revenue")).compareTo((BigDecimal) left.get("revenue")))
+                .toList();
 
         Map<String, Long> statusCounts = Map.of(
-                "CONFIRMED", yearly.stream().filter(a -> "CONFIRMED".equals(a.getStatus())).count() + 85,
-                "COMPLETED", yearly.stream().filter(a -> "COMPLETED".equals(a.getStatus())).count() + 280,
-                "CANCELLED", yearly.stream().filter(a -> "CANCELLED".equals(a.getStatus())).count() + 24);
+                "CONFIRMED", yearly.stream().filter(a -> "CONFIRMED".equals(a.getStatus())).count(),
+                "COMPLETED", (long) completed.size(),
+                "CANCELLED", yearly.stream().filter(a -> "CANCELLED".equals(a.getStatus())).count());
+        List<Map<String, Object>> dailyRevenue = completed.stream().filter(a -> a.getPrice() != null)
+                .collect(Collectors.groupingBy(a -> a.getSchedule().getWorkDate(), java.util.TreeMap::new,
+                        Collectors.reducing(BigDecimal.ZERO, Appointment::getPrice, BigDecimal::add)))
+                .entrySet().stream().map(e -> Map.<String, Object>of("date", e.getKey(), "revenue", e.getValue()))
+                .toList();
 
-        List<Map<String, Object>> dailyRevenue = yearly.stream()
-                .filter(a -> "COMPLETED".equals(a.getStatus()) && a.getPrice() != null)
-                .collect(java.util.stream.Collectors.groupingBy(a -> a.getSchedule().getWorkDate(),
-                        java.util.TreeMap::new,
-                        java.util.stream.Collectors.reducing(java.math.BigDecimal.ZERO,
-                                com.datlichkhambenh.backend.entity.Appointment::getPrice, java.math.BigDecimal::add)))
-                .entrySet().stream().map(e -> Map.<String, Object>of("date", e.getKey(), "revenue", e.getValue())).toList();
+        // Keep the legacy collection key, but return actual completed appointments, never payment transactions.
+        List<Map<String, Object>> transactions = completed.stream()
+                .sorted(java.util.Comparator.comparing((Appointment a) -> a.getSchedule().getWorkDate()).reversed()
+                        .thenComparing(Appointment::getId))
+                .map(a -> {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("appointmentId", a.getId());
+                    row.put("bookingCode", a.getBookingCode());
+                    row.put("patientName", a.getPatient().getFullName());
+                    row.put("patientPhone", a.getPatient().getPhone());
+                    row.put("doctorName", a.getDoctor().getFullName());
+                    row.put("specialty", a.getDoctor().getSpecialty() != null
+                            ? a.getDoctor().getSpecialty().getName() : "");
+                    row.put("amount", a.getPrice());
+                    row.put("workDate", a.getSchedule().getWorkDate());
+                    row.put("startTime", a.getSchedule().getStartTime());
+                    row.put("month", a.getSchedule().getWorkDate().getMonthValue());
+                    row.put("status", a.getStatus());
+                    return row;
+                }).toList();
 
         Map<String, Object> result = new HashMap<>();
         result.put("year", year);
@@ -295,18 +258,24 @@ public class AdminManagementServiceImpl implements AdminManagementService {
         result.put("doctorRankings", rankings);
         result.put("statusCounts", statusCounts);
         result.put("dailyRevenue", dailyRevenue);
-        // Trả về toàn bộ giao dịch (hiện chỉ 60 bản/năm — 5 tx × 12 tháng)
-        result.put("transactions", allTransactions);
-        result.put("totalTransactions", allTransactions.size());
-        result.put("yearAppointments", totalYearApps);
-        result.put("yearRevenue", totalYearRevenue.doubleValue());
-        result.put("avgPerAppointment", totalYearApps > 0
-                ? totalYearRevenue.divide(new java.math.BigDecimal(totalYearApps), 0, java.math.RoundingMode.HALF_UP).doubleValue()
-                : 0.0);
-
+        result.put("transactions", transactions);
+        result.put("totalTransactions", transactions.size());
+        result.put("yearAppointments", (long) yearly.size());
+        result.put("yearCompletedAppointments", (long) completed.size());
+        result.put("yearRevenue", yearRevenue);
+        result.put("avgPerAppointment", completed.isEmpty() ? BigDecimal.ZERO
+                : yearRevenue.divide(BigDecimal.valueOf(completed.size()), 2, RoundingMode.HALF_UP));
+        result.put("revenueBasis", "COMPLETED_APPOINTMENT_FEES");
+        result.put("paymentVerified", false);
+        result.put("completedWithoutPrice", completed.stream().filter(entry -> entry.getPrice() == null).count());
         return result;
     }
 
+    private BigDecimal earnedFees(List<Appointment> appointments) {
+        return appointments.stream()
+                .filter(a -> "COMPLETED".equals(a.getStatus()) && a.getPrice() != null)
+                .map(Appointment::getPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
 
     @Override
     @Transactional(readOnly = true)

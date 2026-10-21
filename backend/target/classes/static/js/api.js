@@ -70,8 +70,10 @@ const Api = {
 
   // ── Doctors ──
   doctors: {
-    list: (specialtyId, keyword = '') => {
+    list: (specialtyId, keyword = '', sort = 'name') => {
       const params = new URLSearchParams();
+      params.set('sort', sort);
+      params.set('size', '100');
       if (specialtyId) params.set('specialtyId', specialtyId);
       if (keyword) params.set('keyword', keyword);
       return Api.get(`/doctors${params.size ? `?${params}` : ''}`);

@@ -1,0 +1,26 @@
+name: Verify coursework
+on:
+  push:
+  pull_request:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Tests and runnable JAR
+        run: mvn -B -f backend/pom.xml package
+      - name: Validate editable diagrams
+        run: python3 scripts/validate_diagrams.py
+      - name: Verify frontend mirror
+        run: python3 scripts/sync_frontend.py --check
+      - uses: actions/upload-artifact@v4
+        with:
+          name: clinic-demo-and-diagrams
+          path: |
+            backend/target/backend-0.0.1-SNAPSHOT.jar
+            docs/diagrams/*.drawio

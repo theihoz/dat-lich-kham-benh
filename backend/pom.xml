@@ -133,11 +133,11 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- H2 in-memory DB - dung cho test profile, khong can MySQL that -->
+        <!-- H2 cho test và demo độc lập, không cần MySQL. -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <scope>test</scope>
+            <scope>runtime</scope>
         </dependency>
 
     </dependencies>

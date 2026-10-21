@@ -19,7 +19,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
  * - TTL quản lý tập trung qua RedisCacheService (không dùng @Cacheable để kiểm soát tốt hơn)
  */
 @Configuration
-@Profile("!test")
+@Profile("!test & !demo")
 public class RedisConfig {
 
     @Value("${spring.data.redis.host}")

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Design Patterns · Đặt lịch khám bệnh</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;color:#182733;background:#f4f7f8;font:16px/1.6 system-ui,sans-serif}
+    main{max-width:1100px;margin:auto;padding:32px 22px}a{color:#00675c}header{padding:30px 0;border-bottom:2px solid #00675c}
+    h1{font-size:clamp(28px,5vw,42px);line-height:1.2;margin:12px 0}h2{margin-top:30px}p{max-width:850px}
+    nav{display:flex;gap:18px;flex-wrap:wrap}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px;margin-top:24px}
+    article{background:white;border:1px solid #cfdddf;padding:20px;border-radius:12px}article h2{margin:8px 0;font-size:23px}
+    .group{font-size:13px;text-transform:uppercase;letter-spacing:.07em;color:#536a73}code{overflow-wrap:anywhere;font-size:13px}
+    .note{padding:14px 18px;background:#e3f2ef;border-left:4px solid #00675c}button{font:inherit;color:white;background:#00675c;border:0;border-radius:7px;padding:10px 18px;cursor:pointer}
+    button:disabled{opacity:.6}button:focus-visible,a:focus-visible{outline:3px solid #cf8700;outline-offset:4px}
+    #status{color:#536a73}.mail{white-space:pre-wrap;overflow-wrap:anywhere;margin:10px 0}footer{margin-top:32px;color:#536a73}
+  </style>
+</head>
+<body><main>
+  <nav aria-label="Điều hướng"><a href="/index.html">Trang chủ</a><a href="/login.html">Đăng nhập</a><a href="/patient/dashboard.html">Đặt lịch khám</a></nav>
+  <header><div class="group">Đồ án · Mẫu thiết kế phần mềm</div><h1>Design Patterns trong hệ thống đặt lịch khám</h1>
+    <p>Năm mẫu thiết kế thuộc ba nhóm được sử dụng trong chức năng thật. Đổi cách sắp xếp bác sĩ, đặt một lịch khám, rồi kiểm tra thông báo để theo dõi các mẫu phối hợp.</p>
+  </header>
+  <section class="cards" aria-label="Các mẫu thiết kế">
+    <article><span class="group">Creational · Khởi tạo</span><h2>Builder</h2><p>Tạo lịch hẹn theo từng bước: bệnh nhân, bác sĩ, ca khám, triệu chứng, giá và trạng thái.</p><code>BookingServiceImpl → Appointment.AppointmentBuilder → Appointment</code><p>Minh chứng: tạo lịch thành công và đọc lại lịch đã lưu.</p></article>
+    <article><span class="group">Creational · Khởi tạo</span><h2>Factory Method</h2><p>Mỗi Creator tạo một loại nội dung: xác nhận, hủy hoặc nhắc lịch.</p><code>NotificationCreator.createMessage() → NotificationContent</code><p>Ba Concrete Creator tạo ba Concrete Product. Registry chọn Creator theo loại sự kiện.</p></article>
+    <article><span class="group">Structural · Cấu trúc</span><h2>Adapter</h2><p>Chuyển giao diện gửi thông báo của nghiệp vụ sang JavaMail. Trong demo, adapter ghi vào hộp thư cục bộ.</p><code>NotificationSender ← SmtpNotificationAdapter → JavaMailSender</code><p>Thay cách chuyển thông báo qua cấu hình, giữ cùng giao diện gửi.</p></article>
+    <article><span class="group">Behavioral · Hành vi</span><h2>Strategy</h2><p>Chọn một thuật toán sắp xếp bác sĩ: tên, phí tăng, phí giảm hoặc kinh nghiệm.</p><code>DoctorServiceImpl → DoctorSortRegistry → DoctorSortStrategy</code><p>Minh chứng: đổi lựa chọn sắp xếp trên màn hình tìm bác sĩ.</p></article>
+    <article><span class="group">Behavioral · Hành vi</span><h2>Observer</h2><p>Thông báo được xử lý bất đồng bộ sau khi giao dịch đặt hoặc hủy lịch đã commit.</p><code>ApplicationEventPublisher → AFTER_COMMIT listener → consumer</code><p>Giao dịch rollback không phát thư. Test tích hợp kiểm tra hai trường hợp này.</p></article>
+  </section>
+  <section aria-labelledby="inbox-heading"><h2 id="inbox-heading">Hộp thư demo</h2>
+    <p class="note">Chỉ có ở profile <code>demo</code>, dành cho tài khoản Admin. Đây là thông báo từ các thao tác thật trên dữ liệu H2 của phiên chạy; không gửi SMTP. Dữ liệu được đặt lại khi khởi động lại ứng dụng.</p>
+    <button id="refresh" type="button">Tải thông báo</button><p id="status" role="status" aria-live="polite">Đăng nhập Admin rồi tải hộp thư sau khi đặt hoặc hủy lịch.</p>
+    <div id="inbox"></div>
+  </section>
+  <footer>Nhắc lịch hiện có Creator và kiểm thử; chưa có bộ lập lịch tự động. Báo cáo và bộ sơ đồ draw.io nằm trong thư mục docs của dự án.</footer>
+</main>
+<script>
+  document.getElementById('refresh').addEventListener('click', async () => {
+    const status = document.getElementById('status');
+    const inbox = document.getElementById('inbox');
+    const token = localStorage.getItem('accessToken');
+    if (!token) { status.textContent = 'Cần đăng nhập tài khoản Admin trước khi tải hộp thư.'; return; }
+    const button = document.getElementById('refresh');
+    button.disabled = true;
+    try {
+      const response = await fetch('/api/v1/admin/demo-notifications', {headers:{Authorization:'Bearer ' + token}});
+      if (!response.ok) throw new Error(response.status === 404 ? 'Hộp thư chỉ có ở profile demo.' : 'Cần phiên đăng nhập Admin hợp lệ.');
+      const result = await response.json();
+      inbox.replaceChildren();
+      for (const mail of result.data) {
+        const article = document.createElement('article');
+        article.className = 'mail';
+        const title = document.createElement('h3'); title.textContent = mail.subject;
+        const recipient = document.createElement('p'); recipient.textContent = mail.time + ' · ' + mail.recipient;
+        const body = document.createElement('p'); body.textContent = mail.body;
+        article.append(title, recipient, body); inbox.append(article);
+      }
+      status.textContent = result.data.length ? `${result.data.length} thông báo gần nhất (tối đa 100).` : 'Chưa có thông báo. Hãy đặt một lịch khám trước.';
+    } catch (error) { status.textContent = error.message; }
+    finally { button.disabled = false; }
+  });
+</script></body></html>

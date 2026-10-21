@@ -40,6 +40,12 @@ class BookingServiceImplTests {
     @InjectMocks BookingServiceImpl bookingService;
 
     @Test
+    void emptyHistoryStaysEmptyInsteadOfInventingAppointments() {
+        when(appointmentRepository.findByPatientUserId(10L)).thenReturn(List.of());
+        assertTrue(bookingService.getPatientAppointments(10L).isEmpty());
+    }
+
+    @Test
     void unrelatedPatientCannotReadAppointment() {
         Appointment appointment = appointment(10L, 20L);
         when(appointmentRepository.findById(1L)).thenReturn(Optional.of(appointment));

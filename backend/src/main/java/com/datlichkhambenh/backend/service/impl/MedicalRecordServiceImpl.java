@@ -1,6 +1,7 @@
 package com.datlichkhambenh.backend.service.impl;
 
 import com.datlichkhambenh.backend.dto.request.UpdateMedicalRecordDto;
+import com.datlichkhambenh.backend.dto.response.MedicalRecordDto;
 import com.datlichkhambenh.backend.entity.Appointment;
 import com.datlichkhambenh.backend.entity.MedicalRecord;
 import com.datlichkhambenh.backend.exception.ResourceNotFoundException;
@@ -18,6 +19,22 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
 
     private final AppointmentRepository appointmentRepository;
     private final MedicalRecordRepository medicalRecordRepository;
+
+    @Override
+    @Transactional(readOnly = true)
+    public MedicalRecordDto getMedicalRecord(Long doctorUserId, Long appointmentId) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Lịch hẹn không tồn tại"));
+        if (!appointment.getDoctor().getUserId().equals(doctorUserId)) {
+            throw new AppException("Bạn không quản lý lịch hẹn này", org.springframework.http.HttpStatus.FORBIDDEN);
+        }
+        // Chưa lập bệnh án là một kết quả hợp lệ, không phải lỗi HTTP.
+        return medicalRecordRepository.findByAppointmentId(appointmentId).map(record -> MedicalRecordDto.builder()
+                .id(record.getId()).appointmentId(appointmentId).bookingCode(appointment.getBookingCode())
+                .patientName(appointment.getPatient().getFullName()).doctorName(appointment.getDoctor().getFullName())
+                .diagnosis(record.getDiagnosis()).doctorNotes(record.getDoctorNotes())
+                .createdAt(record.getCreatedAt()).build()).orElse(null);
+    }
 
     @Override
     @Transactional

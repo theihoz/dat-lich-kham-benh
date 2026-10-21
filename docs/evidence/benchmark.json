@@ -1,0 +1,13 @@
+{
+  "measured_at": "2026-10-21T11:28:36.863969+00:00",
+  "endpoint": "/api/v1/doctors?sort=feeAsc&size=100",
+  "requests": 60,
+  "workers": 4,
+  "warmup": 5,
+  "rows_per_response": 57,
+  "mean_ms": 11.4,
+  "p95_ms": 20.02,
+  "max_ms": 27.71,
+  "requests_per_second": 342.08,
+  "scope": "Local HTTP sample; record active profile, hardware and DB separately. Not a production capacity estimate."
+}

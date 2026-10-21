@@ -104,7 +104,7 @@
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
           <div>
             <h2 class="fw-bold text-dark mb-1"><i class="bi bi-calendar3 text-primary me-2"></i>Sơ Đồ Lịch Khám Bệnh Của Bác Sĩ</h2>
-            <p class="text-muted mb-0">Hệ thống có đầy đủ 100% dữ liệu chi tiết tương ứng với con số thống kê thực tế</p>
+            <p class="text-muted mb-0">Lịch hẹn được tải từ hệ thống. Kết quả chẩn đoán chỉ được lưu sau khi máy chủ xác nhận.</p>
           </div>
           <a href="schedule.html" class="btn btn-outline-primary rounded-pill fw-semibold">
             <i class="bi bi-plus-circle me-1"></i> Quản Lý Ca Khám
@@ -119,8 +119,8 @@
               <div class="d-flex align-items-center justify-content-between">
                 <div>
                   <small class="text-muted fw-bold text-uppercase d-block mb-1">TỔNG LỊCH KHÁM (Bấm xem)</small>
-                  <h3 class="fw-bold text-dark mb-0" id="stat-doc-total">2,135</h3>
-                  <small class="text-primary fw-semibold mt-1 d-inline-block"><i class="bi bi-eye me-1"></i>Xem đúng 2,135 ca khám</small>
+                  <h3 class="fw-bold text-dark mb-0" id="stat-doc-total">—</h3>
+                  <small class="text-primary fw-semibold mt-1 d-inline-block"><i class="bi bi-eye me-1"></i>Xem tất cả lịch hẹn</small>
                 </div>
                 <div class="icon-box bg-primary-subtle text-primary">
                   <i class="bi bi-journal-medical"></i>
@@ -135,8 +135,8 @@
               <div class="d-flex align-items-center justify-content-between">
                 <div>
                   <small class="text-muted fw-bold text-uppercase d-block mb-1">CẦN KHÁM (Bấm xem)</small>
-                  <h3 class="fw-bold text-warning mb-0" id="stat-doc-pending">15</h3>
-                  <small class="text-warning fw-semibold mt-1 d-inline-block"><i class="bi bi-arrow-right-circle me-1"></i>Xem đúng 15 ca cần khám</small>
+                  <h3 class="fw-bold text-warning mb-0" id="stat-doc-pending">—</h3>
+                  <small class="text-warning fw-semibold mt-1 d-inline-block"><i class="bi bi-arrow-right-circle me-1"></i>Xem lịch đang xác nhận</small>
                 </div>
                 <div class="icon-box bg-warning-subtle text-warning">
                   <i class="bi bi-hourglass-split"></i>
@@ -150,9 +150,9 @@
             <div class="card stat-card-clickable p-4 shadow-sm" id="card-filter-COMPLETED" onclick="filterByCard('COMPLETED')">
               <div class="d-flex align-items-center justify-content-between">
                 <div>
-                  <small class="text-muted fw-bold text-uppercase d-block mb-1">ĐÃ CHẨN ĐOÁN XONG (Bấm xem)</small>
-                  <h3 class="fw-bold text-success mb-0" id="stat-doc-completed">2,120</h3>
-                  <small class="text-success fw-semibold mt-1 d-inline-block"><i class="bi bi-check2-circle me-1"></i>Xem đúng 2,120 ca đã khám</small>
+                  <small class="text-muted fw-bold text-uppercase d-block mb-1">ĐÃ HOÀN THÀNH (Bấm xem)</small>
+                  <h3 class="fw-bold text-success mb-0" id="stat-doc-completed">—</h3>
+                  <small class="text-success fw-semibold mt-1 d-inline-block"><i class="bi bi-check2-circle me-1"></i>Xem lịch đã hoàn thành</small>
                 </div>
                 <div class="icon-box bg-success-subtle text-success">
                   <i class="bi bi-check-circle-fill"></i>
@@ -177,7 +177,7 @@
               <div class="d-flex gap-2">
                 <button class="filter-pill active" id="pill-ALL" onclick="filterByCard('ALL')">Tất Cả</button>
                 <button class="filter-pill" id="pill-PENDING" onclick="filterByCard('PENDING')">Cần Khám</button>
-                <button class="filter-pill" id="pill-COMPLETED" onclick="filterByCard('COMPLETED')">Đã Chẩn Đoán Xong</button>
+                <button class="filter-pill" id="pill-COMPLETED" onclick="filterByCard('COMPLETED')">Đã Hoàn Thành</button>
               </div>
               <div class="input-group shadow-sm" style="max-width: 240px;">
                 <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
@@ -236,6 +236,13 @@
         <form id="record-form">
           <div class="modal-body p-4">
             <input type="hidden" id="app-id">
+            <div class="alert alert-warning d-none" id="existing-record-warning">
+              Chưa tải được nội dung bệnh án đã lưu. Nội dung mới sẽ thay thế chẩn đoán và lời dặn hiện có.
+              <div class="form-check mt-2">
+                <input type="checkbox" class="form-check-input" id="confirm-record-replacement">
+                <label class="form-check-label" for="confirm-record-replacement">Tôi xác nhận thay thế nội dung bệnh án.</label>
+              </div>
+            </div>
             <div class="mb-3">
               <label class="form-label fw-semibold text-dark">Chẩn Đoán Bệnh Lâm Sàng <span class="text-danger">*</span></label>
               <input type="text" id="diagnosis" class="form-control rounded-3" placeholder="VD: Viêm phế quản cấp tính, Tăng huyết áp độ 1, Thoái hóa khớp..." required>
@@ -286,6 +293,8 @@
     let activePatientItem = null;
 
     let allAppointments = [];
+    let appointmentsLoadError = null;
+    const savedRecords = new Map();
     let currentFilterStatus = 'ALL'; // ALL, PENDING, COMPLETED
     let currentPage = 1;
     const pageSize = 15;
@@ -293,9 +302,9 @@
     document.addEventListener('DOMContentLoaded', () => {
       recordBsModal = new bootstrap.Modal(document.getElementById('record-modal'));
       patientDetailModal = new bootstrap.Modal(document.getElementById('patient-detail-modal'));
-      
+
       if (user && user.fullName) {
-        document.getElementById('doctor-display-name').innerHTML = `<i class="bi bi-person-badge me-1"></i>BS. ${user.fullName}`;
+        document.getElementById('doctor-display-name').textContent = `BS. ${user.fullName}`;
       }
       loadDoctorAppointments();
     });
@@ -303,7 +312,7 @@
     function filterByCard(status) {
       currentFilterStatus = status;
       currentPage = 1;
-      
+
       document.querySelectorAll('.stat-card-clickable').forEach(c => c.classList.remove('active-card'));
       document.getElementById(`card-filter-${status}`).classList.add('active-card');
 
@@ -313,7 +322,7 @@
       const titleEl = document.getElementById('section-title');
       if (status === 'ALL') titleEl.innerHTML = '<i class="bi bi-clock-history text-primary me-2"></i>Tất Cả Lịch Hẹn Khám Chi Tiết';
       else if (status === 'PENDING') titleEl.innerHTML = '<i class="bi bi-hourglass-split text-warning me-2"></i>Danh Sách Bệnh Nhân Cần Khám (Đang Chờ)';
-      else if (status === 'COMPLETED') titleEl.innerHTML = '<i class="bi bi-check-circle-fill text-success me-2"></i>Danh Sách Ca Khám Đã Chẩn Đoán Xong';
+      else if (status === 'COMPLETED') titleEl.innerHTML = '<i class="bi bi-check-circle-fill text-success me-2"></i>Danh Sách Ca Khám Đã Hoàn Thành';
 
       renderAppointmentsTable();
     }
@@ -323,29 +332,47 @@
       renderAppointmentsTable();
     }
 
-    function openPatientDetail(item) {
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[char]));
+    }
+
+    async function loadRecord(appId) {
+      const response = await Api.get(`/doctors/appointments/${appId}/medical-record`);
+      if (response.data) savedRecords.set(appId, response.data);
+      else savedRecords.delete(appId);
+      return response.data;
+    }
+
+    async function openPatientDetail(appId) {
+      const item = allAppointments.find(a => a.id === appId);
+      if (!item) return;
+      try { await loadRecord(appId); }
+      catch (error) { Utils.showToast(error.message, 'error'); return; }
       activePatientItem = item;
       const btnDiagnose = document.getElementById('btn-diagnose-from-detail');
+      btnDiagnose.classList.toggle('d-none', item.status === 'CANCELLED');
       if (item.status === 'CONFIRMED') {
         btnDiagnose.classList.remove('d-none');
         btnDiagnose.innerHTML = '<i class="bi bi-pencil-square me-1"></i>Chẩn Đoán / Kê Đơn';
       } else {
-        btnDiagnose.classList.remove('d-none');
-        btnDiagnose.innerHTML = '<i class="bi bi-pencil-square me-1"></i>Xem lại / Cập Nhật Chẩn Đoán';
+        btnDiagnose.innerHTML = '<i class="bi bi-pencil-square me-1"></i>Cập Nhật Chẩn Đoán';
       }
 
-      const diagnosisText = item.diagnosis || (item.status === 'COMPLETED' ? 'Tăng huyết áp vô căn độ 1 (JNC8) - Rối loạn mỡ máu nhẹ' : null);
-      const notesText = item.doctorNotes || (item.status === 'COMPLETED' ? 'Lời dặn: Uống thuốc sau ăn sáng/tối. Kiêng mặn. Đơn thuốc: Amlodipine 5mg (30v), Atorvastatin 10mg (30v).' : null);
+      const record = savedRecords.get(item.id);
+      const diagnosisText = record?.diagnosis;
+      const notesText = record?.doctorNotes;
 
       document.getElementById('patient-detail-content').innerHTML = `
         <div class="row g-3">
           <div class="col-md-6">
             <p class="text-muted fw-bold small text-uppercase mb-1">Bệnh nhân</p>
-            <p class="fw-bold text-dark fs-5 mb-2"><i class="bi bi-person-fill me-1 text-primary"></i>${item.patientName || 'Bệnh nhân'}</p>
+            <p class="fw-bold text-dark fs-5 mb-2"><i class="bi bi-person-fill me-1 text-primary"></i>${escapeHtml(item.patientName || 'Chưa có tên')}</p>
             <p class="text-muted fw-bold small text-uppercase mb-1">Số điện thoại</p>
-            <p class="fw-semibold mb-2"><i class="bi bi-telephone me-1 text-primary"></i>${item.patientPhone || '0988 123 456'}</p>
+            <p class="fw-semibold mb-2"><i class="bi bi-telephone me-1 text-primary"></i>${escapeHtml(item.patientPhone || 'Chưa cung cấp')}</p>
             <p class="text-muted fw-bold small text-uppercase mb-1">Mã lịch hẹn</p>
-            <p class="font-monospace fw-bold text-primary mb-0">${item.bookingCode}</p>
+            <p class="font-monospace fw-bold text-primary mb-0">${escapeHtml(item.bookingCode)}</p>
           </div>
           <div class="col-md-6">
             <p class="text-muted fw-bold small text-uppercase mb-1">Ngày & Giờ khám</p>
@@ -357,21 +384,25 @@
           <div class="col-12">
             <p class="text-muted fw-bold small text-uppercase mb-1">Triệu chứng / Ca khám gì</p>
             <div class="bg-warning-subtle rounded-3 p-3 border border-warning-subtle">
-              <p class="mb-0 text-dark fw-medium">${item.symptoms || 'Khám nội tiết và theo dõi sức khỏe tổng quát'}</p>
+              <p class="mb-0 text-dark fw-medium">${escapeHtml(item.symptoms || 'Chưa cung cấp')}</p>
             </div>
           </div>
+          ${!record ? `
+          <div class="col-12"><div class="alert alert-info mb-0">
+            Chưa có bệnh án cho lịch hẹn này.
+          </div></div>` : ''}
           ${diagnosisText ? `
           <div class="col-12">
             <p class="text-muted fw-bold small text-uppercase mb-1">Kết Quả Chẩn Đoán</p>
             <div class="bg-success-subtle rounded-3 p-3 border border-success-subtle">
-              <p class="mb-0 text-success fw-bold fs-6"><i class="bi bi-check-circle-fill me-2"></i>${diagnosisText}</p>
+              <p class="mb-0 text-success fw-bold fs-6"><i class="bi bi-check-circle-fill me-2"></i>${escapeHtml(diagnosisText)}</p>
             </div>
           </div>` : ''}
           ${notesText ? `
           <div class="col-12">
             <p class="text-muted fw-bold small text-uppercase mb-1">Lời Dặn Bác Sĩ & Đơn Thuốc Kê</p>
             <div class="bg-light rounded-3 p-3 border">
-              <p class="mb-0 text-dark" style="white-space: pre-wrap;">${notesText}</p>
+              <p class="mb-0 text-dark" style="white-space: pre-wrap;">${escapeHtml(notesText)}</p>
             </div>
           </div>` : ''}
         </div>`;
@@ -382,132 +413,46 @@
     function openDiagnoseFromDetail() {
       if (!activePatientItem) return;
       patientDetailModal.hide();
-      setTimeout(() => openRecordModal(activePatientItem.id, !!activePatientItem.isFake), 300);
-    }
-
-    // Sinh chính xác 2000+ bản ghi dữ liệu mẫu tương ứng số liệu stat card
-    function generateFullDocSchedule(userId) {
-      const seed = (userId * 23) % 100;
-      const pendingCount = 15 + (seed % 10); // vd: 15-24 ca cần khám
-      const completedCount = 2120 + (seed * 8); // vd: 2120 ca đã xong
-      const totalCount = pendingCount + completedCount;
-
-      const firstNames = ["Nguyễn", "Trần", "Lê", "Phạm", "Vũ", "Bùi", "Đỗ", "Hoàng", "Ngô", "Phan", "Đặng", "Trương", "Dương", "Lý"];
-      const middleNames = ["Văn", "Thị", "Gia", "Hoài", "Cẩm", "Hoàng", "Khánh", "Ngọc", "Triệu", "Thu", "Quốc", "Thanh", "Thùy", "Đức"];
-      const lastNames = ["Minh", "Hằng", "Bảo", "An", "Tú", "Long", "Nam", "Ánh", "Vỹ", "Thảo", "Mơ", "Sơn", "Trang", "Anh", "Phương", "Đạt"];
-
-      const symptomsList = [
-        "Khám nội tiết định kỳ & đo đường huyết", "Đau thắt lưng lan xuống chân trái", "Đau rát vùng họng kèm ho có đờm",
-        "Ù tai kèm chóng mặt nhẹ khi đứng dậy", "Dị ứng phát ban sau ăn hải sản", "Tức ngực nhẹ khi vận động mạnh",
-        "Mỏi mắt, nhìn mờ, khô mắt", "Sốt nhẹ kèm đau nhức toàn thân", "Khám sức khỏe tổng quát", "Đau dạ dày sau ăn"
-      ];
-      const diagnosesList = [
-        "Tăng huyết áp vô căn độ 1 (JNC8)", "Viêm phế quản cấp tính do virus", "Hội chứng đau nửa đầu Migraine",
-        "Viêm da cơ địa dị ứng thời tiết", "Thoái hóa cột sống thắt lưng L4-L5", "Rối loạn mỡ máu nhẹ", "Viêm dạ dày hp âm tính"
-      ];
-      const notesList = [
-        "Lời dặn: Uống thuốc sau ăn sáng/tối. Kiêng mặn. Tập thể dục 30p/ngày. Đơn thuốc: Amlodipine 5mg (30v), Atorvastatin 10mg (30v).",
-        "Lời dặn: Súc miệng nước muối 3 lần/ngày. Giữ ấm cổ. Đơn thuốc: Paracetamol 500mg (15v), Augmentin 1g (14v), Bromhexin 8mg (20v).",
-        "Lời dặn: Tránh thức khuya sau 23h. Ngâm chân nước ấm. Đơn thuốc: Magne B6 (30v), Cinnarizin 25mg (20v).",
-        "Lời dặn: Dưỡng ẩm da 2 lần/ngày. Tránh xà phòng kiềm. Đơn thuốc: Fexofenadine 180mg (10v), Kem Eumovate (1 tuýp)."
-      ];
-
-      const schedule = [];
-      const today = new Date();
-
-      // 1. Sinh các ca PENDING (Cần khám) trước
-      for (let i = 0; i < pendingCount; i++) {
-        const dayOffset = (i % 5);
-        const targetDate = new Date();
-        targetDate.setDate(today.getDate() + dayOffset);
-
-        const pName = `${firstNames[(i + seed) % firstNames.length]} ${middleNames[(i * 3 + seed) % middleNames.length]} ${lastNames[(i * 7 + seed) % lastNames.length]}`;
-        const phone = `09${Math.floor(10000000 + (seed * 99 + i * 17) % 89999999)}`;
-
-        schedule.push({
-          id: 990000 + i,
-          isFake: true,
-          bookingCode: `BK-PEND-${1000 + i}`,
-          workDate: targetDate.toISOString().split('T')[0],
-          startTime: `${String(8 + (i % 8)).padStart(2, '0')}:00:00`,
-          endTime: `${String(8 + (i % 8)).padStart(2, '0')}:30:00`,
-          patientName: pName,
-          patientPhone: phone,
-          symptoms: symptomsList[i % symptomsList.length],
-          diagnosis: null,
-          doctorNotes: null,
-          status: "CONFIRMED"
-        });
-      }
-
-      // 2. Sinh các ca COMPLETED (Đã chẩn đoán)
-      for (let i = 0; i < completedCount; i++) {
-        const dayOffset = -Math.floor(i / 6) - 1; // Rải đều theo từng ngày quá khứ
-        const targetDate = new Date();
-        targetDate.setDate(today.getDate() + dayOffset);
-
-        const pName = `${firstNames[(i * 2 + seed) % firstNames.length]} ${middleNames[(i * 5 + seed) % middleNames.length]} ${lastNames[(i * 11 + seed) % lastNames.length]}`;
-        const phone = `09${Math.floor(10000000 + (seed * 123 + i * 31) % 89999999)}`;
-
-        schedule.push({
-          id: 100000 + i,
-          isFake: true,
-          bookingCode: `BK-DONE-${10000 + i}`,
-          workDate: targetDate.toISOString().split('T')[0],
-          startTime: `${String(8 + (i % 8)).padStart(2, '0')}:00:00`,
-          endTime: `${String(8 + (i % 8)).padStart(2, '0')}:30:00`,
-          patientName: pName,
-          patientPhone: phone,
-          symptoms: symptomsList[i % symptomsList.length],
-          diagnosis: diagnosesList[i % diagnosesList.length],
-          doctorNotes: notesList[i % notesList.length],
-          status: "COMPLETED"
-        });
-      }
-
-      return {
-        schedule,
-        pendingCount,
-        completedCount,
-        totalCount
-      };
+      setTimeout(() => openRecordModal(activePatientItem.id), 300);
     }
 
     async function loadDoctorAppointments() {
-      const docId = user?.id || 1;
-      const dataObj = generateFullDocSchedule(docId);
-
-      // Cập nhật thẻ Stat Card đúng 100% con số dữ liệu thực tế
-      document.getElementById('stat-doc-total').innerText = dataObj.totalCount.toLocaleString('vi-VN');
-      document.getElementById('stat-doc-pending').innerText = dataObj.pendingCount.toLocaleString('vi-VN');
-      document.getElementById('stat-doc-completed').innerText = dataObj.completedCount.toLocaleString('vi-VN');
-
       try {
         const res = await Api.doctors.myAppointments();
-        const realList = res.data || [];
-        allAppointments = [...realList, ...dataObj.schedule];
-
+        if (!Array.isArray(res.data)) throw new Error('Dữ liệu lịch hẹn không hợp lệ');
+        allAppointments = res.data;
+        appointmentsLoadError = null;
         allAppointments.sort((a, b) => {
-          if (a.workDate !== b.workDate) return b.workDate.localeCompare(a.workDate);
-          return a.startTime.localeCompare(b.startTime);
+          if (a.workDate !== b.workDate) return (b.workDate || '').localeCompare(a.workDate || '');
+          return (a.startTime || '').localeCompare(b.startTime || '');
         });
-
-        renderAppointmentsTable();
-
+        document.getElementById('stat-doc-total').innerText = allAppointments.length.toLocaleString('vi-VN');
+        document.getElementById('stat-doc-pending').innerText = allAppointments.filter(a => a.status === 'CONFIRMED').length.toLocaleString('vi-VN');
+        document.getElementById('stat-doc-completed').innerText = allAppointments.filter(a => a.status === 'COMPLETED').length.toLocaleString('vi-VN');
       } catch (err) {
-        document.getElementById('doctor-appointments').innerHTML = `<tr><td colspan="8" class="text-danger text-center py-4">${err.message}</td></tr>`;
+        allAppointments = [];
+        appointmentsLoadError = err.message || 'Không thể tải lịch hẹn';
+        ['stat-doc-total', 'stat-doc-pending', 'stat-doc-completed'].forEach(id => document.getElementById(id).innerText = '—');
       }
+      renderAppointmentsTable();
     }
 
     function renderAppointmentsTable() {
       const tbody = document.getElementById('doctor-appointments');
+      if (appointmentsLoadError) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-danger text-center py-4">${escapeHtml(appointmentsLoadError)} <button class="btn btn-sm btn-outline-primary" onclick="loadDoctorAppointments()">Thử lại</button></td></tr>`;
+        document.getElementById('section-count-info').innerText = 'Không thể tải dữ liệu lịch hẹn';
+        document.getElementById('pagination-info').innerText = '';
+        renderPagination(0);
+        return;
+      }
       const searchKey = (document.getElementById('searchPatientInput').value || '').toLowerCase().trim();
 
       let filteredList = allAppointments;
 
       // Filter Status
       if (currentFilterStatus === 'PENDING') {
-        filteredList = filteredList.filter(item => item.status === 'CONFIRMED' || item.status === 'PENDING');
+        filteredList = filteredList.filter(item => item.status === 'CONFIRMED');
       } else if (currentFilterStatus === 'COMPLETED') {
         filteredList = filteredList.filter(item => item.status === 'COMPLETED');
       }
@@ -536,32 +481,32 @@
       document.getElementById('pagination-info').innerText = `Hiển thị ${totalItems > 0 ? startIndex + 1 : 0} - ${endIndex} trong tổng số ${totalItems.toLocaleString('vi-VN')} ca`;
 
       if (pageItems.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-5 text-muted">Không tìm thấy ca khám nào phù hợp</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-5 text-muted">Chưa có lịch hẹn phù hợp</td></tr>`;
         renderPagination(0);
         return;
       }
 
       tbody.innerHTML = pageItems.map(item => `
-        <tr style="cursor:pointer" onclick="openPatientDetail(${JSON.stringify(item).replace(/"/g, '&quot;')})">
-          <td><strong class="font-monospace text-primary">${item.bookingCode}</strong></td>
+        <tr style="cursor:pointer" onclick="openPatientDetail(${item.id})">
+          <td><strong class="font-monospace text-primary">${escapeHtml(item.bookingCode)}</strong></td>
           <td class="fw-bold text-dark">${Utils.formatDate(item.workDate)}</td>
           <td>
             <span class="badge bg-light text-dark fw-bold">${Utils.formatTime(item.startTime)} - ${Utils.formatTime(item.endTime)}</span>
           </td>
           <td>
-            <div class="fw-bold text-dark">${item.patientName || 'Bệnh nhân'}</div>
+            <div class="fw-bold text-dark">${escapeHtml(item.patientName || 'Chưa có tên')}</div>
           </td>
-          <td class="text-muted"><i class="bi bi-telephone me-1"></i>${item.patientPhone || '-'}</td>
-          <td><small class="text-muted d-inline-block text-truncate" style="max-width: 220px;">${item.symptoms || 'Khám tổng quát'}</small></td>
+          <td class="text-muted"><i class="bi bi-telephone me-1"></i>${escapeHtml(item.patientPhone || 'Chưa cung cấp')}</td>
+          <td><small class="text-muted d-inline-block text-truncate" style="max-width: 220px;">${escapeHtml(item.symptoms || 'Chưa cung cấp')}</small></td>
           <td>${Utils.getStatusBadge(item.status)}</td>
           <td class="text-end" onclick="event.stopPropagation()">
             ${item.status === 'CONFIRMED' ? `
-              <button class="btn btn-primary btn-sm rounded-pill px-3 fw-semibold shadow-sm" onclick="openRecordModal(${item.id}, ${!!item.isFake})">
+              <button class="btn btn-primary btn-sm rounded-pill px-3 fw-semibold shadow-sm" onclick="openRecordModal(${item.id})">
                 <i class="bi bi-pencil-square me-1"></i> Chẩn Đoán
               </button>
             ` : `
-              <button class="btn btn-outline-success btn-sm rounded-pill px-3 fw-semibold" onclick="openPatientDetail(${JSON.stringify(item).replace(/"/g, '&quot;')})">
-                <i class="bi bi-eye me-1"></i>Xem Bệnh Án
+              <button class="btn btn-outline-success btn-sm rounded-pill px-3 fw-semibold" onclick="openPatientDetail(${item.id})">
+                <i class="bi bi-eye me-1"></i>Xem Chi Tiết
               </button>
             `}
           </td>
@@ -615,39 +560,44 @@
       renderAppointmentsTable();
     }
 
-    let isFakeActive = false;
-    let activeFakeId = null;
-
-    function openRecordModal(appId, isFake = false) {
+    async function openRecordModal(appId) {
+      const found = allAppointments.find(a => a.id === appId);
+      if (!found || found.status === 'CANCELLED') return;
+      try { await loadRecord(appId); }
+      catch (error) { Utils.showToast(error.message, 'error'); return; }
+      const record = savedRecords.get(appId);
       document.getElementById('app-id').value = appId;
-      const found = allAppointments.find(a => a.id == appId);
-      document.getElementById('diagnosis').value = found?.diagnosis || '';
-      document.getElementById('doctorNotes').value = found?.doctorNotes || '';
-      isFakeActive = isFake;
-      activeFakeId = appId;
+      document.getElementById('diagnosis').value = record?.diagnosis || '';
+      document.getElementById('doctorNotes').value = record?.doctorNotes || '';
+      const needsConfirmation = found.status === 'COMPLETED' && !record;
+      document.getElementById('existing-record-warning').classList.toggle('d-none', !needsConfirmation);
+      const confirmation = document.getElementById('confirm-record-replacement');
+      confirmation.checked = false;
+      confirmation.required = needsConfirmation;
       recordBsModal.show();
     }
 
     document.getElementById('record-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const appId = document.getElementById('app-id').value;
-      const diagnosis = document.getElementById('diagnosis').value;
+      const appId = Number(document.getElementById('app-id').value);
+      const diagnosis = document.getElementById('diagnosis').value.trim();
       const doctorNotes = document.getElementById('doctorNotes').value;
       const btn = document.getElementById('btn-save-record');
+      if (!diagnosis) {
+        Utils.showToast('Vui lòng nhập chẩn đoán.', 'error');
+        return;
+      }
 
       btn.disabled = true;
       btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang lưu...';
 
       try {
-        const item = allAppointments.find(a => a.id == appId);
-        if (item) {
-          item.status = 'COMPLETED';
-          item.diagnosis = diagnosis;
-          item.doctorNotes = doctorNotes;
-        }
-        Utils.showToast('Cập nhật bệnh án & hoàn thành khám thành công!', 'success');
+        await Api.doctors.updateMedRecord({ appointmentId: appId, diagnosis, doctorNotes });
+        // Cache only content accepted by the server in this session.
+        savedRecords.set(appId, { diagnosis, doctorNotes });
         recordBsModal.hide();
-        renderAppointmentsTable();
+        Utils.showToast('Đã lưu bệnh án & hoàn thành khám trên hệ thống.', 'success');
+        await loadDoctorAppointments();
       } catch (err) {
         Utils.showToast(err.message, 'error');
       } finally {

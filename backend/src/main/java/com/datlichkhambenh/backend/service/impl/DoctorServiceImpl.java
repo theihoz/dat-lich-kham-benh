@@ -10,12 +10,12 @@ import com.datlichkhambenh.backend.repository.DoctorRepository;
 import com.datlichkhambenh.backend.repository.SpecialtyRepository;
 import com.datlichkhambenh.backend.service.DoctorService;
 import com.datlichkhambenh.backend.service.RedisCacheService;
+import com.datlichkhambenh.backend.pattern.sorting.DoctorSortRegistry;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Stream;
@@ -26,6 +26,7 @@ public class DoctorServiceImpl implements DoctorService {
     private final DoctorRepository doctorRepository;
     private final SpecialtyRepository specialtyRepository;
     private final RedisCacheService redisCacheService;
+    private final DoctorSortRegistry doctorSortRegistry;
 
     @Override
     @Transactional(readOnly = true)
@@ -50,16 +51,10 @@ public class DoctorServiceImpl implements DoctorService {
         if (maxFee != null) stream = stream.filter(d -> d.getConsultationFee().compareTo(maxFee) <= 0);
         if (minExperience != null) stream = stream.filter(d -> d.getExperienceYears() >= minExperience);
 
-        Comparator<DoctorDto> comparator = switch (sort == null ? "name" : sort) {
-            case "feeAsc" -> Comparator.comparing(DoctorDto::getConsultationFee);
-            case "feeDesc" -> Comparator.comparing(DoctorDto::getConsultationFee).reversed();
-            case "experience" -> Comparator.comparing(DoctorDto::getExperienceYears).reversed();
-            default -> Comparator.comparing(DoctorDto::getFullName, String.CASE_INSENSITIVE_ORDER);
-        };
-        List<DoctorDto> filtered = stream.sorted(comparator).toList();
+        List<DoctorDto> filtered = stream.sorted(doctorSortRegistry.get(sort).comparator()).toList();
         int safePage = Math.max(page, 0);
         int safeSize = Math.min(Math.max(size, 1), 100);
-        int from = Math.min(safePage * safeSize, filtered.size());
+        int from = (int) Math.min((long) safePage * safeSize, filtered.size());
         return filtered.subList(from, Math.min(from + safeSize, filtered.size()));
     }
 

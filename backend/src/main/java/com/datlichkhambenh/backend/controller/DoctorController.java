@@ -153,6 +153,14 @@ public class DoctorController {
         return ResponseEntity.ok(ApiResponseDto.success(null, "Cập nhật kết quả chẩn đoán bệnh thành công"));
     }
 
+    @GetMapping("/appointments/{id}/medical-record")
+    @PreAuthorize("hasAuthority('DOCTOR')")
+    public ResponseEntity<ApiResponseDto<com.datlichkhambenh.backend.dto.response.MedicalRecordDto>> getMedicalRecord(
+            @AuthenticationPrincipal UserDetails userDetails, @PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponseDto.success(
+                medicalRecordService.getMedicalRecord(currentUserService.getUserId(userDetails), id)));
+    }
+
     @GetMapping("/me")
     @PreAuthorize("hasAuthority('DOCTOR')")
     public ResponseEntity<ApiResponseDto<DoctorDto>> getMyProfile(@AuthenticationPrincipal UserDetails userDetails) {

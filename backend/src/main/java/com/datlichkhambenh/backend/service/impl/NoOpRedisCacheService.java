@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Service
-@Profile("test")
+@Profile({"test", "demo"})
 public class NoOpRedisCacheService implements RedisCacheService {
     public List<DoctorDto> getCachedDoctors(Long specialtyId) { return null; }
     public void cacheDoctors(Long specialtyId, List<DoctorDto> doctors) { }

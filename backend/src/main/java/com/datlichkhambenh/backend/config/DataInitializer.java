@@ -19,7 +19,7 @@ import java.util.UUID;
 
 @Slf4j
 @Component
-@Profile("dev")
+@Profile({"dev", "demo"})
 @RequiredArgsConstructor
 public class DataInitializer implements ApplicationRunner {
 
@@ -123,7 +123,8 @@ public class DataInitializer implements ApplicationRunner {
             Schedule sc5 = createSchedule(doc1, today.plusDays(2), LocalTime.of(14, 30), LocalTime.of(15, 0), true);
 
             // BS. Trần Thị Bích (Nhi khoa)
-            Schedule sc6 = createSchedule(doc2, today.plusDays(1), LocalTime.of(9, 0), LocalTime.of(9, 30), false);
+            // Ca đã khám phải nằm trong quá khứ, nhất quán với bệnh án mẫu.
+            Schedule sc6 = createSchedule(doc2, today.minusDays(3), LocalTime.of(9, 0), LocalTime.of(9, 30), false);
             Schedule sc7 = createSchedule(doc2, today.plusDays(1), LocalTime.of(9, 30), LocalTime.of(10, 0), true);
             Schedule sc8 = createSchedule(doc2, today.plusDays(2), LocalTime.of(10, 0), LocalTime.of(10, 30), true);
 

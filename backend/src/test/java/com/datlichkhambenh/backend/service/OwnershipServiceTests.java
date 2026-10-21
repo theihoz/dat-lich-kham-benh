@@ -41,6 +41,14 @@ class OwnershipServiceTests {
     }
 
     @Test
+    void doctorCannotReadAnotherDoctorsMedicalRecord() {
+        Doctor owner = Doctor.builder().userId(2L).build();
+        Appointment appointment = Appointment.builder().id(8L).doctor(owner).status("COMPLETED").build();
+        when(appointmentRepository.findById(8L)).thenReturn(Optional.of(appointment));
+        assertThrows(AppException.class, () -> medicalRecordService.getMedicalRecord(1L, 8L));
+    }
+
+    @Test
     void doctorCannotWriteAnotherDoctorsMedicalRecord() {
         Doctor owner = Doctor.builder().userId(2L).build();
         Appointment appointment = Appointment.builder().id(8L).doctor(owner).status("CONFIRMED").build();

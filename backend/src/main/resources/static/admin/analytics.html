@@ -3,480 +3,491 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bao Cao Doanh Thu & Giao Dich - DatLichKhamBenh</title>
+  <title>Báo Cáo Phí Khám Từ Lịch Đã Hoàn Thành - DatLichKhamBenh</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body { background:#f8fafc; color:#1e293b; font-family:system-ui,-apple-system,sans-serif; }
-    .sidebar { background:#0f172a; color:#fff; min-height:100vh; }
-    .sidebar .nav-link { color:#94a3b8; border-radius:10px; margin-bottom:4px; padding:10px 16px; font-weight:500; }
-    .sidebar .nav-link:hover,.sidebar .nav-link.active { background:#1e293b; color:#38bdf8; }
+    body { background-color: #f8fafc; color: #1e293b; font-family: system-ui, -apple-system, sans-serif; }
+    .sidebar { background: #0f172a; color: #fff; min-height: 100vh; }
+    .sidebar .nav-link { color: #94a3b8; border-radius: 10px; margin-bottom: 4px; padding: 10px 16px; font-weight: 500; }
+    .sidebar .nav-link:hover, .sidebar .nav-link.active { background: #1e293b; color: #38bdf8; }
 
-    .stat-card { border:none; border-radius:16px; background:#fff; box-shadow:0 4px 20px rgba(0,0,0,.04); transition:transform .2s; }
-    .stat-card:hover { transform:translateY(-3px); }
+    .stat-card {
+      border: none;
+      border-radius: 16px;
+      background: #ffffff;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+      transition: all 0.25s ease;
+    }
+    .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.06); }
 
-    .section-card { background:#fff; border-radius:20px; padding:24px; box-shadow:0 4px 20px rgba(0,0,0,.04); border:1px solid #f1f5f9; margin-bottom:24px; }
+    .chart-container {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+      border: 1px solid #f1f5f9;
+    }
 
-    .month-pill { border:1px solid #e2e8f0; background:#fff; color:#475569; padding:5px 13px; border-radius:20px; font-size:.82rem; font-weight:600; cursor:pointer; transition:all .18s; white-space:nowrap; }
-    .month-pill:hover,.month-pill.active { background:#0284c7; color:#fff; border-color:#0284c7; box-shadow:0 3px 10px rgba(2,132,199,.25); }
+    .month-pill {
+      border: 1px solid #e2e8f0;
+      background: #fff;
+      color: #475569;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .month-pill:hover, .month-pill.active {
+      background: #0284c7;
+      color: #fff;
+      border-color: #0284c7;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+    }
 
-    .badge-method { font-size:.76rem; padding:4px 10px; border-radius:20px; font-weight:600; }
-    .method-vietqr  { background:#e0f2fe; color:#0369a1; }
-    .method-momo    { background:#fce7f3; color:#be185d; }
-    .method-zalopay { background:#dcfce7; color:#15803d; }
-    .method-card    { background:#f3e8ff; color:#6b21a8; }
-    .method-cash    { background:#fef3c7; color:#b45309; }
-
-    .tbl th { background:#f8fafc; font-size:.8rem; text-transform:uppercase; letter-spacing:.5px; color:#64748b; }
-    #chart-wrap { position:relative; height:320px; }
-    .load-row td { text-align:center; padding:48px 0; color:#94a3b8; }
-    @keyframes spin { to { transform:rotate(360deg); } }
-    .spin { display:inline-block; animation:spin 1s linear infinite; }
+    .table-custom th { background-color: #f8fafc; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; }
   </style>
 </head>
 <body>
-<div class="container-fluid">
-  <div class="row">
-
-    <!-- Sidebar -->
-    <aside class="col-md-3 col-lg-2 d-md-block sidebar collapse p-3">
-      <div class="d-flex align-items-center gap-2 mb-4 px-2">
-        <div class="bg-primary text-white rounded-3 p-2 d-flex align-items-center justify-content-center" style="width:40px;height:40px;">
-          <i class="bi bi-hospital fs-4"></i>
-        </div>
-        <div>
-          <h6 class="fw-bold mb-0 text-white">Quan Tri He Thong</h6>
-          <small class="text-secondary">DatLichKhamBenh</small>
-        </div>
-      </div>
-      <nav class="nav flex-column mb-auto">
-        <a class="nav-link d-flex align-items-center gap-2" href="dashboard.html"><i class="bi bi-grid fs-5"></i> Tong Quan</a>
-        <a class="nav-link active d-flex align-items-center gap-2" href="analytics.html"><i class="bi bi-bar-chart-line fs-5"></i> Bao Cao &amp; Doanh Thu</a>
-        <a class="nav-link d-flex align-items-center gap-2" href="users.html"><i class="bi bi-people fs-5"></i> Nguoi Dung</a>
-        <a class="nav-link d-flex align-items-center gap-2" href="doctors.html"><i class="bi bi-person-check fs-5"></i> Duyet Bac Si</a>
-        <a class="nav-link d-flex align-items-center gap-2" href="specialties.html"><i class="bi bi-bookmark-plus fs-5"></i> Chuyen Khoa</a>
-        <a class="nav-link d-flex align-items-center gap-2" href="services.html"><i class="bi bi-activity fs-5"></i> Dich Vu Y Te</a>
-      </nav>
-      <hr class="text-secondary my-4">
-      <div class="d-flex align-items-center justify-content-between px-2">
-        <div class="d-flex align-items-center gap-2">
-          <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width:36px;height:36px;">A</div>
-          <div class="fw-semibold text-white small">Admin System</div>
-        </div>
-        <button onclick="Auth.logout()" class="btn btn-outline-danger btn-sm border-0"><i class="bi bi-box-arrow-right fs-5"></i></button>
-      </div>
-    </aside>
-
-    <!-- Main -->
-    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
-
-      <!-- Header -->
-      <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-        <div>
-          <h2 class="fw-bold text-dark mb-1"><i class="bi bi-graph-up-arrow text-primary me-2"></i>Bao Cao Bien Dong Doanh Thu &amp; Giao Dich</h2>
-          <p class="text-muted mb-0">Theo doi doanh thu theo thang, giao dich benh nhan va hieu suat bac si</p>
-        </div>
-        <div class="d-flex align-items-center gap-2">
-          <label class="fw-semibold text-secondary small"><i class="bi bi-calendar3 me-1"></i>Nam:</label>
-          <select id="reportYear" class="form-select rounded-pill fw-bold text-primary" style="width:120px;"></select>
-        </div>
-      </div>
-
-      <!-- Stat Cards -->
-      <div class="row g-3 mb-4">
-        <div class="col-6 col-md-3">
-          <div class="stat-card p-3 d-flex align-items-center gap-3">
-            <div class="bg-success-subtle text-success p-3 rounded-4"><i class="bi bi-cash-stack fs-2"></i></div>
-            <div class="overflow-hidden">
-              <small class="text-muted fw-semibold d-block">Tong Doanh Thu Nam</small>
-              <strong id="stat-revenue" class="fs-5 text-success d-block text-truncate">...</strong>
-            </div>
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar -->
+      <aside class="col-md-3 col-lg-2 d-md-block sidebar collapse p-3">
+        <div class="d-flex align-items-center gap-2 mb-4 px-2">
+          <div class="bg-primary text-white rounded-3 p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+            <i class="bi bi-hospital fs-4"></i>
           </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="stat-card p-3 d-flex align-items-center gap-3">
-            <div class="bg-primary-subtle text-primary p-3 rounded-4"><i class="bi bi-calendar2-check fs-2"></i></div>
-            <div>
-              <small class="text-muted fw-semibold d-block">Tong Luot Kham</small>
-              <strong id="stat-apps" class="fs-5 text-primary">...</strong>
-            </div>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="stat-card p-3 d-flex align-items-center gap-3">
-            <div class="bg-info-subtle text-info p-3 rounded-4"><i class="bi bi-receipt-cutoff fs-2"></i></div>
-            <div class="overflow-hidden">
-              <small class="text-muted fw-semibold d-block">TB / Luot Kham</small>
-              <strong id="stat-avg" class="fs-5 text-info d-block text-truncate">...</strong>
-            </div>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="stat-card p-3 d-flex align-items-center gap-3">
-            <div class="bg-warning-subtle text-warning p-3 rounded-4"><i class="bi bi-receipt fs-2"></i></div>
-            <div>
-              <small class="text-muted fw-semibold d-block">So Giao Dich</small>
-              <strong id="stat-tx" class="fs-5 text-warning">...</strong>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- SO DO BIEN DONG DOANH THU THEO THANG -->
-      <div class="section-card">
-        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
           <div>
-            <h5 class="fw-bold mb-0"><i class="bi bi-bar-chart-fill text-primary me-2"></i>So Do Bien Dong Doanh Thu Theo Thang</h5>
-            <small class="text-muted" id="chart-label">Nhan vao cot de loc giao dich theo thang tuong ung</small>
-          </div>
-          <div class="btn-group btn-group-sm">
-            <button class="btn btn-primary" id="btn-bar" onclick="switchChart('bar')">Bieu Do Cot</button>
-            <button class="btn btn-outline-primary" id="btn-line" onclick="switchChart('line')">Bieu Do Duong</button>
+            <h6 class="fw-bold mb-0 text-white">Quản Trị Hệ Thống</h6>
+            <small class="text-secondary">DatLichKhamBenh</small>
           </div>
         </div>
-        <div id="chart-wrap">
-          <div id="chart-placeholder" style="display:flex;align-items:center;justify-content:center;height:320px;color:#94a3b8;">
-            <div class="text-center"><i class="bi bi-arrow-repeat spin fs-2 d-block mb-2"></i>Dang tai du lieu bieu do...</div>
+        <nav class="nav flex-column mb-auto">
+          <a class="nav-link d-flex align-items-center gap-2" href="dashboard.html"><i class="bi bi-grid fs-5"></i> Tổng Quan</a>
+          <a class="nav-link active d-flex align-items-center gap-2" href="analytics.html"><i class="bi bi-bar-chart-line fs-5"></i> Báo Cáo & Doanh Thu</a>
+          <a class="nav-link d-flex align-items-center gap-2" href="users.html"><i class="bi bi-people fs-5"></i> Người Dùng</a>
+          <a class="nav-link d-flex align-items-center gap-2" href="doctors.html"><i class="bi bi-person-check fs-5"></i> Duyệt Bác Sĩ</a>
+          <a class="nav-link d-flex align-items-center gap-2" href="specialties.html"><i class="bi bi-bookmark-plus fs-5"></i> Chuyên Khoa</a>
+          <a class="nav-link d-flex align-items-center gap-2" href="services.html"><i class="bi bi-activity fs-5"></i> Dịch Vụ Y Tế</a>
+        </nav>
+        <hr class="text-secondary my-4">
+        <div class="d-flex align-items-center justify-content-between px-2">
+          <div class="d-flex align-items-center gap-2">
+            <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 36px; height: 36px;">A</div>
+            <div class="fw-semibold text-white small">Admin System</div>
           </div>
-          <canvas id="revenueChart" style="display:none;"></canvas>
+          <button onclick="Auth.logout()" class="btn btn-outline-danger btn-sm border-0"><i class="bi bi-box-arrow-right fs-5"></i></button>
         </div>
-      </div>
+      </aside>
 
-      <!-- CHI TIET BENH NHAN CHUYEN TIEN THANH TOAN -->
-      <div class="section-card">
-        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
+      <!-- Main Content -->
+      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
           <div>
-            <h5 class="fw-bold mb-0"><i class="bi bi-credit-card-2-front text-success me-2"></i>Chi Tiet Benh Nhan Chuyen Tien Thanh Toan</h5>
-            <small class="text-muted" id="tx-subtitle">Hien thi toan bo giao dich thanh cong</small>
+            <h2 class="fw-bold text-dark mb-1"><i class="bi bi-graph-up-arrow text-primary me-2"></i>Báo Cáo Phí Khám Từ Lịch Đã Hoàn Thành</h2>
+            <p class="text-muted mb-0">Phí khám của lịch hẹn COMPLETED, tính theo ngày khám. Hệ thống chưa có xác nhận thanh toán.</p>
           </div>
-          <div class="input-group" style="max-width:240px;">
-            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
-            <input type="text" id="searchTx" class="form-control border-start-0" placeholder="Tim ten / ma GD..." oninput="onSearch()">
+          <div class="d-flex align-items-center gap-2">
+            <label class="fw-semibold text-secondary small me-1"><i class="bi bi-calendar3 me-1"></i>Năm báo cáo:</label>
+            <select id="reportYear" class="form-select rounded-pill shadow-sm fw-bold text-primary" style="width: 130px;"></select>
           </div>
         </div>
 
-        <div class="d-flex gap-2 flex-wrap mb-3" id="month-pills"></div>
+        <p class="text-warning small" id="missing-price-notice" role="status"></p>
+        <!-- Metric Stat Cards -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-3">
+            <div class="stat-card p-3 d-flex align-items-center gap-3">
+              <div class="bg-success-subtle text-success p-3 rounded-4">
+                <i class="bi bi-cash-stack fs-2"></i>
+              </div>
+              <div class="w-100 text-truncate">
+                <small class="text-muted fw-semibold d-block">Tổng Phí Khám Hoàn Thành</small>
+                <strong id="stat-year-revenue" class="fs-4 text-success text-nowrap">—</strong>
+              </div>
+            </div>
+          </div>
 
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <small class="text-muted" id="tx-count"></small>
-          <div id="tx-pg-top" class="d-flex gap-1 flex-wrap"></div>
+          <div class="col-md-3">
+            <div class="stat-card p-3 d-flex align-items-center gap-3">
+              <div class="bg-primary-subtle text-primary p-3 rounded-4">
+                <i class="bi bi-calendar2-check fs-2"></i>
+              </div>
+              <div>
+                <small class="text-muted fw-semibold d-block">Tổng Lịch Hẹn</small>
+                <strong id="stat-year-apps" class="fs-4 text-primary">—</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="stat-card p-3 d-flex align-items-center gap-3">
+              <div class="bg-info-subtle text-info p-3 rounded-4">
+                <i class="bi bi-receipt-cutoff fs-2"></i>
+              </div>
+              <div>
+                <small class="text-muted fw-semibold d-block">Phí TB / Lịch Hoàn Thành</small>
+                <strong id="stat-avg-app" class="fs-4 text-info text-nowrap">—</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="stat-card p-3 d-flex align-items-center gap-3">
+              <div class="bg-warning-subtle text-warning p-3 rounded-4">
+                <i class="bi bi-graph-up fs-2"></i>
+              </div>
+              <div>
+                <small class="text-muted fw-semibold d-block">Tăng Trưởng TB / Tháng</small>
+                <strong id="stat-avg-growth" class="fs-4 text-warning">—</strong>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div class="table-responsive">
-          <table class="table table-hover align-middle tbl mb-0">
-            <thead>
-              <tr>
-                <th>Ma Giao Dich</th>
-                <th>Benh Nhan</th>
-                <th>Bac Si / Chuyen Khoa</th>
-                <th>Thoi Gian</th>
-                <th>Phuong Thuc</th>
-                <th class="text-end">So Tien</th>
-                <th class="text-center">Trang Thai</th>
-              </tr>
-            </thead>
-            <tbody id="tx-body">
-              <tr class="load-row"><td colspan="7"><i class="bi bi-arrow-repeat spin fs-3 d-block mb-1"></i>Dang tai...</td></tr>
-            </tbody>
-          </table>
+        <!-- Revenue Chart Section -->
+        <div class="chart-container mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div>
+              <h5 class="fw-bold text-dark mb-0"><i class="bi bi-bar-chart-fill text-primary me-2"></i>Phí Khám Hoàn Thành Theo Tháng</h5>
+              <small class="text-muted">Nhấp vào từng tháng để xem các lịch hẹn đã hoàn thành. Phí được tính theo ngày khám.</small>
+            </div>
+            <div class="btn-group btn-group-sm rounded-pill border p-1 bg-light">
+              <button class="btn btn-primary rounded-pill px-3 active" id="btn-view-bar" onclick="toggleChartType('bar')">Biểu Đồ Cột</button>
+              <button class="btn btn-outline-primary rounded-pill px-3 border-0" id="btn-view-line" onclick="toggleChartType('line')">Biểu Đồ Đường</button>
+            </div>
+          </div>
+          <div style="position: relative; height: 320px;">
+            <canvas id="monthlyChart"></canvas>
+          </div>
         </div>
 
-        <div class="d-flex justify-content-end mt-3">
-          <div id="tx-pg-bot" class="d-flex gap-1 flex-wrap"></div>
-        </div>
-      </div>
+        <!-- Monthly Transactions Detail Table -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
+            <div>
+              <h5 class="fw-bold text-dark mb-0">
+                <i class="bi bi-credit-card-2-front text-success me-2"></i>Chi Tiết Phí Khám Của Lịch Hẹn Hoàn Thành
+              </h5>
+              <small class="text-muted" id="tx-filter-subtitle">Hiển thị lịch hẹn đã hoàn thành; chưa xác nhận thanh toán.</small>
+            </div>
 
-      <!-- THONG KE DOANH THU THEO BAC SI -->
-      <div class="section-card">
-        <h5 class="fw-bold mb-3"><i class="bi bi-trophy text-warning me-2"></i>Thong Ke Doanh Thu Theo Bac Si</h5>
-        <div class="table-responsive">
-          <table class="table table-hover align-middle tbl mb-0">
-            <thead>
-              <tr>
-                <th>Bac Si</th><th>Chuyen Khoa</th>
-                <th class="text-center">Xac Nhan</th><th class="text-center">Hoan Thanh</th>
-                <th class="text-center">Da Huy</th><th class="text-end">Doanh Thu</th>
-              </tr>
-            </thead>
-            <tbody id="doc-body">
-              <tr class="load-row"><td colspan="6"><i class="bi bi-arrow-repeat spin fs-3 d-block mb-1"></i>Dang tai...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+            <!-- Search box -->
+            <div class="d-flex gap-2">
+              <div class="input-group shadow-sm" style="max-width: 260px;">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" id="searchTxInput" class="form-control border-start-0 ps-0" placeholder="Tìm bệnh nhân / mã lịch..." onkeyup="filterTransactions()">
+              </div>
+            </div>
+          </div>
 
-    </main>
+          <!-- Month Filter Selector Pills -->
+          <div class="d-flex gap-2 mb-3 overflow-x-auto pb-2" id="month-pills-container">
+            <button class="month-pill active" onclick="selectMonthFilter(0)">Tất Cả 12 Tháng</button>
+            <!-- Rendered by JS -->
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-hover align-middle table-custom mb-0">
+              <thead>
+                <tr>
+                  <th>Mã Lịch Hẹn</th>
+                  <th>Bệnh Nhân</th>
+                  <th>Bác Sĩ / Chuyên Khoa</th>
+                  <th>Ngày / Giờ Khám</th>
+                  <th class="text-end">Phí Khám</th>
+                  <th class="text-center">Trạng Thái</th>
+                </tr>
+              </thead>
+              <tbody id="transactionRows">
+                <tr><td colspan="6" class="text-center py-4 text-muted">Đang tải phí khám...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Doctor Performance Breakdown -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+          <h5 class="fw-bold text-dark mb-3"><i class="bi bi-trophy text-warning me-2"></i>Thống Kê Phí Khám Hoàn Thành Theo Bác Sĩ</h5>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle table-custom mb-0">
+              <thead>
+                <tr>
+                  <th>Bác Sĩ</th>
+                  <th>Chuyên Khoa</th>
+                  <th class="text-center">Xác Nhận</th>
+                  <th class="text-center">Hoàn Thành</th>
+                  <th class="text-center">Đã Hủy</th>
+                  <th class="text-end">Phí Khám Hoàn Thành</th>
+                </tr>
+              </thead>
+              <tbody id="rankingRows"></tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
   </div>
-</div>
 
-<script src="../js/api.js"></script>
-<script src="../js/utils.js"></script>
-<script src="../js/auth.js"></script>
-<script>
-  Auth.checkAuth(['ADMIN']);
+  <script src="../js/api.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/auth.js"></script>
+  <script>
+    Auth.checkAuth(['ADMIN']);
+    let chartInstance = null;
+    let currentData = null;
+    let selectedMonth = 0; // 0 = Tất cả
+    let currentChartType = 'bar';
+    let loadRequestId = 0;
 
-  /* ---- helpers ---- */
-  function vnd(v) {
-    var n = Number(v) || 0;
-    return n.toLocaleString('vi-VN') + ' d';
-  }
-  function methodBadge(m) {
-    var map = {
-      'VietQR Banking': ['method-vietqr','bi-qr-code-scan','VietQR'],
-      'Vi MoMo':        ['method-momo','bi-wallet2','MoMo'],
-      'ZaloPay':        ['method-zalopay','bi-wallet-fill','ZaloPay'],
-      'The ATM/Visa':   ['method-card','bi-credit-card','The ATM'],
-    };
-    var found = map[m] || ['method-cash','bi-cash','Tien mat'];
-    return '<span class="badge-method ' + found[0] + '"><i class="bi ' + found[1] + ' me-1"></i>' + found[2] + '</span>';
-  }
-
-  /* ---- state ---- */
-  var _data      = null;
-  var _chart     = null;
-  var _chartType = 'bar';
-  var _month     = 0;
-  var _page      = 1;
-  var PG         = 20;
-
-  /* ---- year select ---- */
-  var yearSel = document.getElementById('reportYear');
-  var thisYear = new Date().getFullYear();
-  for (var y = thisYear; y >= thisYear - 4; y--) {
-    var opt = document.createElement('option');
-    opt.value = y; opt.textContent = y;
-    yearSel.appendChild(opt);
-  }
-  yearSel.addEventListener('change', load);
-
-  /* ---- load ---- */
-  function load() {
-    var year = yearSel.value;
-    document.getElementById('chart-placeholder').style.display = 'flex';
-    document.getElementById('revenueChart').style.display = 'none';
-    document.getElementById('tx-body').innerHTML  = '<tr class="load-row"><td colspan="7">Dang tai...</td></tr>';
-    document.getElementById('doc-body').innerHTML = '<tr class="load-row"><td colspan="6">Dang tai...</td></tr>';
-
-    Api.admin.analytics(year).then(function(res) {
-      _data = res.data;
-      renderStats();
-      renderChart();
-      buildMonthPills();
-      renderTable();
-      renderDoctors();
-    }).catch(function(e) {
-      alert('Loi tai du lieu: ' + (e.message || e));
-    });
-  }
-
-  /* ---- stat cards ---- */
-  function renderStats() {
-    document.getElementById('stat-revenue').textContent = vnd(_data.yearRevenue);
-    document.getElementById('stat-apps').textContent    = String(Number(_data.yearAppointments || 0).toLocaleString('vi-VN'));
-    document.getElementById('stat-avg').textContent     = vnd(_data.avgPerAppointment);
-    document.getElementById('stat-tx').textContent      = ((_data.transactions || []).length) + ' giao dich';
-  }
-
-  /* ---- bieu do ---- */
-  function renderChart() {
-    var months = _data.months || [];
-    var placeholder = document.getElementById('chart-placeholder');
-    var canvas = document.getElementById('revenueChart');
-
-    if (!months.length) {
-      placeholder.innerHTML = '<p class="text-muted">Khong co du lieu thang</p>';
-      return;
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[char]));
     }
 
-    var labels   = months.map(function(m){ return 'T' + m.month; });
-    var revenues = months.map(function(m){ return Number(m.revenue) || 0; });
-    var apps     = months.map(function(m){ return Number(m.appointments) || 0; });
+    // Init year dropdown
+    const reportYearSelect = document.getElementById('reportYear');
+    const curY = new Date().getFullYear();
+    for (let y = curY; y >= curY - 4; y--) {
+      reportYearSelect.innerHTML += `<option value="${y}">${y}</option>`;
+    }
+    reportYearSelect.addEventListener('change', loadAnalyticsData);
 
-    if (_chart) { _chart.destroy(); _chart = null; }
+    async function loadAnalyticsData() {
+      const requestId = ++loadRequestId;
+      currentData = null;
+      if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+      ['stat-year-revenue', 'stat-year-apps', 'stat-avg-app', 'stat-avg-growth']
+        .forEach(id => document.getElementById(id).innerText = '—');
+      document.getElementById('missing-price-notice').innerText = '';
+      document.getElementById('transactionRows').innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">Đang tải phí khám...</td></tr>';
+      document.getElementById('rankingRows').innerHTML = '';
+      try {
+        const year = reportYearSelect.value;
+        const res = await Api.admin.analytics(year);
+        if (requestId !== loadRequestId) return;
+        if (!res.data || !Array.isArray(res.data.months) || !Array.isArray(res.data.transactions)) {
+          throw new Error('Dữ liệu báo cáo không hợp lệ');
+        }
+        currentData = res.data;
 
-    placeholder.style.display = 'none';
-    canvas.style.display = 'block';
+        // Stat cards
+        document.getElementById('stat-year-revenue').innerText = Utils.formatCurrency(currentData.yearRevenue || 0);
+        document.getElementById('stat-year-apps').innerText = (currentData.yearAppointments || 0).toLocaleString('vi-VN');
+        document.getElementById('stat-avg-app').innerText = Utils.formatCurrency(currentData.avgPerAppointment ?? 0);
 
-    _chart = new Chart(canvas, {
-      type: _chartType,
-      data: {
-        labels: labels,
-        datasets: [
-          {
-            label: 'Doanh Thu (VND)',
-            data: revenues,
-            backgroundColor: _chartType === 'bar' ? 'rgba(2,132,199,0.8)' : 'rgba(2,132,199,0.15)',
-            borderColor: '#0284c7',
-            borderWidth: 2,
-            borderRadius: _chartType === 'bar' ? 6 : 0,
-            fill: _chartType === 'line',
-            tension: 0.4,
-            yAxisID: 'y'
-          },
-          {
-            label: 'So Luot Kham',
-            data: apps,
-            type: 'line',
-            borderColor: '#10b981',
-            backgroundColor: '#10b981',
-            borderWidth: 2,
-            pointRadius: 5,
-            yAxisID: 'y1'
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        onClick: function(e, els) {
-          if (els.length > 0) setMonth(els[0].index + 1);
+        const growthValues = currentData.months.map(m => m.growthPercent)
+          .filter(value => value != null && Number.isFinite(Number(value))).map(Number);
+        document.getElementById('stat-avg-growth').innerText = growthValues.length
+          ? (growthValues.reduce((sum, value) => sum + value, 0) / growthValues.length).toFixed(1) + '%'
+          : '—';
+        document.getElementById('missing-price-notice').innerText = currentData.completedWithoutPrice
+          ? `${currentData.completedWithoutPrice} lịch hoàn thành chưa ghi phí; tổng chỉ cộng phí đã có. Phí trung bình chia cho tất cả lịch hoàn thành.`
+          : '';
+
+        // Render Month Pills
+        renderMonthPills();
+
+        // Render Chart
+        renderChart();
+
+        // Render Transactions Table
+        filterTransactions();
+
+        // Render Doctor Rankings
+        renderDoctorRankings();
+
+      } catch (err) {
+        if (requestId !== loadRequestId) return;
+        currentData = null;
+        document.getElementById('transactionRows').innerHTML = '<tr><td colspan="6" class="text-danger text-center py-4">Không thể tải báo cáo. <button class="btn btn-sm btn-outline-primary" onclick="loadAnalyticsData()">Thử lại</button></td></tr>';
+        document.getElementById('rankingRows').innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">Dữ liệu chưa tải được</td></tr>';
+        Utils.showToast(escapeHtml(err.message || 'Lỗi tải dữ liệu báo cáo'), 'danger');
+      }
+    }
+
+    function renderMonthPills() {
+      const container = document.getElementById('month-pills-container');
+      let html = `<button class="month-pill ${selectedMonth === 0 ? 'active' : ''}" onclick="selectMonthFilter(0)">Tất Cả 12 Tháng</button>`;
+      for (let m = 1; m <= 12; m++) {
+        html += `<button class="month-pill ${selectedMonth === m ? 'active' : ''}" onclick="selectMonthFilter(${m})">Tháng ${m}</button>`;
+      }
+      container.innerHTML = html;
+    }
+
+    function selectMonthFilter(m) {
+      selectedMonth = m;
+      renderMonthPills();
+      filterTransactions();
+
+      const subtitle = document.getElementById('tx-filter-subtitle');
+      if (m === 0) {
+        subtitle.innerText = 'Hiển thị toàn bộ lịch hẹn đã hoàn thành trong năm; chưa xác nhận thanh toán.';
+      } else {
+        subtitle.innerText = `Hiển thị lịch hẹn đã hoàn thành trong Tháng ${m}; chưa xác nhận thanh toán.`;
+      }
+    }
+
+    function toggleChartType(type) {
+      currentChartType = type;
+      document.getElementById('btn-view-bar').className = type === 'bar' ? 'btn btn-primary rounded-pill px-3 active' : 'btn btn-outline-primary rounded-pill px-3 border-0';
+      document.getElementById('btn-view-line').className = type === 'line' ? 'btn btn-primary rounded-pill px-3 active' : 'btn btn-outline-primary rounded-pill px-3 border-0';
+      renderChart();
+    }
+
+    function renderChart() {
+      if (!currentData || !currentData.months) return;
+      const ctx = document.getElementById('monthlyChart').getContext('2d');
+      if (chartInstance) chartInstance.destroy();
+
+      const labels = currentData.months.map(m => `Tháng ${m.month}`);
+      const revenues = currentData.months.map(m => m.revenue);
+      const appCounts = currentData.months.map(m => m.appointments);
+
+      chartInstance = new Chart(ctx, {
+        type: currentChartType,
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Phí Khám Hoàn Thành (VNĐ)',
+              data: revenues,
+              backgroundColor: currentChartType === 'bar' ? '#0284c7' : 'rgba(2, 132, 199, 0.15)',
+              borderColor: '#0284c7',
+              borderWidth: 2.5,
+              borderRadius: 8,
+              fill: currentChartType === 'line',
+              tension: 0.35,
+              yAxisID: 'y'
+            },
+            {
+              label: 'Số Lịch Hẹn',
+              data: appCounts,
+              type: 'line',
+              borderColor: '#10b981',
+              backgroundColor: '#10b981',
+              borderWidth: 2,
+              pointRadius: 4,
+              yAxisID: 'y1'
+            }
+          ]
         },
-        plugins: {
-          legend: { position: 'top' },
-          tooltip: {
-            callbacks: {
-              label: function(ctx) {
-                if (ctx.dataset.yAxisID === 'y') return 'Doanh thu: ' + vnd(ctx.raw);
-                return 'Luot kham: ' + ctx.raw + ' ca';
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          onClick: (e, elements) => {
+            if (elements.length > 0) {
+              const index = elements[0].index;
+              selectMonthFilter(index + 1);
+            }
+          },
+          plugins: {
+            legend: { position: 'top' },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  if (context.dataset.yAxisID === 'y') {
+                    return `Phí khám hoàn thành: ${Utils.formatCurrency(context.raw)}`;
+                  }
+                  return `Lịch hẹn: ${context.raw}`;
+                }
               }
             }
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: { callback: function(v){ return (v/1e6).toFixed(0) + ' Tr'; } }
           },
-          y1: {
-            beginAtZero: true,
-            position: 'right',
-            grid: { drawOnChartArea: false },
-            ticks: { stepSize: 1 }
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: value => (value / 1000000).toLocaleString('vi-VN') + ' Tr ₫'
+              }
+            },
+            y1: {
+              beginAtZero: true,
+              position: 'right',
+              grid: { display: false },
+              ticks: { precision: 0 }
+            }
           }
         }
+      });
+    }
+
+    function filterTransactions() {
+      if (!currentData || !currentData.transactions) return;
+      const searchKey = (document.getElementById('searchTxInput').value || '').toLowerCase().trim();
+      const tbody = document.getElementById('transactionRows');
+
+      let list = currentData.transactions;
+      if (selectedMonth > 0) {
+        list = list.filter(t => t.month === selectedMonth);
       }
-    });
-  }
-
-  function switchChart(type) {
-    _chartType = type;
-    document.getElementById('btn-bar').className  = type === 'bar'  ? 'btn btn-sm btn-primary'         : 'btn btn-sm btn-outline-primary';
-    document.getElementById('btn-line').className = type === 'line' ? 'btn btn-sm btn-primary'         : 'btn btn-sm btn-outline-primary';
-    if (_data) renderChart();
-  }
-
-  /* ---- month pills ---- */
-  function buildMonthPills() {
-    var c = document.getElementById('month-pills');
-    var h = '<button class="month-pill ' + (_month===0?'active':'') + '" onclick="setMonth(0)">Tat Ca</button>';
-    for (var m = 1; m <= 12; m++) {
-      h += '<button class="month-pill ' + (_month===m?'active':'') + '" onclick="setMonth(' + m + ')">Thang ' + m + '</button>';
-    }
-    c.innerHTML = h;
-  }
-
-  function setMonth(m) {
-    _month = m; _page = 1;
-    buildMonthPills();
-    document.getElementById('tx-subtitle').textContent =
-      m === 0 ? 'Hien thi toan bo giao dich thanh cong' : 'Giao dich trong Thang ' + m;
-    renderTable();
-  }
-
-  /* ---- bang giao dich ---- */
-  function getFiltered() {
-    var key  = (document.getElementById('searchTx').value || '').toLowerCase();
-    var list = (_data.transactions || []).slice();
-    if (_month > 0) list = list.filter(function(t){ return t.month === _month; });
-    if (key) list = list.filter(function(t){
-      return (t.patientName   || '').toLowerCase().indexOf(key) >= 0 ||
-             (t.transactionId || '').toLowerCase().indexOf(key) >= 0 ||
-             (t.bookingCode   || '').toLowerCase().indexOf(key) >= 0 ||
-             (t.patientPhone  || '').indexOf(key) >= 0;
-    });
-    return list;
-  }
-
-  function onSearch() { _page = 1; renderTable(); }
-
-  function renderTable() {
-    var list  = getFiltered();
-    var total = Math.max(1, Math.ceil(list.length / PG));
-    if (_page > total) _page = total;
-    var slice = list.slice((_page-1)*PG, _page*PG);
-
-    document.getElementById('tx-count').textContent = list.length > 0
-      ? 'Hien thi ' + ((_page-1)*PG+1) + '-' + Math.min(_page*PG, list.length) + ' / ' + list.length + ' giao dich'
-      : 'Khong co giao dich';
-
-    var tbody = document.getElementById('tx-body');
-    if (slice.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">Khong tim thay giao dich phu hop</td></tr>';
-    } else {
-      tbody.innerHTML = slice.map(function(t) {
-        return '<tr>' +
-          '<td><div class="font-monospace fw-bold text-primary small">' + (t.transactionId||'') + '</div>' +
-               '<small class="text-muted">' + (t.bookingCode||'') + '</small></td>' +
-          '<td><div class="fw-semibold">' + (t.patientName||'') + '</div>' +
-               '<small class="text-muted"><i class="bi bi-telephone me-1"></i>' + (t.patientPhone||'') + '</small></td>' +
-          '<td><div class="small fw-semibold">' + (t.doctorName||'') + '</div>' +
-               '<span class="badge bg-light text-secondary border">' + (t.specialty||'') + '</span></td>' +
-          '<td><small>' + (t.paymentDate||'') + '</small></td>' +
-          '<td>' + methodBadge(t.paymentMethod) + '</td>' +
-          '<td class="text-end"><strong class="text-success">+' + vnd(t.amount) + '</strong></td>' +
-          '<td class="text-center"><span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3">' +
-               '<i class="bi bi-check-circle-fill me-1"></i>Thanh cong</span></td>' +
-        '</tr>';
-      }).join('');
-    }
-
-    var pgHtml = buildPg(total);
-    document.getElementById('tx-pg-top').innerHTML = pgHtml;
-    document.getElementById('tx-pg-bot').innerHTML = pgHtml;
-  }
-
-  function buildPg(total) {
-    if (total <= 1) return '';
-    var h = '';
-    for (var i = 1; i <= total; i++) {
-      if (i === 1 || i === total || Math.abs(i - _page) <= 2) {
-        h += '<button class="btn btn-sm ' + (i===_page?'btn-primary':'btn-outline-secondary') + '" onclick="goPage(' + i + ')">' + i + '</button>';
-      } else if (Math.abs(i - _page) === 3) {
-        h += '<button class="btn btn-sm btn-light disabled">...</button>';
+      if (searchKey) {
+        list = list.filter(t =>
+          (t.patientName || '').toLowerCase().includes(searchKey) ||
+          (t.patientPhone || '').includes(searchKey) ||
+          (t.bookingCode || '').toLowerCase().includes(searchKey)
+        );
       }
+
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">Chưa có lịch hẹn hoàn thành phù hợp</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = list.map(t => `
+        <tr>
+          <td>
+            <div class="font-monospace fw-bold text-primary small">#${escapeHtml(t.appointmentId)}</div>
+            <small class="text-muted font-monospace">${escapeHtml(t.bookingCode)}</small>
+          </td>
+          <td>
+            <div class="fw-bold text-dark">${escapeHtml(t.patientName)}</div>
+            <small class="text-muted"><i class="bi bi-telephone me-1"></i>${escapeHtml(t.patientPhone || "Chưa cung cấp")}</small>
+          </td>
+          <td>
+            <div class="fw-semibold text-dark small">${escapeHtml(t.doctorName)}</div>
+            <span class="badge bg-light text-secondary border small">${escapeHtml(t.specialty)}</span>
+          </td>
+          <td>
+            <div class="small fw-semibold text-dark"><i class="bi bi-clock me-1 text-primary"></i>${Utils.formatDate(t.workDate)} ${Utils.formatTime(t.startTime)}</div>
+          </td>
+          <td class="text-end">
+            <strong class="text-success fs-6">${t.amount == null ? "Chưa ghi phí" : Utils.formatCurrency(t.amount)}</strong>
+          </td>
+          <td class="text-center">
+            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1">
+              <i class="bi bi-check-circle-fill me-1"></i>Đã hoàn thành
+            </span>
+          </td>
+        </tr>
+      `).join('');
     }
-    return h;
-  }
 
-  function goPage(p) {
-    _page = p; renderTable();
-    document.getElementById('tx-body').scrollIntoView({behavior:'smooth', block:'start'});
-  }
+    function renderDoctorRankings() {
+      const tbody = document.getElementById('rankingRows');
+      if (!currentData || !currentData.doctorRankings || currentData.doctorRankings.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">Chưa có dữ liệu bác sĩ</td></tr>`;
+        return;
+      }
 
-  /* ---- bang bac si ---- */
-  function renderDoctors() {
-    var tbody = document.getElementById('doc-body');
-    var list  = _data.doctorRankings || [];
-    if (!list.length) {
-      tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">Chua co du lieu bac si</td></tr>';
-      return;
+      tbody.innerHTML = currentData.doctorRankings.map(d => `
+        <tr>
+          <td class="fw-bold text-dark"><i class="bi bi-person-badge text-primary me-2"></i>${escapeHtml(d.doctorName)}</td>
+          <td><span class="badge bg-primary-subtle text-primary fw-semibold px-3 py-1">${escapeHtml(d.specialty)}</span></td>
+          <td class="text-center fw-semibold text-primary">${d.confirmed}</td>
+          <td class="text-center fw-semibold text-success">${d.completed}</td>
+          <td class="text-center fw-semibold text-danger">${d.cancelled}</td>
+          <td class="text-end fw-bold text-success fs-6">${Utils.formatCurrency(d.revenue)}</td>
+        </tr>
+      `).join('');
     }
-    tbody.innerHTML = list.map(function(d) {
-      return '<tr>' +
-        '<td><i class="bi bi-person-badge text-primary me-2"></i><strong>' + (d.doctorName||'') + '</strong></td>' +
-        '<td><span class="badge bg-primary-subtle text-primary px-3 py-1">' + (d.specialty||'') + '</span></td>' +
-        '<td class="text-center text-primary fw-semibold">' + (d.confirmed||0) + '</td>' +
-        '<td class="text-center text-success fw-semibold">' + (d.completed||0) + '</td>' +
-        '<td class="text-center text-danger fw-semibold">' + (d.cancelled||0) + '</td>' +
-        '<td class="text-end fw-bold text-success">' + vnd(d.revenue) + '</td>' +
-      '</tr>';
-    }).join('');
-  }
 
-  /* ---- start ---- */
-  load();
-</script>
+    loadAnalyticsData();
+  </script>
 </body>
 </html>

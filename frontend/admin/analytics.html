@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Báo Cáo Biến Động Doanh Thu & Giao Dịch - DatLichKhamBenh</title>
+  <title>Báo Cáo Phí Khám Từ Lịch Đã Hoàn Thành - DatLichKhamBenh</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
@@ -13,7 +13,7 @@
     .sidebar { background: #0f172a; color: #fff; min-height: 100vh; }
     .sidebar .nav-link { color: #94a3b8; border-radius: 10px; margin-bottom: 4px; padding: 10px 16px; font-weight: 500; }
     .sidebar .nav-link:hover, .sidebar .nav-link.active { background: #1e293b; color: #38bdf8; }
-    
+
     .stat-card {
       border: none;
       border-radius: 16px;
@@ -30,18 +30,6 @@
       box-shadow: 0 4px 20px rgba(0,0,0,0.03);
       border: 1px solid #f1f5f9;
     }
-
-    .badge-method {
-      font-size: 0.78rem;
-      padding: 5px 10px;
-      border-radius: 20px;
-      font-weight: 600;
-    }
-    .method-vietqr { background-color: #e0f2fe; color: #0369a1; }
-    .method-momo { background-color: #fce7f3; color: #be185d; }
-    .method-zalopay { background-color: #dcfce7; color: #15803d; }
-    .method-card { background-color: #f3e8ff; color: #6b21a8; }
-    .method-cash { background-color: #fef3c7; color: #b45309; }
 
     .month-pill {
       border: 1px solid #e2e8f0;
@@ -100,8 +88,8 @@
       <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
           <div>
-            <h2 class="fw-bold text-dark mb-1"><i class="bi bi-graph-up-arrow text-primary me-2"></i>Báo Cáo Biến Động Doanh Thu & Giao Dịch</h2>
-            <p class="text-muted mb-0">Theo dõi doanh thu chi tiết theo tháng, từng lượt chuyển tiền của bệnh nhân và hiệu suất hệ thống</p>
+            <h2 class="fw-bold text-dark mb-1"><i class="bi bi-graph-up-arrow text-primary me-2"></i>Báo Cáo Phí Khám Từ Lịch Đã Hoàn Thành</h2>
+            <p class="text-muted mb-0">Phí khám của lịch hẹn COMPLETED, tính theo ngày khám. Hệ thống chưa có xác nhận thanh toán.</p>
           </div>
           <div class="d-flex align-items-center gap-2">
             <label class="fw-semibold text-secondary small me-1"><i class="bi bi-calendar3 me-1"></i>Năm báo cáo:</label>
@@ -109,6 +97,7 @@
           </div>
         </div>
 
+        <p class="text-warning small" id="missing-price-notice" role="status"></p>
         <!-- Metric Stat Cards -->
         <div class="row g-3 mb-4">
           <div class="col-md-3">
@@ -117,8 +106,8 @@
                 <i class="bi bi-cash-stack fs-2"></i>
               </div>
               <div class="w-100 text-truncate">
-                <small class="text-muted fw-semibold d-block">Tổng Doanh Thu Năm</small>
-                <strong id="stat-year-revenue" class="fs-4 text-success text-nowrap">0 ₫</strong>
+                <small class="text-muted fw-semibold d-block">Tổng Phí Khám Hoàn Thành</small>
+                <strong id="stat-year-revenue" class="fs-4 text-success text-nowrap">—</strong>
               </div>
             </div>
           </div>
@@ -129,8 +118,8 @@
                 <i class="bi bi-calendar2-check fs-2"></i>
               </div>
               <div>
-                <small class="text-muted fw-semibold d-block">Tổng Lượt Khám</small>
-                <strong id="stat-year-apps" class="fs-4 text-primary">0</strong>
+                <small class="text-muted fw-semibold d-block">Tổng Lịch Hẹn</small>
+                <strong id="stat-year-apps" class="fs-4 text-primary">—</strong>
               </div>
             </div>
           </div>
@@ -141,8 +130,8 @@
                 <i class="bi bi-receipt-cutoff fs-2"></i>
               </div>
               <div>
-                <small class="text-muted fw-semibold d-block">Doanh Thu TB / Lượt</small>
-                <strong id="stat-avg-app" class="fs-4 text-info text-nowrap">0 ₫</strong>
+                <small class="text-muted fw-semibold d-block">Phí TB / Lịch Hoàn Thành</small>
+                <strong id="stat-avg-app" class="fs-4 text-info text-nowrap">—</strong>
               </div>
             </div>
           </div>
@@ -154,7 +143,7 @@
               </div>
               <div>
                 <small class="text-muted fw-semibold d-block">Tăng Trưởng TB / Tháng</small>
-                <strong id="stat-avg-growth" class="fs-4 text-warning">+8.4%</strong>
+                <strong id="stat-avg-growth" class="fs-4 text-warning">—</strong>
               </div>
             </div>
           </div>
@@ -164,8 +153,8 @@
         <div class="chart-container mb-4">
           <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
             <div>
-              <h5 class="fw-bold text-dark mb-0"><i class="bi bi-bar-chart-fill text-primary me-2"></i>Sơ Đồ Biến Động Doanh Thu Theo Tháng</h5>
-              <small class="text-muted">Nhấp vào từng cột tháng để xem chi tiết danh sách giao dịch chuyển tiền của tháng đó</small>
+              <h5 class="fw-bold text-dark mb-0"><i class="bi bi-bar-chart-fill text-primary me-2"></i>Phí Khám Hoàn Thành Theo Tháng</h5>
+              <small class="text-muted">Nhấp vào từng tháng để xem các lịch hẹn đã hoàn thành. Phí được tính theo ngày khám.</small>
             </div>
             <div class="btn-group btn-group-sm rounded-pill border p-1 bg-light">
               <button class="btn btn-primary rounded-pill px-3 active" id="btn-view-bar" onclick="toggleChartType('bar')">Biểu Đồ Cột</button>
@@ -182,16 +171,16 @@
           <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
             <div>
               <h5 class="fw-bold text-dark mb-0">
-                <i class="bi bi-credit-card-2-front text-success me-2"></i>Chi Tiết Giao Dịch Chuyển Tiền Của Bệnh Nhân
+                <i class="bi bi-credit-card-2-front text-success me-2"></i>Chi Tiết Phí Khám Của Lịch Hẹn Hoàn Thành
               </h5>
-              <small class="text-muted" id="tx-filter-subtitle">Hiển thị toàn bộ các giao dịch chuyển tiền thành công</small>
+              <small class="text-muted" id="tx-filter-subtitle">Hiển thị lịch hẹn đã hoàn thành; chưa xác nhận thanh toán.</small>
             </div>
 
             <!-- Search box -->
             <div class="d-flex gap-2">
               <div class="input-group shadow-sm" style="max-width: 260px;">
                 <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
-                <input type="text" id="searchTxInput" class="form-control border-start-0 ps-0" placeholder="Tìm bệnh nhân / mã GD..." onkeyup="filterTransactions()">
+                <input type="text" id="searchTxInput" class="form-control border-start-0 ps-0" placeholder="Tìm bệnh nhân / mã lịch..." onkeyup="filterTransactions()">
               </div>
             </div>
           </div>
@@ -206,17 +195,16 @@
             <table class="table table-hover align-middle table-custom mb-0">
               <thead>
                 <tr>
-                  <th>Mã Giao Dịch</th>
+                  <th>Mã Lịch Hẹn</th>
                   <th>Bệnh Nhân</th>
                   <th>Bác Sĩ / Chuyên Khoa</th>
-                  <th>Thời Gian Chuyển Tiền</th>
-                  <th>Phương Thức</th>
-                  <th class="text-end">Số Tiền Chuyển</th>
+                  <th>Ngày / Giờ Khám</th>
+                  <th class="text-end">Phí Khám</th>
                   <th class="text-center">Trạng Thái</th>
                 </tr>
               </thead>
               <tbody id="transactionRows">
-                <tr><td colspan="7" class="text-center py-4 text-muted">Đang tải dữ liệu giao dịch...</td></tr>
+                <tr><td colspan="6" class="text-center py-4 text-muted">Đang tải phí khám...</td></tr>
               </tbody>
             </table>
           </div>
@@ -224,7 +212,7 @@
 
         <!-- Doctor Performance Breakdown -->
         <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
-          <h5 class="fw-bold text-dark mb-3"><i class="bi bi-trophy text-warning me-2"></i>Thống Kê Doanh Thu Theo Bác Sĩ</h5>
+          <h5 class="fw-bold text-dark mb-3"><i class="bi bi-trophy text-warning me-2"></i>Thống Kê Phí Khám Hoàn Thành Theo Bác Sĩ</h5>
           <div class="table-responsive">
             <table class="table table-hover align-middle table-custom mb-0">
               <thead>
@@ -234,7 +222,7 @@
                   <th class="text-center">Xác Nhận</th>
                   <th class="text-center">Hoàn Thành</th>
                   <th class="text-center">Đã Hủy</th>
-                  <th class="text-end">Doanh Thu Mang Về</th>
+                  <th class="text-end">Phí Khám Hoàn Thành</th>
                 </tr>
               </thead>
               <tbody id="rankingRows"></tbody>
@@ -254,6 +242,13 @@
     let currentData = null;
     let selectedMonth = 0; // 0 = Tất cả
     let currentChartType = 'bar';
+    let loadRequestId = 0;
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[char]));
+    }
 
     // Init year dropdown
     const reportYearSelect = document.getElementById('reportYear');
@@ -264,15 +259,36 @@
     reportYearSelect.addEventListener('change', loadAnalyticsData);
 
     async function loadAnalyticsData() {
+      const requestId = ++loadRequestId;
+      currentData = null;
+      if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+      ['stat-year-revenue', 'stat-year-apps', 'stat-avg-app', 'stat-avg-growth']
+        .forEach(id => document.getElementById(id).innerText = '—');
+      document.getElementById('missing-price-notice').innerText = '';
+      document.getElementById('transactionRows').innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">Đang tải phí khám...</td></tr>';
+      document.getElementById('rankingRows').innerHTML = '';
       try {
         const year = reportYearSelect.value;
         const res = await Api.admin.analytics(year);
+        if (requestId !== loadRequestId) return;
+        if (!res.data || !Array.isArray(res.data.months) || !Array.isArray(res.data.transactions)) {
+          throw new Error('Dữ liệu báo cáo không hợp lệ');
+        }
         currentData = res.data;
 
         // Stat cards
         document.getElementById('stat-year-revenue').innerText = Utils.formatCurrency(currentData.yearRevenue || 0);
         document.getElementById('stat-year-apps').innerText = (currentData.yearAppointments || 0).toLocaleString('vi-VN');
-        document.getElementById('stat-avg-app').innerText = Utils.formatCurrency(currentData.avgPerAppointment || 350000);
+        document.getElementById('stat-avg-app').innerText = Utils.formatCurrency(currentData.avgPerAppointment ?? 0);
+
+        const growthValues = currentData.months.map(m => m.growthPercent)
+          .filter(value => value != null && Number.isFinite(Number(value))).map(Number);
+        document.getElementById('stat-avg-growth').innerText = growthValues.length
+          ? (growthValues.reduce((sum, value) => sum + value, 0) / growthValues.length).toFixed(1) + '%'
+          : '—';
+        document.getElementById('missing-price-notice').innerText = currentData.completedWithoutPrice
+          ? `${currentData.completedWithoutPrice} lịch hoàn thành chưa ghi phí; tổng chỉ cộng phí đã có. Phí trung bình chia cho tất cả lịch hoàn thành.`
+          : '';
 
         // Render Month Pills
         renderMonthPills();
@@ -287,7 +303,11 @@
         renderDoctorRankings();
 
       } catch (err) {
-        Utils.showToast(err.message || 'Lỗi tải dữ liệu báo cáo', 'danger');
+        if (requestId !== loadRequestId) return;
+        currentData = null;
+        document.getElementById('transactionRows').innerHTML = '<tr><td colspan="6" class="text-danger text-center py-4">Không thể tải báo cáo. <button class="btn btn-sm btn-outline-primary" onclick="loadAnalyticsData()">Thử lại</button></td></tr>';
+        document.getElementById('rankingRows').innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">Dữ liệu chưa tải được</td></tr>';
+        Utils.showToast(escapeHtml(err.message || 'Lỗi tải dữ liệu báo cáo'), 'danger');
       }
     }
 
@@ -307,9 +327,9 @@
 
       const subtitle = document.getElementById('tx-filter-subtitle');
       if (m === 0) {
-        subtitle.innerText = 'Hiển thị toàn bộ các giao dịch chuyển tiền trong năm';
+        subtitle.innerText = 'Hiển thị toàn bộ lịch hẹn đã hoàn thành trong năm; chưa xác nhận thanh toán.';
       } else {
-        subtitle.innerText = `Hiển thị danh sách bệnh nhân đã chuyển tiền trong Tháng ${m}`;
+        subtitle.innerText = `Hiển thị lịch hẹn đã hoàn thành trong Tháng ${m}; chưa xác nhận thanh toán.`;
       }
     }
 
@@ -335,7 +355,7 @@
           labels: labels,
           datasets: [
             {
-              label: 'Doanh Thu (VNĐ)',
+              label: 'Phí Khám Hoàn Thành (VNĐ)',
               data: revenues,
               backgroundColor: currentChartType === 'bar' ? '#0284c7' : 'rgba(2, 132, 199, 0.15)',
               borderColor: '#0284c7',
@@ -346,7 +366,7 @@
               yAxisID: 'y'
             },
             {
-              label: 'Số Lượt Khám',
+              label: 'Số Lịch Hẹn',
               data: appCounts,
               type: 'line',
               borderColor: '#10b981',
@@ -372,9 +392,9 @@
               callbacks: {
                 label: function(context) {
                   if (context.dataset.yAxisID === 'y') {
-                    return `Doanh thu: ${Utils.formatCurrency(context.raw)}`;
+                    return `Phí khám hoàn thành: ${Utils.formatCurrency(context.raw)}`;
                   }
-                  return `Lượt khám: ${context.raw} ca`;
+                  return `Lịch hẹn: ${context.raw}`;
                 }
               }
             }
@@ -397,16 +417,6 @@
       });
     }
 
-    function getMethodBadge(method) {
-      switch(method) {
-        case 'VietQR Banking': return '<span class="badge badge-method method-vietqr"><i class="bi bi-qr-code-scan me-1"></i>VietQR</span>';
-        case 'Ví MoMo': return '<span class="badge badge-method method-momo"><i class="bi bi-wallet2 me-1"></i>MoMo</span>';
-        case 'ZaloPay': return '<span class="badge badge-method method-zalopay"><i class="bi bi-wallet-fill me-1"></i>ZaloPay</span>';
-        case 'Thẻ ATM/Visa': return '<span class="badge badge-method method-card"><i class="bi bi-credit-card me-1"></i>Thẻ ATM</span>';
-        default: return '<span class="badge badge-method method-cash"><i class="bi bi-cash me-1"></i>Tiền mặt</span>';
-      }
-    }
-
     function filterTransactions() {
       if (!currentData || !currentData.transactions) return;
       const searchKey = (document.getElementById('searchTxInput').value || '').toLowerCase().trim();
@@ -417,43 +427,41 @@
         list = list.filter(t => t.month === selectedMonth);
       }
       if (searchKey) {
-        list = list.filter(t => 
+        list = list.filter(t =>
           (t.patientName || '').toLowerCase().includes(searchKey) ||
-          (t.transactionId || '').toLowerCase().includes(searchKey) ||
           (t.patientPhone || '').includes(searchKey) ||
           (t.bookingCode || '').toLowerCase().includes(searchKey)
         );
       }
 
       if (list.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">Không tìm thấy giao dịch chuyển tiền phù hợp</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">Chưa có lịch hẹn hoàn thành phù hợp</td></tr>`;
         return;
       }
 
       tbody.innerHTML = list.map(t => `
         <tr>
           <td>
-            <div class="font-monospace fw-bold text-primary small">${t.transactionId}</div>
-            <small class="text-muted font-monospace">${t.bookingCode}</small>
+            <div class="font-monospace fw-bold text-primary small">#${escapeHtml(t.appointmentId)}</div>
+            <small class="text-muted font-monospace">${escapeHtml(t.bookingCode)}</small>
           </td>
           <td>
-            <div class="fw-bold text-dark">${t.patientName}</div>
-            <small class="text-muted"><i class="bi bi-telephone me-1"></i>${t.patientPhone}</small>
+            <div class="fw-bold text-dark">${escapeHtml(t.patientName)}</div>
+            <small class="text-muted"><i class="bi bi-telephone me-1"></i>${escapeHtml(t.patientPhone || "Chưa cung cấp")}</small>
           </td>
           <td>
-            <div class="fw-semibold text-dark small">${t.doctorName}</div>
-            <span class="badge bg-light text-secondary border small">${t.specialty}</span>
+            <div class="fw-semibold text-dark small">${escapeHtml(t.doctorName)}</div>
+            <span class="badge bg-light text-secondary border small">${escapeHtml(t.specialty)}</span>
           </td>
           <td>
-            <div class="small fw-semibold text-dark"><i class="bi bi-clock me-1 text-primary"></i>${t.paymentDate}</div>
+            <div class="small fw-semibold text-dark"><i class="bi bi-clock me-1 text-primary"></i>${Utils.formatDate(t.workDate)} ${Utils.formatTime(t.startTime)}</div>
           </td>
-          <td>${getMethodBadge(t.paymentMethod)}</td>
           <td class="text-end">
-            <strong class="text-success fs-6">+${Utils.formatCurrency(t.amount)}</strong>
+            <strong class="text-success fs-6">${t.amount == null ? "Chưa ghi phí" : Utils.formatCurrency(t.amount)}</strong>
           </td>
           <td class="text-center">
             <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1">
-              <i class="bi bi-check-circle-fill me-1"></i>Thành công
+              <i class="bi bi-check-circle-fill me-1"></i>Đã hoàn thành
             </span>
           </td>
         </tr>
@@ -469,8 +477,8 @@
 
       tbody.innerHTML = currentData.doctorRankings.map(d => `
         <tr>
-          <td class="fw-bold text-dark"><i class="bi bi-person-badge text-primary me-2"></i>${d.doctorName}</td>
-          <td><span class="badge bg-primary-subtle text-primary fw-semibold px-3 py-1">${d.specialty}</span></td>
+          <td class="fw-bold text-dark"><i class="bi bi-person-badge text-primary me-2"></i>${escapeHtml(d.doctorName)}</td>
+          <td><span class="badge bg-primary-subtle text-primary fw-semibold px-3 py-1">${escapeHtml(d.specialty)}</span></td>
           <td class="text-center fw-semibold text-primary">${d.confirmed}</td>
           <td class="text-center fw-semibold text-success">${d.completed}</td>
           <td class="text-center fw-semibold text-danger">${d.cancelled}</td>

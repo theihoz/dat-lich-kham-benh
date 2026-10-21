@@ -93,15 +93,23 @@
         <!-- Filter & Search Controls -->
         <div class="card border-0 rounded-4 p-3 mb-4 shadow-sm bg-white">
           <div class="row g-3 align-items-center">
-            <div class="col-md-6">
+            <div class="col-md-4">
               <div class="input-group">
                 <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
                 <input type="text" id="doctor-search-input" class="form-control bg-light border-start-0" placeholder="Tìm tên bác sĩ, bằng cấp, học vị..." oninput="filterDoctors()">
               </div>
             </div>
-            <div class="col-md-4">
-              <select id="specialty-select" class="form-select bg-light" onchange="onSpecialtyChange(this.value)">
+            <div class="col-md-3">
+              <select id="specialty-select" aria-label="Chuyên khoa" class="form-select bg-light" onchange="onSpecialtyChange(this.value)">
                 <option value="">-- Tất cả chuyên khoa --</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <select id="doctor-sort" aria-label="Sắp xếp bác sĩ" class="form-select bg-light" onchange="loadDoctors(document.getElementById('specialty-select').value)">
+                <option value="name">Tên bác sĩ A–Z</option>
+                <option value="feeAsc">Phí khám tăng dần</option>
+                <option value="feeDesc">Phí khám giảm dần</option>
+                <option value="experience">Kinh nghiệm giảm dần</option>
               </select>
             </div>
             <div class="col-md-2">
@@ -313,9 +321,9 @@
       `;
 
       try {
-        const res = await Api.doctors.list(specialtyId || null);
+        const res = await Api.doctors.list(specialtyId || null, '', document.getElementById('doctor-sort').value);
         allDoctors = res.data || [];
-        renderDoctors(allDoctors);
+        filterDoctors();
       } catch (err) {
         grid.innerHTML = `<div class="col-12"><div class="alert alert-danger shadow-sm">${err.message}</div></div>`;
       }
@@ -341,15 +349,6 @@
               <i class="bi bi-person-fill"></i>
             </div>
             
-            <div class="rating-stars mb-1">
-              <i class="bi bi-star-fill"></i>
-              <i class="bi bi-star-fill"></i>
-              <i class="bi bi-star-fill"></i>
-              <i class="bi bi-star-fill"></i>
-              <i class="bi bi-star-fill"></i>
-              <span class="text-muted ms-1">(5.0)</span>
-            </div>
-
             <h5 class="fw-bold text-dark mb-1">${d.fullName}</h5>
             <div class="mb-3">
               <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1 fw-semibold">
@@ -406,13 +405,13 @@
           <div class="col-md-6">
             <div class="bg-light p-3 rounded-3">
               <small class="text-muted d-block mb-1"><i class="bi bi-award me-1"></i>Kinh nghiệm:</small>
-              <strong class="text-dark">${doc.experienceYears} năm làm việc tại bệnh viện lớn</strong>
+              <strong class="text-dark">${doc.experienceYears} năm kinh nghiệm</strong>
             </div>
           </div>
           <div class="col-md-6">
             <div class="bg-light p-3 rounded-3">
               <small class="text-muted d-block mb-1"><i class="bi bi-telephone me-1"></i>Điện thoại liên hệ:</small>
-              <strong class="text-dark">${doc.phone || '0901234567'}</strong>
+              <strong class="text-dark">${doc.phone || 'Chưa cung cấp'}</strong>
             </div>
           </div>
           <div class="col-md-6">
@@ -425,7 +424,7 @@
 
         <div class="mt-4 p-3 bg-primary-subtle rounded-3 text-primary border border-primary-subtle">
           <h6 class="fw-bold mb-1"><i class="bi bi-shield-check me-1"></i>Cam kết chất lượng dịch vụ</h6>
-          <small>Bác sĩ được xác minh đầy đủ chứng chỉ hành nghề và được Admin phê duyệt công khai trên hệ thống.</small>
+          <small>Tài khoản bác sĩ đã được Admin phê duyệt trên hệ thống.</small>
         </div>
       `;
 
@@ -456,6 +455,7 @@
     function resetFilters() {
       document.getElementById('doctor-search-input').value = '';
       document.getElementById('specialty-select').value = '';
+      document.getElementById('doctor-sort').value = 'name';
       document.querySelectorAll('.spec-pill').forEach(p => p.classList.remove('active'));
       if (document.querySelectorAll('.spec-pill')[0]) document.querySelectorAll('.spec-pill')[0].classList.add('active');
       loadDoctors('');

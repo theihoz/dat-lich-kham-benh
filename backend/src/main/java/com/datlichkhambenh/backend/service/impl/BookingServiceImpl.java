@@ -171,55 +171,6 @@ public class BookingServiceImpl implements BookingService {
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
 
-        // Đảm bảo mọi bệnh nhân đều có ít nhất 7-10 lịch hẹn phong phú
-        if (list.size() < 7) {
-            String[] doctorNamesMock = {
-                "BS.CKII Nguyễn Văn Huỳnh", "PGS.TS Lê Thị Lan", "BS.CKI Trần Minh Đức",
-                "BS. Phạm Hoàng Nam", "BS.CKII Vũ Thị Hương", "BS. Đặng Quốc Việt", "BS. Nguyễn Mai Anh"
-            };
-            String[] symptomsMock = {
-                "Đau ngực trái khi vận động nhẹ, hồi hộp đánh trống ngực",
-                "Sốt cao 38.5 độ C, ho khan kéo dài, đau họng nhẹ",
-                "Đau nửa đầu dữ dội kèm chóng mặt, mất ngủ 4 ngày",
-                "Mẩn đỏ ngứa rải rác hai cánh tay và lưng",
-                "Đau ê ẩm vùng thắt lưng, vận động cúi người khó khăn",
-                "Tái khám tim mạch định kỳ & kiểm tra huyết áp",
-                "Khám sức khỏe tổng quát và xét nghiệm máu định kỳ"
-            };
-            String[] statusesMock = {"COMPLETED", "COMPLETED", "COMPLETED", "CONFIRMED", "COMPLETED", "CANCELLED", "CONFIRMED"};
-            int[] feesMock = {500000, 300000, 450000, 250000, 350000, 500000, 400000};
-
-            java.time.LocalDate today = java.time.LocalDate.now();
-            Patient patient = patientRepository.findById(patientUserId).orElse(null);
-            String pName = (patient != null && patient.getFullName() != null) ? patient.getFullName() : "Bệnh nhân";
-
-            for (int i = 0; i < 7; i++) {
-                final int idx = i;
-                // Kiểm tra xem ID mô phỏng đã có chưa
-                long mockId = 900000L + (patientUserId * 10) + i;
-                if (list.stream().noneMatch(a -> a.getId().equals(mockId))) {
-                    java.time.LocalDate wDate = (i < 5) ? today.minusDays((i + 1) * 7) : today.plusDays((i - 4) * 3);
-                    java.time.LocalTime sTime = java.time.LocalTime.of(8 + (i * 2) % 9, (i * 15) % 60);
-
-                    list.add(AppointmentDto.builder()
-                            .id(mockId)
-                            .bookingCode(String.format("BK-%d%02d-%04d", today.getYear(), today.getMonthValue(), 1000 + (int)(patientUserId * 7 + i * 13)))
-                            .patientId(patientUserId)
-                            .patientName(pName)
-                            .doctorId(100L + i)
-                            .doctorName(doctorNamesMock[i % doctorNamesMock.length])
-                            .scheduleId(5000L + i)
-                            .workDate(wDate)
-                            .startTime(sTime)
-                            .endTime(sTime.plusMinutes(30))
-                            .symptoms(symptomsMock[i % symptomsMock.length])
-                            .status(statusesMock[i % statusesMock.length])
-                            .price(new java.math.BigDecimal(feesMock[i % feesMock.length]))
-                            .createdAt(java.time.LocalDateTime.of(wDate.minusDays(2), java.time.LocalTime.of(9, 0)))
-                            .build());
-                }
-            }
-        }
 
         // Sắp xếp lịch hẹn theo ngày giảm dần (mới nhất lên đầu)
         list.sort((a, b) -> {
