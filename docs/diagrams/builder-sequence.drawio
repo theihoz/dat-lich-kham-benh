@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-11-03" type="device">
+  <diagram id="builder-seq" name="Builder Sequence Diagram">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title" value="Sequence Diagram — Builder Pattern: Tạo Appointment" style="text;align=center;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="200" y="10" width="500" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- Lifeline: BookingServiceImpl -->
+        <mxCell id="ll-svc" value=":BookingServiceImpl" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="80" y="60" width="160" height="560" as="geometry"/>
+        </mxCell>
+
+        <!-- Lifeline: AppointmentBuilder -->
+        <mxCell id="ll-bld" value=":AppointmentBuilder" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="380" y="60" width="160" height="560" as="geometry"/>
+        </mxCell>
+
+        <!-- Lifeline: Appointment -->
+        <mxCell id="ll-apt" value=":Appointment" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="660" y="60" width="140" height="560" as="geometry"/>
+        </mxCell>
+
+        <!-- 1. Appointment.builder() -->
+        <mxCell id="m1" value="1: Appointment.builder()" style="endArrow=block;endFill=1;endSize=12;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="160" y="130" as="sourcePoint"/>
+            <mxPoint x="460" y="130" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m1r" value="«new AppointmentBuilder»" style="endArrow=open;endSize=12;dashed=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="460" y="150" as="sourcePoint"/>
+            <mxPoint x="160" y="150" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 2. .bookingCode("BK-...") -->
+        <mxCell id="m2" value="2: .bookingCode(&quot;BK-...&quot;)" style="endArrow=block;endFill=1;endSize=12;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="160" y="180" as="sourcePoint"/>
+            <mxPoint x="460" y="180" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m2r" value="this" style="endArrow=open;endSize=12;dashed=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="460" y="195" as="sourcePoint"/>
+            <mxPoint x="160" y="195" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 3. .patient(patient) -->
+        <mxCell id="m3" value="3: .patient(patient)" style="endArrow=block;endFill=1;endSize=12;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="160" y="220" as="sourcePoint"/>
+            <mxPoint x="460" y="220" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m3r" value="this" style="endArrow=open;endSize=12;dashed=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="460" y="235" as="sourcePoint"/>
+            <mxPoint x="160" y="235" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 4. .doctor(doctor) -->
+        <mxCell id="m4" value="4: .doctor(doctor)" style="endArrow=block;endFill=1;endSize=12;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="160" y="260" as="sourcePoint"/>
+            <mxPoint x="460" y="260" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m4r" value="this" style="endArrow=open;endSize=12;dashed=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="460" y="275" as="sourcePoint"/>
+            <mxPoint x="160" y="275" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 5. .schedule(schedule) -->
+        <mxCell id="m5" value="5: .schedule(schedule)" style="endArrow=block;endFill=1;endSize=12;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="160" y="300" as="sourcePoint"/>
+            <mxPoint x="460" y="300" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m5r" value="this" style="endArrow=open;endSize=12;dashed=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="460" y="315" as="sourcePoint"/>
+            <mxPoint x="160" y="315" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 6. .symptoms(...).status(...).price(...) -->
+        <mxCell id="m6" value="6: .symptoms(s).status(&quot;CONFIRMED&quot;).price(fee)" style="endArrow=block;endFill=1;endSize=12;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="160" y="345" as="sourcePoint"/>
+            <mxPoint x="460" y="345" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m6r" value="this" style="endArrow=open;endSize=12;dashed=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="460" y="360" as="sourcePoint"/>
+            <mxPoint x="160" y="360" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 7. .build() → new Appointment -->
+        <mxCell id="m7" value="7: .build()" style="endArrow=block;endFill=1;endSize=12;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="160" y="400" as="sourcePoint"/>
+            <mxPoint x="460" y="400" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m7c" value="«create»" style="endArrow=block;endFill=1;endSize=12;dashed=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="460" y="420" as="sourcePoint"/>
+            <mxPoint x="730" y="420" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m7r" value="appointment" style="endArrow=open;endSize=12;dashed=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="460" y="450" as="sourcePoint"/>
+            <mxPoint x="160" y="450" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Note -->
+        <mxCell id="note" value="Chuỗi fluent method cho phép&#xa;thiết lập từng thuộc tính,&#xa;build() tạo đối tượng bất biến." style="shape=note;size=15;fillColor=#f8cecc;strokeColor=#b85450;align=left;spacingLeft=6;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="830" y="200" width="230" height="80" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

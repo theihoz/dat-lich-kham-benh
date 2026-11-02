@@ -1,0 +1,164 @@
+<mxfile host="app.diagrams.net" modified="2026-11-03" type="device">
+  <diagram id="facade-seq" name="Facade - Sequence Diagram">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title" value="&lt;b&gt;Facade Pattern — Sequence Diagram&lt;/b&gt;&lt;br&gt;Luồng đặt lịch khám qua Facade" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="550" y="10" width="400" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Participants -->
+        <mxCell id="p1" value="&lt;b&gt;:BookingController&lt;/b&gt;" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#dae8fc;strokeColor=#6c8ebf;size=40;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="160" height="900" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="p2" value="&lt;b&gt;:AppointmentBooking&lt;br&gt;FacadeImpl&lt;/b&gt;" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#fff2cc;strokeColor=#d6b656;size=40;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="260" y="80" width="160" height="900" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="p3" value="&lt;b&gt;:BookingServiceImpl&lt;/b&gt;" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#d5e8d4;strokeColor=#82b366;size=40;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="490" y="80" width="160" height="900" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="p4" value="&lt;b&gt;:ScheduleRepository&lt;/b&gt;" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#e1d5e7;strokeColor=#9673a6;size=40;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="710" y="80" width="160" height="900" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="p5" value="&lt;b&gt;:AppointmentRepository&lt;/b&gt;" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#e1d5e7;strokeColor=#9673a6;size=40;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="930" y="80" width="170" height="900" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="p6" value="&lt;b&gt;:RedisCacheService&lt;/b&gt;" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#f8cecc;strokeColor=#b85450;size=40;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1150" y="80" width="160" height="900" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="p7" value="&lt;b&gt;:AsyncEmailNotification&lt;br&gt;ServiceImpl&lt;/b&gt;" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#f8cecc;strokeColor=#b85450;size=40;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1370" y="80" width="170" height="900" as="geometry"/>
+        </mxCell>
+
+        <!-- Messages -->
+        <!-- 1. Controller -> Facade -->
+        <mxCell id="m1" value="1: bookAppointment(patientId, dto)" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;strokeWidth=1.5;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="120" y="170" as="sourcePoint"/>
+            <mxPoint x="340" y="170" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 2. Facade -> BookingService -->
+        <mxCell id="m2" value="2: createBooking(patientId, dto)" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;strokeWidth=1.5;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="340" y="220" as="sourcePoint"/>
+            <mxPoint x="570" y="220" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 3. BookingService -> ScheduleRepo (lock) -->
+        <mxCell id="m3" value="3: findByIdForUpdate(scheduleId)&lt;br&gt;[PESSIMISTIC_WRITE]" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;strokeWidth=1.5;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="570" y="270" as="sourcePoint"/>
+            <mxPoint x="790" y="270" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 3r. Return schedule -->
+        <mxCell id="m3r" value="schedule" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;dashed=1;strokeWidth=1;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="790" y="310" as="sourcePoint"/>
+            <mxPoint x="570" y="310" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 4. Validate availability (self-call) -->
+        <mxCell id="m4" value="4: kiểm tra isAvailable,&lt;br&gt;giờ tương lai, bác sĩ hợp lệ" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;strokeWidth=1.5;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="570" y="350" as="sourcePoint"/>
+            <mxPoint x="620" y="350" as="targetPoint"/>
+            <Array as="points">
+              <mxPoint x="620" y="350"/>
+              <mxPoint x="620" y="390"/>
+              <mxPoint x="580" y="390"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 5. Build Appointment via Builder -->
+        <mxCell id="m5" value="5: Appointment.builder()...build()&lt;br&gt;[Builder Pattern]" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;strokeWidth=1.5;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="570" y="420" as="sourcePoint"/>
+            <mxPoint x="620" y="420" as="targetPoint"/>
+            <Array as="points">
+              <mxPoint x="620" y="420"/>
+              <mxPoint x="620" y="460"/>
+              <mxPoint x="580" y="460"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 6. Save appointment -->
+        <mxCell id="m6" value="6: save(appointment)" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;strokeWidth=1.5;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="570" y="490" as="sourcePoint"/>
+            <mxPoint x="1015" y="490" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 6r. Return saved -->
+        <mxCell id="m6r" value="savedAppointment" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;dashed=1;strokeWidth=1;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1015" y="530" as="sourcePoint"/>
+            <mxPoint x="570" y="530" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 7. Update slot -->
+        <mxCell id="m7" value="7: save(schedule) [available=false]" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;strokeWidth=1.5;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="570" y="570" as="sourcePoint"/>
+            <mxPoint x="790" y="570" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 8. Evict cache -->
+        <mxCell id="m8" value="8: evictSlotCache(doctorId, date)" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;strokeWidth=1.5;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="570" y="630" as="sourcePoint"/>
+            <mxPoint x="1230" y="630" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 9. Trigger notification (async) -->
+        <mxCell id="m9" value="9: sendBookingConfirmation(appointment)&lt;br&gt;[async, Observer Pattern]" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;strokeWidth=1.5;fontSize=10;dashed=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="570" y="690" as="sourcePoint"/>
+            <mxPoint x="1455" y="690" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 10r. Return to Facade -->
+        <mxCell id="m10r" value="appointmentDto" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;dashed=1;strokeWidth=1;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="570" y="750" as="sourcePoint"/>
+            <mxPoint x="340" y="750" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 11r. Return to Controller -->
+        <mxCell id="m11r" value="appointmentDto" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;dashed=1;strokeWidth=1;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="340" y="800" as="sourcePoint"/>
+            <mxPoint x="120" y="800" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Transaction frame -->
+        <mxCell id="frame" value="&lt;b&gt;@Transactional&lt;/b&gt;" style="shape=umlFrame;whiteSpace=wrap;html=1;width=120;height=20;fillColor=none;strokeColor=#666666;dashed=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="500" y="200" width="1000" height="560" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

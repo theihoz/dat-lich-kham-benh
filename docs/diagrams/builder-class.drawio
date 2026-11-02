@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-11-03" type="device">
+  <diagram id="builder-class" name="Builder Class Diagram">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Appointment class -->
+        <mxCell id="apt-box" value="&lt;b&gt;Appointment&lt;/b&gt;" style="swimlane;fontStyle=1;align=center;startSize=26;collapsible=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="400" y="40" width="320" height="340" as="geometry"/>
+        </mxCell>
+        <mxCell id="apt-attrs" value="- id: Long&#xa;- bookingCode: String&#xa;- patient: Patient&#xa;- doctor: Doctor&#xa;- schedule: Schedule&#xa;- symptoms: String&#xa;- status: String&#xa;- price: BigDecimal&#xa;- createdAt: LocalDateTime" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;whiteSpace=wrap;" vertex="1" parent="apt-box">
+          <mxGeometry y="26" width="320" height="170" as="geometry"/>
+        </mxCell>
+        <mxCell id="apt-sep" value="" style="line;strokeWidth=1;fillColor=none;" vertex="1" parent="apt-box">
+          <mxGeometry y="196" width="320" height="8" as="geometry"/>
+        </mxCell>
+        <mxCell id="apt-methods" value="+ static builder(): AppointmentBuilder&#xa;+ getters / setters" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;whiteSpace=wrap;" vertex="1" parent="apt-box">
+          <mxGeometry y="204" width="320" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- AppointmentBuilder inner class -->
+        <mxCell id="bld-box" value="&lt;b&gt;Appointment.AppointmentBuilder&lt;/b&gt;" style="swimlane;fontStyle=1;align=center;startSize=26;collapsible=0;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="400" y="440" width="320" height="330" as="geometry"/>
+        </mxCell>
+        <mxCell id="bld-attrs" value="- id: Long&#xa;- bookingCode: String&#xa;- patient: Patient&#xa;- doctor: Doctor&#xa;- schedule: Schedule&#xa;- symptoms: String&#xa;- status: String&#xa;- price: BigDecimal&#xa;- createdAt: LocalDateTime" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;whiteSpace=wrap;" vertex="1" parent="bld-box">
+          <mxGeometry y="26" width="320" height="170" as="geometry"/>
+        </mxCell>
+        <mxCell id="bld-sep" value="" style="line;strokeWidth=1;fillColor=none;" vertex="1" parent="bld-box">
+          <mxGeometry y="196" width="320" height="8" as="geometry"/>
+        </mxCell>
+        <mxCell id="bld-methods" value="+ id(Long): AppointmentBuilder&#xa;+ bookingCode(String): AppointmentBuilder&#xa;+ patient(Patient): AppointmentBuilder&#xa;+ doctor(Doctor): AppointmentBuilder&#xa;+ schedule(Schedule): AppointmentBuilder&#xa;+ symptoms(String): AppointmentBuilder&#xa;+ status(String): AppointmentBuilder&#xa;+ price(BigDecimal): AppointmentBuilder&#xa;+ createdAt(LocalDateTime): AppointmentBuilder&#xa;+ build(): Appointment" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;whiteSpace=wrap;" vertex="1" parent="bld-box">
+          <mxGeometry y="204" width="320" height="126" as="geometry"/>
+        </mxCell>
+
+        <!-- BookingServiceImpl client -->
+        <mxCell id="svc-box" value="&lt;b&gt;BookingServiceImpl&lt;/b&gt;" style="swimlane;fontStyle=1;align=center;startSize=26;collapsible=0;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="40" y="140" width="260" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="svc-methods" value="+ createBooking(Long, CreateBookingDto): AppointmentDto&#xa;+ cancelBooking(Long, Long): void" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;whiteSpace=wrap;" vertex="1" parent="svc-box">
+          <mxGeometry y="26" width="260" height="74" as="geometry"/>
+        </mxCell>
+
+        <!-- Composition: Appointment ◆──── AppointmentBuilder -->
+        <mxCell id="comp-edge" style="endArrow=diamondThin;endFill=1;endSize=14;startArrow=none;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" source="bld-box" target="apt-box" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-label" value="«inner class»" style="edgeLabel;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="comp-edge">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- Dependency: BookingServiceImpl uses Appointment -->
+        <mxCell id="dep-edge" style="endArrow=open;endSize=12;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.3;entryDx=0;entryDy=0;" edge="1" source="svc-box" target="apt-box" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="dep-label" value="«uses»&#xa;Appointment.builder()...build()" style="edgeLabel;align=center;verticalAlign=middle;resizable=0;points=[];fontStyle=2;" vertex="1" connectable="0" parent="dep-edge">
+          <mxGeometry x="-0.1" y="-10" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- Note -->
+        <mxCell id="note1" value="Builder Pattern&#xa;───────────&#xa;Xây dựng đối tượng Appointment phức tạp&#xa;từng bước qua các phương thức fluent,&#xa;tách quá trình khởi tạo khỏi biểu diễn." style="shape=note;size=15;fillColor=#f8cecc;strokeColor=#b85450;align=left;spacingLeft=6;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="800" y="60" width="300" height="100" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

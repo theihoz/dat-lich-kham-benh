@@ -1,0 +1,24 @@
+$kind: collection
+name: "DatLichKhamBenh Performance Tests"
+description: |
+  Performance and optimization verification tests for the medical appointment
+  booking system API. Validates response times, compression, caching headers,
+  pagination, and API contract correctness.
+variables:
+  - key: baseUrl
+    value: "http://localhost:8080/api/v1"
+  - key: accessToken
+    value: ""
+  - key: patientToken
+    value: ""
+  - key: doctorToken
+    value: ""
+  - key: adminToken
+    value: ""
+scripts:
+  - type: "http:afterResponse"
+    language: "text/javascript"
+    code: |-
+      pm.test("Response time < 2000ms", function () {
+          pm.expect(pm.response.responseTime).to.be.below(2000);
+      });

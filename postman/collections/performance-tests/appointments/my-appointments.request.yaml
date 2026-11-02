@@ -1,0 +1,27 @@
+$kind: http-request
+name: "Get My Appointments"
+order: 10
+method: GET
+url: '{{baseUrl}}/appointments/my-appointments'
+headers:
+  - key: Authorization
+    value: 'Bearer {{patientToken}}'
+  - key: Accept-Encoding
+    value: gzip, deflate
+scripts:
+  - type: afterResponse
+    language: "text/javascript"
+    code: |-
+      pm.test("My appointments returns 200", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Response time < 500ms", function () {
+          pm.expect(pm.response.responseTime).to.be.below(500);
+      });
+      pm.test("Returns appointment array", function () {
+          const body = pm.response.json();
+          pm.expect(body.data).to.be.an("array");
+      });
+      pm.test("ETag caching header present", function () {
+          pm.expect(pm.response.headers.has("ETag")).to.be.true;
+      });

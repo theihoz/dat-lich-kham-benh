@@ -1,0 +1,80 @@
+<mxfile host="app.diagrams.net" modified="2026-11-03" type="device">
+  <diagram id="strategy-class" name="Strategy - Class Diagram">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title" value="&lt;b&gt;Strategy Pattern — Class Diagram&lt;/b&gt;&lt;br&gt;Mẫu Strategy: thay đổi thuật toán sắp xếp bác sĩ tại thời điểm chạy" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="380" y="20" width="500" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Client: DoctorServiceImpl -->
+        <mxCell id="client" value="&lt;b&gt;DoctorServiceImpl&lt;/b&gt;&lt;hr&gt;- doctorSortRegistry: DoctorSortRegistry&lt;br&gt;- doctorRepository: DoctorRepository&lt;hr&gt;+ searchApprovedDoctors(keyword, specialtyId, sort): List&amp;lt;DoctorDto&amp;gt;" style="shape=mxgraph.uml25.class;whiteSpace=wrap;html=1;align=left;spacingLeft=5;verticalAlign=top;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="40" y="120" width="420" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- Context: DoctorSortRegistry -->
+        <mxCell id="registry" value="&lt;b&gt;DoctorSortRegistry&lt;/b&gt;&lt;br&gt;&lt;i&gt;(Context)&lt;/i&gt;&lt;hr&gt;- strategies: Map&amp;lt;String, DoctorSortStrategy&amp;gt;&lt;br&gt;- DEFAULT_KEY: String = &quot;name&quot;&lt;hr&gt;+ get(key: String): DoctorSortStrategy" style="shape=mxgraph.uml25.class;whiteSpace=wrap;html=1;align=left;spacingLeft=5;verticalAlign=top;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="520" y="120" width="350" height="130" as="geometry"/>
+        </mxCell>
+
+        <!-- Strategy Interface -->
+        <mxCell id="strategy_iface" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;&lt;b&gt;DoctorSortStrategy&lt;/b&gt;&lt;hr&gt;&lt;hr&gt;+ key(): String&lt;br&gt;+ comparator(): Comparator&amp;lt;DoctorDto&amp;gt;" style="shape=mxgraph.uml25.class;whiteSpace=wrap;html=1;align=left;spacingLeft=5;verticalAlign=top;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="520" y="320" width="350" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- Concrete Strategies -->
+        <mxCell id="name_sort" value="&lt;b&gt;NameSortStrategy&lt;/b&gt;&lt;hr&gt;&lt;hr&gt;+ key(): &quot;name&quot;&lt;br&gt;+ comparator(): tên A-Z" style="shape=mxgraph.uml25.class;whiteSpace=wrap;html=1;align=left;spacingLeft=5;verticalAlign=top;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="80" y="530" width="220" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="exp_sort" value="&lt;b&gt;ExperienceSortStrategy&lt;/b&gt;&lt;hr&gt;&lt;hr&gt;+ key(): &quot;experience&quot;&lt;br&gt;+ comparator(): kinh nghiệm giảm dần" style="shape=mxgraph.uml25.class;whiteSpace=wrap;html=1;align=left;spacingLeft=5;verticalAlign=top;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="360" y="530" width="260" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="fee_asc" value="&lt;b&gt;FeeAscendingSortStrategy&lt;/b&gt;&lt;hr&gt;&lt;hr&gt;+ key(): &quot;feeAsc&quot;&lt;br&gt;+ comparator(): phí tăng dần" style="shape=mxgraph.uml25.class;whiteSpace=wrap;html=1;align=left;spacingLeft=5;verticalAlign=top;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="680" y="530" width="240" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="fee_desc" value="&lt;b&gt;FeeDescendingSortStrategy&lt;/b&gt;&lt;hr&gt;&lt;hr&gt;+ key(): &quot;feeDesc&quot;&lt;br&gt;+ comparator(): phí giảm dần" style="shape=mxgraph.uml25.class;whiteSpace=wrap;html=1;align=left;spacingLeft=5;verticalAlign=top;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="980" y="530" width="250" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- Relationships -->
+        <!-- Client uses Registry -->
+        <mxCell id="rel1" style="edgeStyle=orthogonalEdgeStyle;html=1;dashed=1;endArrow=open;endFill=0;strokeWidth=1.5;" edge="1" source="client" target="registry" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Registry aggregates Strategy -->
+        <mxCell id="rel2" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=diamondThin;endFill=0;startArrow=none;strokeWidth=1.5;" edge="1" source="strategy_iface" target="registry" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel2_label" value="*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" vertex="1" connectable="0" parent="rel2">
+          <mxGeometry x="0.6" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- Concrete implements Interface -->
+        <mxCell id="rel3" style="html=1;dashed=1;endArrow=block;endFill=0;strokeWidth=1.5;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" source="name_sort" target="strategy_iface" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel4" style="html=1;dashed=1;endArrow=block;endFill=0;strokeWidth=1.5;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" source="exp_sort" target="strategy_iface" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel5" style="html=1;dashed=1;endArrow=block;endFill=0;strokeWidth=1.5;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" source="fee_asc" target="strategy_iface" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel6" style="html=1;dashed=1;endArrow=block;endFill=0;strokeWidth=1.5;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" source="fee_desc" target="strategy_iface" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Note -->
+        <mxCell id="note1" value="Thêm thuật toán sắp xếp mới: tạo class mới&lt;br&gt;implement DoctorSortStrategy + đánh dấu @Component.&lt;br&gt;Registry tự động phát hiện — không sửa code cũ (OCP)." style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;size=15;fillColor=#FFF9C4;strokeColor=#FBC02D;fontSize=11;align=left;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="120" width="320" height="80" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-11-03" type="device">
+  <diagram id="adapter-class" name="Adapter Class Diagram">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- NotificationSender interface (Target) -->
+        <mxCell id="ns-box" value="&lt;i&gt;«interface»&lt;/i&gt;&#xa;&lt;b&gt;NotificationSender&lt;/b&gt;&#xa;(Target)" style="swimlane;fontStyle=0;align=center;startSize=50;collapsible=0;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="400" y="40" width="300" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="ns-sep" value="" style="line;strokeWidth=1;" vertex="1" parent="ns-box">
+          <mxGeometry y="50" width="300" height="8" as="geometry"/>
+        </mxCell>
+        <mxCell id="ns-m" value="+ send(String recipient, NotificationContent content): void" style="text;align=left;verticalAlign=top;spacingLeft=4;overflow=hidden;whiteSpace=wrap;" vertex="1" parent="ns-box">
+          <mxGeometry y="58" width="300" height="32" as="geometry"/>
+        </mxCell>
+
+        <!-- SmtpNotificationAdapter -->
+        <mxCell id="smtp-box" value="&lt;b&gt;SmtpNotificationAdapter&lt;/b&gt;&#xa;@Profile(&quot;!demo&quot;)" style="swimlane;fontStyle=0;align=center;startSize=40;collapsible=0;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="160" y="230" width="310" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="smtp-attrs" value="- mailSender: JavaMailSender&#xa;- fromAddress: String" style="text;align=left;verticalAlign=top;spacingLeft=4;overflow=hidden;whiteSpace=wrap;" vertex="1" parent="smtp-box">
+          <mxGeometry y="40" width="310" height="32" as="geometry"/>
+        </mxCell>
+        <mxCell id="smtp-sep" value="" style="line;strokeWidth=1;" vertex="1" parent="smtp-box">
+          <mxGeometry y="72" width="310" height="8" as="geometry"/>
+        </mxCell>
+        <mxCell id="smtp-m" value="+ send(String, NotificationContent): void" style="text;align=left;verticalAlign=top;spacingLeft=4;overflow=hidden;whiteSpace=wrap;" vertex="1" parent="smtp-box">
+          <mxGeometry y="80" width="310" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- DemoNotificationAdapter -->
+        <mxCell id="demo-box" value="&lt;b&gt;DemoNotificationAdapter&lt;/b&gt;&#xa;@Profile(&quot;demo&quot;)" style="swimlane;fontStyle=0;align=center;startSize=40;collapsible=0;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="560" y="230" width="310" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="demo-attrs" value="- inbox: ArrayDeque&lt;Entry&gt;  (max 100)" style="text;align=left;verticalAlign=top;spacingLeft=4;overflow=hidden;whiteSpace=wrap;" vertex="1" parent="demo-box">
+          <mxGeometry y="40" width="310" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="demo-sep" value="" style="line;strokeWidth=1;" vertex="1" parent="demo-box">
+          <mxGeometry y="65" width="310" height="8" as="geometry"/>
+        </mxCell>
+        <mxCell id="demo-m" value="+ send(String, NotificationContent): void&#xa;+ entries(): List&lt;Entry&gt;" style="text;align=left;verticalAlign=top;spacingLeft=4;overflow=hidden;whiteSpace=wrap;" vertex="1" parent="demo-box">
+          <mxGeometry y="73" width="310" height="37" as="geometry"/>
+        </mxCell>
+
+        <!-- JavaMailSender (Adaptee) -->
+        <mxCell id="jms-box" value="&lt;i&gt;«interface»&lt;/i&gt;&#xa;&lt;b&gt;JavaMailSender&lt;/b&gt;&#xa;(Adaptee — Spring Framework)" style="swimlane;fontStyle=0;align=center;startSize=50;collapsible=0;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="160" y="430" width="310" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="jms-sep" value="" style="line;strokeWidth=1;" vertex="1" parent="jms-box">
+          <mxGeometry y="50" width="310" height="8" as="geometry"/>
+        </mxCell>
+        <mxCell id="jms-m" value="+ send(SimpleMailMessage): void" style="text;align=left;verticalAlign=top;spacingLeft=4;overflow=hidden;whiteSpace=wrap;" vertex="1" parent="jms-box">
+          <mxGeometry y="58" width="310" height="32" as="geometry"/>
+        </mxCell>
+
+        <!-- EmailQueueConsumer (Client) -->
+        <mxCell id="client-box" value="&lt;b&gt;EmailQueueConsumer&lt;/b&gt;&#xa;(Client)" style="swimlane;fontStyle=0;align=center;startSize=40;collapsible=0;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="40" y="60" width="260" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="client-m" value="+ consume(EmailNotificationMessage): void" style="text;align=left;verticalAlign=top;spacingLeft=4;overflow=hidden;whiteSpace=wrap;" vertex="1" parent="client-box">
+          <mxGeometry y="40" width="260" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- Implementation arrows -->
+        <mxCell id="impl1" style="endArrow=block;endFill=0;endSize=14;dashed=1;" edge="1" source="smtp-box" target="ns-box" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="impl2" style="endArrow=block;endFill=0;endSize=14;dashed=1;" edge="1" source="demo-box" target="ns-box" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- SmtpAdapter wraps JavaMailSender -->
+        <mxCell id="wrap" style="endArrow=open;endSize=12;dashed=0;" edge="1" source="smtp-box" target="jms-box" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="wrap-l" value="«adapts»" style="edgeLabel;align=center;fontStyle=2;" vertex="1" connectable="0" parent="wrap">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- Client depends on Target -->
+        <mxCell id="dep" style="endArrow=open;endSize=12;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" source="client-box" target="ns-box" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="dep-l" value="«uses»" style="edgeLabel;align=center;fontStyle=2;" vertex="1" connectable="0" parent="dep">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- Note -->
+        <mxCell id="note" value="Adapter Pattern&#xa;───────────&#xa;SmtpNotificationAdapter chuyển đổi giao diện&#xa;NotificationSender sang JavaMailSender.&#xa;DemoNotificationAdapter lưu vào bộ nhớ RAM.&#xa;Spring Profile chọn adapter tại runtime." style="shape=note;size=15;fillColor=#f8cecc;strokeColor=#b85450;align=left;spacingLeft=6;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="600" y="450" width="340" height="110" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

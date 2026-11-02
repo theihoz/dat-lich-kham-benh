@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-11-03" type="device">
+  <diagram id="adapter-seq" name="Adapter Sequence Diagram">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <mxCell id="title" value="Sequence Diagram — Adapter Pattern: Gửi thông báo qua SMTP" style="text;align=center;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="200" y="10" width="500" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- Lifelines -->
+        <mxCell id="ll-con" value=":EmailQueueConsumer" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="60" y="60" width="160" height="420" as="geometry"/>
+        </mxCell>
+        <mxCell id="ll-ad" value=":SmtpNotification\nAdapter" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="340" y="60" width="160" height="420" as="geometry"/>
+        </mxCell>
+        <mxCell id="ll-msg" value=":SimpleMailMessage" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="590" y="60" width="160" height="420" as="geometry"/>
+        </mxCell>
+        <mxCell id="ll-jms" value=":JavaMailSender" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="840" y="60" width="140" height="420" as="geometry"/>
+        </mxCell>
+
+        <!-- 1. send(recipient, content) -->
+        <mxCell id="m1" value="1: send(recipient, content)" style="endArrow=block;endFill=1;endSize=12;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="140" y="140" as="sourcePoint"/>
+            <mxPoint x="420" y="140" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 2. «create» new SimpleMailMessage() -->
+        <mxCell id="m2" value="2: «create» new SimpleMailMessage()" style="endArrow=block;endFill=1;endSize=12;dashed=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="420" y="180" as="sourcePoint"/>
+            <mxPoint x="670" y="180" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 3. setTo(recipient) -->
+        <mxCell id="m3" value="3: setTo(recipient)" style="endArrow=block;endFill=1;endSize=12;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="420" y="210" as="sourcePoint"/>
+            <mxPoint x="670" y="210" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 4. setFrom(fromAddress) -->
+        <mxCell id="m4" value="4: setFrom(fromAddress)" style="endArrow=block;endFill=1;endSize=12;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="420" y="240" as="sourcePoint"/>
+            <mxPoint x="670" y="240" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 5. setSubject(content.subject()) -->
+        <mxCell id="m5" value="5: setSubject(content.subject())" style="endArrow=block;endFill=1;endSize=12;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="420" y="270" as="sourcePoint"/>
+            <mxPoint x="670" y="270" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 6. setText(content.body()) -->
+        <mxCell id="m6" value="6: setText(content.body())" style="endArrow=block;endFill=1;endSize=12;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="420" y="300" as="sourcePoint"/>
+            <mxPoint x="670" y="300" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 7. mailSender.send(message) -->
+        <mxCell id="m7" value="7: send(message)" style="endArrow=block;endFill=1;endSize=12;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="420" y="350" as="sourcePoint"/>
+            <mxPoint x="910" y="350" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Note -->
+        <mxCell id="note" value="Adapter chuyển đổi NotificationContent&#xa;(domain) thành SimpleMailMessage&#xa;(Spring Mail) — Consumer chỉ biết&#xa;interface NotificationSender." style="shape=note;size=15;fillColor=#f8cecc;strokeColor=#b85450;align=left;spacingLeft=6;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="820" y="390" width="280" height="80" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

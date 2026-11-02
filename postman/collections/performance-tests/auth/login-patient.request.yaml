@@ -1,0 +1,31 @@
+$kind: http-request
+name: "Login Patient"
+order: 10
+method: POST
+url: '{{baseUrl}}/auth/login'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "email": "patient@clinic",
+      "password": "user@2026"
+    }
+scripts:
+  - type: afterResponse
+    language: "text/javascript"
+    code: |-
+      pm.test("Login returns 200", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Response contains access token", function () {
+          const body = pm.response.json();
+          pm.expect(body.data).to.have.property("accessToken");
+          pm.collectionVariables.set("patientToken", body.data.accessToken);
+          pm.collectionVariables.set("accessToken", body.data.accessToken);
+      });
+      pm.test("Login response time < 500ms", function () {
+          pm.expect(pm.response.responseTime).to.be.below(500);
+      });

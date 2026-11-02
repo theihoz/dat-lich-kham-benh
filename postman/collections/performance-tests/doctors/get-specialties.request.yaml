@@ -1,0 +1,26 @@
+$kind: http-request
+name: "Get Specialties - Public Endpoint"
+order: 30
+method: GET
+url: '{{baseUrl}}/doctors/specialties'
+headers:
+  - key: Accept-Encoding
+    value: gzip, deflate
+scripts:
+  - type: afterResponse
+    language: "text/javascript"
+    code: |-
+      pm.test("Specialties returns 200 without auth", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Response time < 200ms for lightweight endpoint", function () {
+          pm.expect(pm.response.responseTime).to.be.below(200);
+      });
+      pm.test("Returns specialty array with id and name", function () {
+          const body = pm.response.json();
+          pm.expect(body.data).to.be.an("array");
+          body.data.forEach(function(s) {
+              pm.expect(s).to.have.property("id");
+              pm.expect(s).to.have.property("name");
+          });
+      });

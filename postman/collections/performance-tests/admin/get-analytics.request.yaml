@@ -1,0 +1,20 @@
+$kind: http-request
+name: "Admin Analytics - Performance"
+order: 20
+method: GET
+url: '{{baseUrl}}/admin/analytics?year=2026'
+headers:
+  - key: Authorization
+    value: 'Bearer {{adminToken}}'
+  - key: Accept-Encoding
+    value: gzip, deflate
+scripts:
+  - type: afterResponse
+    language: "text/javascript"
+    code: |-
+      pm.test("Analytics returns 200", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Response time < 1500ms for heavy analytics query", function () {
+          pm.expect(pm.response.responseTime).to.be.below(1500);
+      });

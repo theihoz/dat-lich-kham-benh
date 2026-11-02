@@ -8,6 +8,6 @@ import java.util.Comparator;
 public class ExperienceSortStrategy implements DoctorSortStrategy {
     @Override public String key() { return "experience"; }
     @Override public Comparator<DoctorDto> comparator() {
-        return Comparator.comparing(DoctorDto::getExperienceYears).reversed();
+        return Comparator.comparing(DoctorDto::getExperienceYears, Comparator.nullsLast(Comparator.naturalOrder())).reversed();
     }
 }

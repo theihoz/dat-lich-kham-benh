@@ -1,10 +1,13 @@
 package com.datlichkhambenh.backend.service;
 
+import com.datlichkhambenh.backend.dto.request.CreateBookingDto;
 import com.datlichkhambenh.backend.entity.Appointment;
 import com.datlichkhambenh.backend.entity.Doctor;
 import com.datlichkhambenh.backend.entity.Patient;
 import com.datlichkhambenh.backend.entity.Schedule;
+import com.datlichkhambenh.backend.entity.User;
 import com.datlichkhambenh.backend.exception.AppException;
+import com.datlichkhambenh.backend.exception.ResourceNotFoundException;
 import com.datlichkhambenh.backend.repository.AppointmentRepository;
 import com.datlichkhambenh.backend.repository.DoctorRepository;
 import com.datlichkhambenh.backend.repository.PatientRepository;
@@ -65,6 +68,22 @@ class BookingServiceImplTests {
         List<Schedule> saved = captor.getAllValues();
         assertTrue(saved.stream().anyMatch(slot -> slot.getId() == null && Boolean.TRUE.equals(slot.getIsAvailable())));
         verify(emailNotificationService).sendCancellationNotice(appointment);
+    }
+
+    @Test
+    void bookingWithNonexistentPatientThrowsResourceNotFound() {
+        User doctorUser = User.builder().id(20L).isActive(true).build();
+        Doctor doctor = Doctor.builder().userId(20L).user(doctorUser).fullName("Doctor")
+                .isApproved(true).build();
+        Schedule schedule = Schedule.builder().id(30L).doctor(doctor)
+                .workDate(LocalDate.now().plusDays(3)).startTime(LocalTime.of(9, 0))
+                .endTime(LocalTime.of(9, 30)).isAvailable(true).build();
+        when(scheduleRepository.findByIdForUpdate(30L)).thenReturn(Optional.of(schedule));
+        when(appointmentRepository.existsByScheduleId(30L)).thenReturn(false);
+        when(patientRepository.findById(999L)).thenReturn(Optional.empty());
+
+        CreateBookingDto request = CreateBookingDto.builder().scheduleId(30L).symptoms("Test").build();
+        assertThrows(ResourceNotFoundException.class, () -> bookingService.createBooking(999L, request));
     }
 
     private Appointment appointment(Long patientId, Long doctorId) {

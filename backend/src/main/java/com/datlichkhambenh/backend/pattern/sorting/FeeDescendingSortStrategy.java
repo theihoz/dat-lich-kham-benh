@@ -8,6 +8,6 @@ import java.util.Comparator;
 public class FeeDescendingSortStrategy implements DoctorSortStrategy {
     @Override public String key() { return "feeDesc"; }
     @Override public Comparator<DoctorDto> comparator() {
-        return Comparator.comparing(DoctorDto::getConsultationFee).reversed();
+        return Comparator.comparing(DoctorDto::getConsultationFee, Comparator.nullsLast(Comparator.naturalOrder())).reversed();
     }
 }

@@ -2,6 +2,7 @@
 /Users/scara2906/CODE/dat-lich-kham-benh/backend/src/test/java/com/datlichkhambenh/backend/BackendApplicationTests.java
 /Users/scara2906/CODE/dat-lich-kham-benh/backend/src/test/java/com/datlichkhambenh/backend/BookingFlowIntegrationTests.java
 /Users/scara2906/CODE/dat-lich-kham-benh/backend/src/test/java/com/datlichkhambenh/backend/pattern/DesignPatternTests.java
+/Users/scara2906/CODE/dat-lich-kham-benh/backend/src/test/java/com/datlichkhambenh/backend/pattern/FacadePatternTests.java
 /Users/scara2906/CODE/dat-lich-kham-benh/backend/src/test/java/com/datlichkhambenh/backend/service/AuthServiceImplTests.java
 /Users/scara2906/CODE/dat-lich-kham-benh/backend/src/test/java/com/datlichkhambenh/backend/service/BookingServiceImplTests.java
 /Users/scara2906/CODE/dat-lich-kham-benh/backend/src/test/java/com/datlichkhambenh/backend/service/OwnershipServiceTests.java

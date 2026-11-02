@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-11-03" type="device">
+  <diagram id="factory-class" name="Factory Method Class Diagram">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- NotificationCreator abstract class -->
+        <mxCell id="nc-box" value="&lt;i&gt;«abstract»&lt;/i&gt;&#xa;&lt;b&gt;NotificationCreator&lt;/b&gt;" style="swimlane;fontStyle=0;align=center;startSize=40;collapsible=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="420" y="40" width="340" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="nc-sep" value="" style="line;strokeWidth=1;" vertex="1" parent="nc-box">
+          <mxGeometry y="40" width="340" height="8" as="geometry"/>
+        </mxCell>
+        <mxCell id="nc-methods" value="+ {abstract} type(): String&#xa;+ {abstract} createMessage(EmailNotificationMessage): NotificationContent&#xa;# appointmentDetails(EmailNotificationMessage): String" style="text;align=left;verticalAlign=top;spacingLeft=4;overflow=hidden;whiteSpace=wrap;" vertex="1" parent="nc-box">
+          <mxGeometry y="48" width="340" height="82" as="geometry"/>
+        </mxCell>
+
+        <!-- NotificationContent interface -->
+        <mxCell id="nct-box" value="&lt;i&gt;«interface»&lt;/i&gt;&#xa;&lt;b&gt;NotificationContent&lt;/b&gt;" style="swimlane;fontStyle=0;align=center;startSize=40;collapsible=0;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="900" y="40" width="240" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="nct-sep" value="" style="line;strokeWidth=1;" vertex="1" parent="nct-box">
+          <mxGeometry y="40" width="240" height="8" as="geometry"/>
+        </mxCell>
+        <mxCell id="nct-methods" value="+ subject(): String&#xa;+ body(): String" style="text;align=left;verticalAlign=top;spacingLeft=4;overflow=hidden;whiteSpace=wrap;" vertex="1" parent="nct-box">
+          <mxGeometry y="48" width="240" height="52" as="geometry"/>
+        </mxCell>
+
+        <!-- ConfirmationNotificationCreator -->
+        <mxCell id="cnc-box" value="&lt;b&gt;ConfirmationNotificationCreator&lt;/b&gt;" style="swimlane;fontStyle=1;align=center;startSize=26;collapsible=0;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="120" y="260" width="280" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnc-sep" value="" style="line;strokeWidth=1;" vertex="1" parent="cnc-box">
+          <mxGeometry y="26" width="280" height="8" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnc-m" value="+ type(): &quot;BOOKING_CONFIRMED&quot;&#xa;+ createMessage(...): ConfirmationContent" style="text;align=left;verticalAlign=top;spacingLeft=4;overflow=hidden;whiteSpace=wrap;" vertex="1" parent="cnc-box">
+          <mxGeometry y="34" width="280" height="46" as="geometry"/>
+        </mxCell>
+
+        <!-- CancellationNotificationCreator -->
+        <mxCell id="canc-box" value="&lt;b&gt;CancellationNotificationCreator&lt;/b&gt;" style="swimlane;fontStyle=1;align=center;startSize=26;collapsible=0;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="450" y="260" width="280" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="canc-sep" value="" style="line;strokeWidth=1;" vertex="1" parent="canc-box">
+          <mxGeometry y="26" width="280" height="8" as="geometry"/>
+        </mxCell>
+        <mxCell id="canc-m" value="+ type(): &quot;BOOKING_CANCELLED&quot;&#xa;+ createMessage(...): CancellationContent" style="text;align=left;verticalAlign=top;spacingLeft=4;overflow=hidden;whiteSpace=wrap;" vertex="1" parent="canc-box">
+          <mxGeometry y="34" width="280" height="46" as="geometry"/>
+        </mxCell>
+
+        <!-- ReminderNotificationCreator -->
+        <mxCell id="rnc-box" value="&lt;b&gt;ReminderNotificationCreator&lt;/b&gt;" style="swimlane;fontStyle=1;align=center;startSize=26;collapsible=0;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="780" y="260" width="280" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="rnc-sep" value="" style="line;strokeWidth=1;" vertex="1" parent="rnc-box">
+          <mxGeometry y="26" width="280" height="8" as="geometry"/>
+        </mxCell>
+        <mxCell id="rnc-m" value="+ type(): &quot;APPOINTMENT_REMINDER&quot;&#xa;+ createMessage(...): ReminderContent" style="text;align=left;verticalAlign=top;spacingLeft=4;overflow=hidden;whiteSpace=wrap;" vertex="1" parent="rnc-box">
+          <mxGeometry y="34" width="280" height="46" as="geometry"/>
+        </mxCell>
+
+        <!-- ConfirmationContent -->
+        <mxCell id="cc-box" value="&lt;b&gt;«record» ConfirmationContent&lt;/b&gt;" style="swimlane;fontStyle=1;align=center;startSize=26;collapsible=0;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="120" y="430" width="240" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="cc-m" value="+ subject(): String&#xa;+ body(): String" style="text;align=left;verticalAlign=top;spacingLeft=4;overflow=hidden;whiteSpace=wrap;" vertex="1" parent="cc-box">
+          <mxGeometry y="26" width="240" height="44" as="geometry"/>
+        </mxCell>
+
+        <!-- CancellationContent -->
+        <mxCell id="cac-box" value="&lt;b&gt;«record» CancellationContent&lt;/b&gt;" style="swimlane;fontStyle=1;align=center;startSize=26;collapsible=0;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="470" y="430" width="240" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="cac-m" value="+ subject(): String&#xa;+ body(): String" style="text;align=left;verticalAlign=top;spacingLeft=4;overflow=hidden;whiteSpace=wrap;" vertex="1" parent="cac-box">
+          <mxGeometry y="26" width="240" height="44" as="geometry"/>
+        </mxCell>
+
+        <!-- ReminderContent -->
+        <mxCell id="rc-box" value="&lt;b&gt;«record» ReminderContent&lt;/b&gt;" style="swimlane;fontStyle=1;align=center;startSize=26;collapsible=0;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="820" y="430" width="240" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="rc-m" value="+ subject(): String&#xa;+ body(): String" style="text;align=left;verticalAlign=top;spacingLeft=4;overflow=hidden;whiteSpace=wrap;" vertex="1" parent="rc-box">
+          <mxGeometry y="26" width="240" height="44" as="geometry"/>
+        </mxCell>
+
+        <!-- NotificationCreatorRegistry -->
+        <mxCell id="reg-box" value="&lt;b&gt;NotificationCreatorRegistry&lt;/b&gt;" style="swimlane;fontStyle=1;align=center;startSize=26;collapsible=0;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="40" y="60" width="300" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-sep" value="" style="line;strokeWidth=1;" vertex="1" parent="reg-box">
+          <mxGeometry y="26" width="300" height="8" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-m" value="- creators: Map&lt;String, NotificationCreator&gt;&#xa;+ get(String type): NotificationCreator" style="text;align=left;verticalAlign=top;spacingLeft=4;overflow=hidden;whiteSpace=wrap;" vertex="1" parent="reg-box">
+          <mxGeometry y="34" width="300" height="46" as="geometry"/>
+        </mxCell>
+
+        <!-- Inheritance: creators extend NotificationCreator -->
+        <mxCell id="inh1" style="endArrow=block;endFill=0;endSize=14;" edge="1" source="cnc-box" target="nc-box" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="inh2" style="endArrow=block;endFill=0;endSize=14;" edge="1" source="canc-box" target="nc-box" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="inh3" style="endArrow=block;endFill=0;endSize=14;" edge="1" source="rnc-box" target="nc-box" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Implementation: products implement NotificationContent -->
+        <mxCell id="impl1" style="endArrow=block;endFill=0;endSize=14;dashed=1;" edge="1" source="cc-box" target="nct-box" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="impl2" style="endArrow=block;endFill=0;endSize=14;dashed=1;" edge="1" source="cac-box" target="nct-box" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="impl3" style="endArrow=block;endFill=0;endSize=14;dashed=1;" edge="1" source="rc-box" target="nct-box" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Creates dependency: creator ··> product -->
+        <mxCell id="cr1" style="endArrow=open;endSize=12;dashed=1;" edge="1" source="cnc-box" target="cc-box" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="cr1l" value="«creates»" style="edgeLabel;align=center;fontStyle=2;" vertex="1" connectable="0" parent="cr1">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+        <mxCell id="cr2" style="endArrow=open;endSize=12;dashed=1;" edge="1" source="canc-box" target="cac-box" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="cr2l" value="«creates»" style="edgeLabel;align=center;fontStyle=2;" vertex="1" connectable="0" parent="cr2">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+        <mxCell id="cr3" style="endArrow=open;endSize=12;dashed=1;" edge="1" source="rnc-box" target="rc-box" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="cr3l" value="«creates»" style="edgeLabel;align=center;fontStyle=2;" vertex="1" connectable="0" parent="cr3">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- Registry uses NotificationCreator -->
+        <mxCell id="reg-dep" style="endArrow=open;endSize=12;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" source="reg-box" target="nc-box" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-dep-l" value="1    *" style="edgeLabel;align=center;" vertex="1" connectable="0" parent="reg-dep">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- Note -->
+        <mxCell id="note" value="Factory Method Pattern&#xa;────────────&#xa;Lớp con (Creator) quyết định loại&#xa;NotificationContent được tạo.&#xa;Registry tự động phát hiện qua Spring DI." style="shape=note;size=15;fillColor=#f8cecc;strokeColor=#b85450;align=left;spacingLeft=6;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="40" y="560" width="300" height="100" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

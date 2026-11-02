@@ -43,7 +43,7 @@ public class SecurityConfig {
                 // 1. Công khai các API Auth & Actuator
                 .requestMatchers("/api/v1/auth/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/doctors/specialties").permitAll()
-                .requestMatchers("/actuator/health").permitAll()
+                .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
                 .requestMatchers("/actuator/**").hasAuthority("ADMIN")
 
                 // 2. Yêu cầu xác thực JWT cho tất cả REST API ngoại trừ auth

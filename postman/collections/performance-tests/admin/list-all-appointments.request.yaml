@@ -1,0 +1,25 @@
+$kind: http-request
+name: "Admin List All Appointments - Paginated"
+order: 30
+method: GET
+url: '{{baseUrl}}/admin/appointments?page=0&size=20'
+headers:
+  - key: Authorization
+    value: 'Bearer {{adminToken}}'
+scripts:
+  - type: afterResponse
+    language: "text/javascript"
+    code: |-
+      pm.test("Paginated appointments returns 200", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Response time < 500ms for paginated query", function () {
+          pm.expect(pm.response.responseTime).to.be.below(500);
+      });
+      pm.test("Pagination limits result size", function () {
+          const body = pm.response.json();
+          const data = body.data;
+          if (Array.isArray(data)) {
+              pm.expect(data.length).to.be.at.most(20);
+          }
+      });

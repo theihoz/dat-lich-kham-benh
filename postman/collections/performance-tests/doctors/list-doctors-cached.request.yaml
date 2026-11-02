@@ -1,0 +1,22 @@
+$kind: http-request
+name: "List Doctors - Cache Validation"
+order: 20
+method: GET
+url: '{{baseUrl}}/doctors?sort=name&size=100'
+headers:
+  - key: Authorization
+    value: 'Bearer {{patientToken}}'
+  - key: Accept-Encoding
+    value: gzip, deflate
+scripts:
+  - type: afterResponse
+    language: "text/javascript"
+    code: |-
+      pm.test("Cached response is faster (< 300ms)", function () {
+          pm.expect(pm.response.responseTime).to.be.below(300);
+      });
+      pm.test("Response returns 200 with data", function () {
+          pm.response.to.have.status(200);
+          const body = pm.response.json();
+          pm.expect(body.data).to.be.an("array");
+      });

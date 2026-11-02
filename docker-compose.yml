@@ -32,6 +32,21 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
 
+  # Backend trong container: docker compose --profile full up -d --build
+  backend:
+    profiles: ["full"]
+    build: ./backend
+    container_name: clinic_backend
+    depends_on: [mysql, redis, rabbitmq]
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DB_URL: jdbc:mysql://mysql:3306/datlichkhambenh?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true&characterEncoding=UTF-8
+      REDIS_HOST: redis
+      RABBITMQ_HOST: rabbitmq
+    ports:
+      - "8080:8080"
+    restart: on-failure
+
 volumes:
   mysql_data:
   redis_data:

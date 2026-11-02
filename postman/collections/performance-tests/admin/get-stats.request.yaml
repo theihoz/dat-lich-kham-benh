@@ -1,0 +1,26 @@
+$kind: http-request
+name: "Admin Stats - Performance"
+order: 10
+method: GET
+url: '{{baseUrl}}/admin/stats'
+headers:
+  - key: Authorization
+    value: 'Bearer {{adminToken}}'
+  - key: Accept-Encoding
+    value: gzip, deflate
+scripts:
+  - type: afterResponse
+    language: "text/javascript"
+    code: |-
+      pm.test("Admin stats returns 200", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Response time < 1000ms for aggregated stats", function () {
+          pm.expect(pm.response.responseTime).to.be.below(1000);
+      });
+      pm.test("Stats contain expected fields", function () {
+          const data = pm.response.json().data;
+          pm.expect(data).to.have.property("totalDoctors");
+          pm.expect(data).to.have.property("totalPatients");
+          pm.expect(data).to.have.property("totalAppointments");
+      });

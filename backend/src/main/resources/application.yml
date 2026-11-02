@@ -15,9 +15,12 @@ spring:
     password: ${DB_PASSWORD:root}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
-      maximum-pool-size: ${DB_POOL_SIZE:10}
-      minimum-idle: 2
-      connection-timeout: 30000
+      maximum-pool-size: ${DB_POOL_SIZE:20}
+      minimum-idle: 5
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 1200000
+      leak-detection-threshold: 60000
 
   # ─── JPA / Hibernate ─────────────────────────────────────────────
   jpa:
@@ -88,6 +91,10 @@ server:
   port: ${SERVER_PORT:8080}
   servlet:
     context-path: /
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/css,application/javascript
+    min-response-size: 1024
 
 # ─── JWT ─────────────────────────────────────────────────────────────
 app:
@@ -115,6 +122,9 @@ management:
   endpoint:
     health:
       show-details: when-authorized
+      # /actuator/health/readiness chỉ UP sau khi seed (ApplicationRunner) hoàn tất
+      probes:
+        enabled: true
 
 # ─── Logging ─────────────────────────────────────────────────────────
 logging:

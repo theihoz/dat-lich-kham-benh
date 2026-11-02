@@ -1,0 +1,119 @@
+<mxfile host="app.diagrams.net" modified="2026-11-03" type="device">
+  <diagram id="strategy-seq" name="Strategy - Sequence Diagram">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title" value="&lt;b&gt;Strategy Pattern — Sequence Diagram&lt;/b&gt;&lt;br&gt;Luồng tìm kiếm bác sĩ với sắp xếp theo phí khám tăng dần" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="350" y="10" width="500" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Participants -->
+        <mxCell id="p1" value="&lt;b&gt;:DoctorController&lt;/b&gt;" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#dae8fc;strokeColor=#6c8ebf;size=40;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="150" height="700" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="p2" value="&lt;b&gt;:DoctorServiceImpl&lt;/b&gt;" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#d5e8d4;strokeColor=#82b366;size=40;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="280" y="80" width="150" height="700" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="p3" value="&lt;b&gt;:DoctorSortRegistry&lt;/b&gt;" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#fff2cc;strokeColor=#d6b656;size=40;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="520" y="80" width="150" height="700" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="p4" value="&lt;b&gt;:FeeAscending&lt;br&gt;SortStrategy&lt;/b&gt;" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#d5e8d4;strokeColor=#82b366;size=40;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="760" y="80" width="140" height="700" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="p5" value="&lt;b&gt;:DoctorRepository&lt;/b&gt;" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#e1d5e7;strokeColor=#9673a6;size=40;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="990" y="80" width="150" height="700" as="geometry"/>
+        </mxCell>
+
+        <!-- Messages -->
+        <!-- 1. Controller -> Service -->
+        <mxCell id="m1" value="1: searchApprovedDoctors(null, null, &quot;feeAsc&quot;)" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;strokeWidth=1.5;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="115" y="170" as="sourcePoint"/>
+            <mxPoint x="355" y="170" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 2. Service -> Registry -->
+        <mxCell id="m2" value="2: get(&quot;feeAsc&quot;)" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;strokeWidth=1.5;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="355" y="230" as="sourcePoint"/>
+            <mxPoint x="595" y="230" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 2r. Registry returns strategy -->
+        <mxCell id="m2r" value="FeeAscendingSortStrategy" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;dashed=1;strokeWidth=1;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="595" y="270" as="sourcePoint"/>
+            <mxPoint x="355" y="270" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 3. Service -> Strategy -->
+        <mxCell id="m3" value="3: comparator()" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;strokeWidth=1.5;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="355" y="320" as="sourcePoint"/>
+            <mxPoint x="830" y="320" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 3r. Return comparator -->
+        <mxCell id="m3r" value="Comparator&amp;lt;DoctorDto&amp;gt;&lt;br&gt;(consultationFee ASC)" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;dashed=1;strokeWidth=1;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="830" y="370" as="sourcePoint"/>
+            <mxPoint x="355" y="370" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 4. Service -> Repository -->
+        <mxCell id="m4" value="4: findByIsApprovedTrue()" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;strokeWidth=1.5;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="355" y="420" as="sourcePoint"/>
+            <mxPoint x="1065" y="420" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 4r. Return doctors -->
+        <mxCell id="m4r" value="List&amp;lt;Doctor&amp;gt;" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;dashed=1;strokeWidth=1;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1065" y="460" as="sourcePoint"/>
+            <mxPoint x="355" y="460" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 5. Sort (self-call) -->
+        <mxCell id="m5" value="5: stream().map(toDto)&lt;br&gt;.sorted(comparator)&lt;br&gt;.collect()" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;strokeWidth=1.5;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="355" y="510" as="sourcePoint"/>
+            <mxPoint x="405" y="510" as="targetPoint"/>
+            <Array as="points">
+              <mxPoint x="405" y="510"/>
+              <mxPoint x="405" y="570"/>
+              <mxPoint x="365" y="570"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 6r. Return to Controller -->
+        <mxCell id="m6r" value="List&amp;lt;DoctorDto&amp;gt; (sắp xếp theo phí tăng dần)" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;dashed=1;strokeWidth=1;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="355" y="630" as="sourcePoint"/>
+            <mxPoint x="115" y="630" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Note -->
+        <mxCell id="note1" value="Thay đổi tham số sort thành &quot;experience&quot;&lt;br&gt;sẽ chọn ExperienceSortStrategy — cùng &lt;br&gt;luồng xử lý, chỉ khác thuật toán sắp xếp." style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;size=15;fillColor=#FFF9C4;strokeColor=#FBC02D;fontSize=11;align=left;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="940" y="500" width="280" height="70" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,27 @@
+$kind: http-request
+name: "Login Admin"
+order: 30
+method: POST
+url: '{{baseUrl}}/auth/login'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "email": "admin@clinic",
+      "password": "admin@2026"
+    }
+scripts:
+  - type: afterResponse
+    language: "text/javascript"
+    code: |-
+      pm.test("Login returns 200", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Response contains access token", function () {
+          const body = pm.response.json();
+          pm.expect(body.data).to.have.property("accessToken");
+          pm.collectionVariables.set("adminToken", body.data.accessToken);
+      });

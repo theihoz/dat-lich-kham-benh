@@ -1,0 +1,26 @@
+$kind: http-request
+name: "Sort Doctors by Fee Ascending"
+order: 40
+method: GET
+url: '{{baseUrl}}/doctors?sort=feeAsc&size=50'
+headers:
+  - key: Authorization
+    value: 'Bearer {{patientToken}}'
+scripts:
+  - type: afterResponse
+    language: "text/javascript"
+    code: |-
+      pm.test("Sort by fee ascending returns 200", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Response time < 500ms with sorting", function () {
+          pm.expect(pm.response.responseTime).to.be.below(500);
+      });
+      pm.test("Doctors are sorted by fee ascending", function () {
+          const doctors = pm.response.json().data;
+          for (var i = 1; i < doctors.length; i++) {
+              if (doctors[i].consultationFee != null && doctors[i-1].consultationFee != null) {
+                  pm.expect(doctors[i].consultationFee).to.be.at.least(doctors[i-1].consultationFee);
+              }
+          }
+      });

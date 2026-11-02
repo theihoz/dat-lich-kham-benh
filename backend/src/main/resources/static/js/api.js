@@ -1,6 +1,22 @@
 // ============================================================
 // api.js — HTTP client với auto Bearer token & error handling
 // ============================================================
+const _apiCache = new Map();
+const CACHE_TTL = 60000;
+function getCached(key) {
+    const entry = _apiCache.get(key);
+    if (entry && Date.now() - entry.ts < CACHE_TTL) return entry.data;
+    _apiCache.delete(key);
+    return null;
+}
+function setCache(key, data) {
+    _apiCache.set(key, { data, ts: Date.now() });
+    if (_apiCache.size > 50) {
+        const oldest = _apiCache.keys().next().value;
+        _apiCache.delete(oldest);
+    }
+}
+
 const API_BASE = window.CLINIC_API_BASE
   || (window.location.port === '8080' ? '/api/v1' : 'http://localhost:8080/api/v1');
 
@@ -15,6 +31,12 @@ const Api = {
     }
     const opts = { method, headers };
     if (body) opts.body = JSON.stringify(body);
+
+    const cacheKey = method === 'GET' ? `${path}` : null;
+    if (cacheKey) {
+        const cached = getCached(cacheKey);
+        if (cached) return cached;
+    }
 
     try {
       const res = await fetch(`${API_BASE}${path}`, opts);
@@ -31,6 +53,7 @@ const Api = {
         const msg = data.message || data.error || `Lỗi ${res.status}`;
         throw new Error(msg);
       }
+      if (cacheKey) setCache(cacheKey, data);
       return data;
     } catch (err) {
       if (err.name === 'TypeError') throw new Error('Không thể kết nối đến server. Kiểm tra backend đang chạy chưa?');

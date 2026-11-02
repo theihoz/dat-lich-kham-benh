@@ -1,0 +1,135 @@
+<mxfile host="app.diagrams.net" modified="2026-11-03" type="device">
+  <diagram id="observer-seq" name="Observer - Sequence Diagram">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title" value="&lt;b&gt;Observer Pattern — Sequence Diagram&lt;/b&gt;&lt;br&gt;Luồng thông báo bất đồng bộ sau khi đặt lịch thành công (demo profile)" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="400" y="10" width="550" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Participants -->
+        <mxCell id="p1" value="&lt;b&gt;:BookingServiceImpl&lt;/b&gt;" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#dae8fc;strokeColor=#6c8ebf;size=40;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="160" height="850" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="p2" value="&lt;b&gt;:AsyncEmailNotification&lt;br&gt;ServiceImpl&lt;/b&gt;" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#dae8fc;strokeColor=#6c8ebf;size=40;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="260" y="80" width="170" height="850" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="p3" value="&lt;b&gt;:ApplicationEvent&lt;br&gt;Publisher&lt;/b&gt;&lt;br&gt;&lt;i&gt;(Spring)&lt;/i&gt;" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#f5f5f5;strokeColor=#666666;size=40;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="500" y="80" width="150" height="850" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="p4" value="&lt;b&gt;:DemoNotification&lt;br&gt;Observer&lt;/b&gt;&lt;br&gt;&lt;i&gt;(@Profile(&quot;demo&quot;))&lt;/i&gt;" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#d5e8d4;strokeColor=#82b366;size=40;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="720" y="80" width="160" height="850" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="p5" value="&lt;b&gt;:EmailQueueConsumer&lt;/b&gt;" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#e1d5e7;strokeColor=#9673a6;size=40;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="950" y="80" width="160" height="850" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="p6" value="&lt;b&gt;:NotificationCreator&lt;br&gt;Registry&lt;/b&gt;&lt;br&gt;&lt;i&gt;(Factory Method)&lt;/i&gt;" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#fff2cc;strokeColor=#d6b656;size=40;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="80" width="160" height="850" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="p7" value="&lt;b&gt;:NotificationSender&lt;/b&gt;&lt;br&gt;&lt;i&gt;(Adapter)&lt;/i&gt;" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#f8cecc;strokeColor=#b85450;size=40;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1400" y="80" width="150" height="850" as="geometry"/>
+        </mxCell>
+
+        <!-- Messages -->
+        <!-- 1. BookingService -> EmailService -->
+        <mxCell id="m1" value="1: sendBookingConfirmation(appointment)" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;strokeWidth=1.5;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="120" y="180" as="sourcePoint"/>
+            <mxPoint x="345" y="180" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 2. EmailService creates message -->
+        <mxCell id="m2" value="2: tạo EmailNotificationMessage&lt;br&gt;(type=&quot;BOOKING_CONFIRMED&quot;, ...)" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;strokeWidth=1.5;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="345" y="240" as="sourcePoint"/>
+            <mxPoint x="395" y="240" as="targetPoint"/>
+            <Array as="points">
+              <mxPoint x="395" y="240"/>
+              <mxPoint x="395" y="280"/>
+              <mxPoint x="355" y="280"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 3. EmailService -> Publisher -->
+        <mxCell id="m3" value="3: publishEvent(&lt;br&gt;new EmailNotificationRequestedEvent(message))" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;strokeWidth=1.5;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="345" y="320" as="sourcePoint"/>
+            <mxPoint x="575" y="320" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Transaction commit separator -->
+        <mxCell id="sep" value="──── TRANSACTION COMMIT ────" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=#FFCDD2;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="320" y="390" width="260" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="sep_line" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#E53935;dashed=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="20" y="410" as="sourcePoint"/>
+            <mxPoint x="1560" y="410" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 4. Publisher -> Observer (AFTER_COMMIT, async) -->
+        <mxCell id="m4" value="4: onNotificationRequested(event)&lt;br&gt;[AFTER_COMMIT, @Async]" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;strokeWidth=1.5;fontSize=10;dashed=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="575" y="450" as="sourcePoint"/>
+            <mxPoint x="800" y="450" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 5. Observer -> Consumer -->
+        <mxCell id="m5" value="5: consume(event.message())" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;strokeWidth=1.5;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="800" y="510" as="sourcePoint"/>
+            <mxPoint x="1030" y="510" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 6. Consumer -> Registry (Factory Method) -->
+        <mxCell id="m6" value="6: get(&quot;BOOKING_CONFIRMED&quot;)&lt;br&gt;.createMessage(message)" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;strokeWidth=1.5;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1030" y="570" as="sourcePoint"/>
+            <mxPoint x="1260" y="570" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 6r. Return content -->
+        <mxCell id="m6r" value="ConfirmationContent(subject, body)" style="html=1;verticalAlign=bottom;endArrow=open;endFill=0;dashed=1;strokeWidth=1;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1260" y="620" as="sourcePoint"/>
+            <mxPoint x="1030" y="620" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 7. Consumer -> Sender (Adapter) -->
+        <mxCell id="m7" value="7: send(recipientEmail, content)&lt;br&gt;[Adapter Pattern]" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;strokeWidth=1.5;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1030" y="670" as="sourcePoint"/>
+            <mxPoint x="1475" y="670" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Async frame -->
+        <mxCell id="frame" value="&lt;b&gt;async (luồng riêng, sau khi DB commit)&lt;/b&gt;" style="shape=umlFrame;whiteSpace=wrap;html=1;width=280;height=20;fillColor=none;strokeColor=#82b366;dashed=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="540" y="430" width="1020" height="290" as="geometry"/>
+        </mxCell>
+
+        <!-- Note -->
+        <mxCell id="note1" value="Ba pattern phối hợp:&lt;br&gt;• &lt;b&gt;Observer&lt;/b&gt;: event publisher/listener&lt;br&gt;• &lt;b&gt;Factory Method&lt;/b&gt;: NotificationCreatorRegistry&lt;br&gt;• &lt;b&gt;Adapter&lt;/b&gt;: NotificationSender" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;size=15;fillColor=#FFF9C4;strokeColor=#FBC02D;fontSize=11;align=left;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="760" width="260" height="80" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

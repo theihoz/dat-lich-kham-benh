@@ -3,6 +3,7 @@ package com.datlichkhambenh.backend.controller;
 import com.datlichkhambenh.backend.dto.request.CreateBookingDto;
 import com.datlichkhambenh.backend.dto.response.ApiResponseDto;
 import com.datlichkhambenh.backend.dto.response.AppointmentDto;
+import com.datlichkhambenh.backend.pattern.facade.AppointmentBookingFacade;
 import com.datlichkhambenh.backend.service.BookingService;
 import com.datlichkhambenh.backend.service.CurrentUserService;
 import jakarta.validation.Valid;
@@ -21,6 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BookingController {
 
+    private final AppointmentBookingFacade bookingFacade;
     private final BookingService bookingService;
     private final CurrentUserService currentUserService;
 
@@ -31,7 +33,7 @@ public class BookingController {
             @Valid @RequestBody CreateBookingDto request
     ) {
         Long patientUserId = currentUserService.getUserId(userDetails);
-        AppointmentDto appointment = bookingService.createBooking(patientUserId, request);
+        AppointmentDto appointment = bookingFacade.bookAppointment(patientUserId, request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponseDto.success(appointment, "Đặt lịch khám thành công"));
     }
@@ -43,7 +45,7 @@ public class BookingController {
             @PathVariable("id") Long appointmentId
     ) {
         Long patientUserId = currentUserService.getUserId(userDetails);
-        bookingService.cancelBooking(appointmentId, patientUserId);
+        bookingFacade.cancelAppointment(patientUserId, appointmentId);
         return ResponseEntity.ok(ApiResponseDto.success(null, "Hủy lịch hẹn thành công"));
     }
 

@@ -2,6 +2,14 @@
 // utils.js — Utility helpers & Bootstrap 5 Toasts
 // ============================================================
 const Utils = {
+  debounce(fn, delay = 300) {
+    let timer;
+    return (...args) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => fn.apply(null, args), delay);
+    };
+  },
+
   showToast(message, type = 'info') {
     let container = document.querySelector('.toast-container');
     if (!container) {

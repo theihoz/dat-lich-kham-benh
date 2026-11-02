@@ -1,0 +1,7 @@
+# Use this workspace to collaborate
+workspace:
+  id: 759e86b1-85e1-4461-9401-22a234802046
+
+localResources:
+  collections:
+    - ../DatLichKhamBenh.postman_collection.json

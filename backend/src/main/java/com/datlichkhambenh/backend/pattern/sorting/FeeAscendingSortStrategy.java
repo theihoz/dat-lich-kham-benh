@@ -8,6 +8,6 @@ import java.util.Comparator;
 public class FeeAscendingSortStrategy implements DoctorSortStrategy {
     @Override public String key() { return "feeAsc"; }
     @Override public Comparator<DoctorDto> comparator() {
-        return Comparator.comparing(DoctorDto::getConsultationFee);
+        return Comparator.comparing(DoctorDto::getConsultationFee, Comparator.nullsLast(Comparator.naturalOrder()));
     }
 }

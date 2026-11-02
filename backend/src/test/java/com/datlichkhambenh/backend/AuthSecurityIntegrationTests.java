@@ -50,4 +50,33 @@ class AuthSecurityIntegrationTests {
         mockMvc.perform(get("/favicon.ico"))
                 .andExpect(status().isNoContent());
     }
+
+    @Test
+    void malformedJsonIsClientErrorNotServerError() throws Exception {
+        mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":,}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    @Test
+    void wrongHttpMethodIsMethodNotAllowed() throws Exception {
+        mockMvc.perform(get("/api/v1/auth/login"))
+                .andExpect(status().isMethodNotAllowed());
+    }
+
+    @Test
+    void unknownApiPathIsNotFound() throws Exception {
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void readinessProbeIsPublic() throws Exception {
+        mockMvc.perform(get("/actuator/health/readiness"))
+                .andExpect(status().isOk());
+    }
 }

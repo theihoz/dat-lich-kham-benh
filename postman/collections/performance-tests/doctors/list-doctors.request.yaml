@@ -1,0 +1,36 @@
+$kind: http-request
+name: "List Doctors - Performance"
+order: 10
+method: GET
+url: '{{baseUrl}}/doctors?sort=name&size=100'
+headers:
+  - key: Authorization
+    value: 'Bearer {{patientToken}}'
+  - key: Accept-Encoding
+    value: gzip, deflate
+scripts:
+  - type: afterResponse
+    language: "text/javascript"
+    code: |-
+      pm.test("List doctors returns 200", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Response time < 500ms for doctor listing", function () {
+          pm.expect(pm.response.responseTime).to.be.below(500);
+      });
+      pm.test("Response contains doctor data array", function () {
+          const body = pm.response.json();
+          pm.expect(body.data).to.be.an("array");
+          pm.expect(body.data.length).to.be.greaterThan(0);
+      });
+      pm.test("ETag header present for caching", function () {
+          pm.expect(pm.response.headers.has("ETag")).to.be.true;
+      });
+      pm.test("Each doctor has required fields", function () {
+          const doctors = pm.response.json().data;
+          doctors.forEach(function(doc) {
+              pm.expect(doc).to.have.property("fullName");
+              pm.expect(doc).to.have.property("specialtyName");
+              pm.expect(doc).to.have.property("userId");
+          });
+      });
