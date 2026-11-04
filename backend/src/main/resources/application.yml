@@ -4,6 +4,9 @@
 # =====================================================================
 
 spring:
+  http:
+    converters:
+      preferred-json-mapper: jackson2
   flyway:
     enabled: false
   application:
@@ -90,7 +93,7 @@ spring:
 
 # ─── Server ──────────────────────────────────────────────────────────
 server:
-  port: ${SERVER_PORT:8080}
+  port: ${SERVER_PORT:18080}
   servlet:
     context-path: /
   compression:

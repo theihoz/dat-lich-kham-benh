@@ -1,0 +1,13 @@
+{
+  "checks": 49,
+  "fixtureOnly": true,
+  "errors": [],
+  "checksRun": [
+    "responsive all pages",
+    "strict script CSP",
+    "stored HTML remains text",
+    "labels",
+    "booking review/conflict/retry",
+    "keyboard tab"
+  ]
+}

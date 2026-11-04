@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Hồ Sơ Bác Sĩ - DatLichKhamBenh</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-  <link rel="stylesheet" href="../css/style.css">
+  <link href="../vendor/bootstrap.min.css?v=3017df4a76db" rel="stylesheet">
+  <link href="../vendor/bootstrap-icons.css?v=bb6fd8cd8539" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css?v=ac95df229b43">
   <style>
     body { background-color: #f8fafc; color: #1e293b; }
     .sidebar { background: #0f172a; color: #fff; min-height: 100vh; }
@@ -50,7 +50,7 @@
         <hr class="text-secondary my-4">
         <div class="d-flex align-items-center justify-content-between px-2">
           <div class="fw-semibold text-white small" id="doctor-display-name"><i class="bi bi-person-badge me-1"></i>Bác sĩ</div>
-          <button onclick="Auth.logout()" class="btn btn-outline-danger btn-sm border-0" title="Đăng xuất">
+          <button data-ui-click="action2" class="btn btn-outline-danger btn-sm border-0" title="Đăng xuất">
             <i class="bi bi-box-arrow-right fs-5"></i>
           </button>
         </div>
@@ -66,7 +66,7 @@
         </div>
 
         <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
-          <form id="profile-form">
+          <div id="profile-feedback" class="mb-3" role="status" aria-live="polite"></div><form id="profile-form">
             <div class="row g-3">
               <div class="col-md-6">
                 <label class="form-label fw-semibold">Họ và Tên <span class="text-danger">*</span></label>
@@ -97,7 +97,7 @@
               <button type="submit" class="btn btn-primary rounded-pill px-4 fw-semibold" id="btn-save">
                 <i class="bi bi-check2-circle me-1"></i>Lưu Thay Đổi
               </button>
-              <button type="button" class="btn btn-outline-secondary rounded-pill px-4" onclick="loadProfile()">
+              <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-ui-click="action3">
                 <i class="bi bi-arrow-counterclockwise me-1"></i>Hủy Bỏ
               </button>
             </div>
@@ -107,54 +107,11 @@
     </div>
   </div>
 
-  <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="../js/api.js"></script>
-  <script src="../js/utils.js"></script>
-  <script src="../js/auth.js"></script>
-  <script>
-    const user = Auth.checkAuth(['DOCTOR']);
-    if (user) {
-      document.getElementById('doctor-display-name').innerHTML = `<i class="bi bi-person-badge me-1"></i>${user.email.split('@')[0]}`;
-    }
-
-    async function loadProfile() {
-      try {
-        const profile = (await Api.doctors.profile()).data;
-        document.getElementById('fullName').value = profile.fullName || '';
-        document.getElementById('email').value = profile.email || '';
-        document.getElementById('phone').value = profile.phone || '';
-        document.getElementById('degree').value = profile.degree || '';
-        document.getElementById('experienceYears').value = profile.experienceYears ?? '';
-        document.getElementById('consultationFee').value = profile.consultationFee ?? '';
-      } catch (error) {
-        Utils.showToast('Không thể tải hồ sơ: ' + error.message, 'error');
-      }
-    }
-
-    document.getElementById('profile-form').addEventListener('submit', async event => {
-      event.preventDefault();
-      const btn = document.getElementById('btn-save');
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang lưu...';
-
-      try {
-        await Api.doctors.updateProfile({
-          fullName: document.getElementById('fullName').value,
-          phone: document.getElementById('phone').value,
-          degree: document.getElementById('degree').value,
-          experienceYears: parseInt(document.getElementById('experienceYears').value) || 0,
-          consultationFee: parseFloat(document.getElementById('consultationFee').value) || 0,
-        });
-        Utils.showToast('Đã cập nhật hồ sơ thành công!', 'success');
-      } catch (error) {
-        Utils.showToast(error.message, 'error');
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-check2-circle me-1"></i>Lưu Thay Đổi';
-      }
-    });
-
-    loadProfile();
-  </script>
+  <script defer src="../vendor/bootstrap.bundle.min.js?v=82f64f62bb03"></script>
+  <script src="../js/api.js?v=4d8855c5ee40"></script>
+  <script src="../js/utils.js?v=82f165ee9d32"></script>
+  <script src="../js/auth.js?v=58ccc9a11049"></script>
+  <script src="../js/pages/doctor-profile.js?v=a455d810acee"></script>
+<script src="../js/ui-actions.js?v=5460146e952c"></script>
 </body>
 </html>

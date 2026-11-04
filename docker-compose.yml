@@ -40,11 +40,12 @@ services:
     depends_on: [mysql, redis, rabbitmq]
     environment:
       SPRING_PROFILES_ACTIVE: dev
+      SERVER_PORT: 8080
       DB_URL: jdbc:mysql://mysql:3306/datlichkhambenh?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true&characterEncoding=UTF-8
       REDIS_HOST: redis
       RABBITMQ_HOST: rabbitmq
     ports:
-      - "8080:8080"
+      - "${CLINIC_HTTP_PORT:-18080}:8080"
     restart: on-failure
 
 volumes:

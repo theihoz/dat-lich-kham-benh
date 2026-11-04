@@ -1,5 +1,7 @@
 // Explicit action allowlist. Values in data attributes are parsed as JSON, never executed.
 const UiActions = Object.freeze({
+  action79(event) { return onSearchChange(); },
+  action80(event) { return filterTransactions(); },
   action77(event) { return changeDoctorPage(-1); },
   action78(event) { return changeDoctorPage(1); },
   action71(event) { return loadRecords(); },

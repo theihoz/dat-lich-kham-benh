@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Đăng Ký - DatLichKhamBenh</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+  <link href="vendor/bootstrap.min.css?v=3017df4a76db" rel="stylesheet">
+  <link href="vendor/bootstrap-icons.css?v=bb6fd8cd8539" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=ac95df229b43">
 </head>
 <body>
   <div class="auth-container">
@@ -17,12 +17,12 @@
         <p>Đăng ký tài khoản để bắt đầu đặt lịch khám bệnh</p>
       </div>
 
-      <div id="error-alert" class="alert alert-error hidden"></div>
+      <div id="error-alert" role="alert" aria-live="polite" class="alert alert-error hidden"></div>
 
       <form id="register-form">
         <div class="form-group">
-          <label class="form-label">Loại Tài Khoản</label>
-          <select id="role" class="form-control" onchange="onRoleChange(this.value)">
+          <label class="form-label" for="role">Loại Tài Khoản</label>
+          <select id="role" class="form-control">
             <option value="PATIENT">Bệnh nhân (Đăng ký tự do)</option>
             <option value="DOCTOR">Bác sĩ (Cần Admin phê duyệt)</option>
           </select>
@@ -30,36 +30,36 @@
 
         <div class="grid grid-2">
           <div class="form-group">
-            <label class="form-label">Email</label>
+            <label class="form-label" for="email">Email</label>
             <input type="email" id="email" class="form-control" placeholder="user@gmail.com" required>
           </div>
           <div class="form-group">
-            <label class="form-label">Mật khẩu</label>
-            <input type="password" id="password" class="form-control" placeholder="Tối thiểu 6 ký tự" required minlength="6">
+            <label class="form-label" for="password">Mật khẩu</label>
+            <input type="password" id="password" class="form-control" placeholder="Tối thiểu 8 ký tự" required minlength="8" maxlength="72">
           </div>
         </div>
 
         <div class="form-group">
-          <label class="form-label">Họ và Tên</label>
+          <label class="form-label" for="fullName">Họ và Tên</label>
           <input type="text" id="fullName" class="form-control" placeholder="Nguyễn Văn A" required>
         </div>
 
         <div class="grid grid-2">
           <div class="form-group">
-            <label class="form-label">Số điện thoại</label>
+            <label class="form-label" for="phone">Số điện thoại</label>
             <input type="tel" id="phone" class="form-control" placeholder="0912345678" required>
           </div>
 
           <!-- Patient Fields -->
           <div class="form-group patient-field">
-            <label class="form-label">Ngày sinh</label>
+            <label class="form-label" for="dob">Ngày sinh</label>
             <input type="date" id="dob" class="form-control">
           </div>
         </div>
 
         <div class="grid grid-2 patient-field">
           <div class="form-group">
-            <label class="form-label">Giới tính</label>
+            <label class="form-label" for="gender">Giới tính</label>
             <select id="gender" class="form-control">
               <option value="MALE">Nam</option>
               <option value="FEMALE">Nữ</option>
@@ -67,7 +67,7 @@
             </select>
           </div>
           <div class="form-group">
-            <label class="form-label">Địa chỉ</label>
+            <label class="form-label" for="address">Địa chỉ</label>
             <input type="text" id="address" class="form-control" placeholder="Số nhà, Đường, Quận/Huyện">
           </div>
         </div>
@@ -76,21 +76,21 @@
         <div class="doctor-field hidden">
           <div class="grid grid-2">
             <div class="form-group">
-              <label class="form-label">Chuyên khoa</label>
+              <label class="form-label" for="specialtyId">Chuyên khoa</label>
               <select id="specialtyId" class="form-control" required></select>
             </div>
             <div class="form-group">
-              <label class="form-label">Bằng cấp / Học vị</label>
+              <label class="form-label" for="degree">Bằng cấp / Học vị</label>
               <input type="text" id="degree" class="form-control" placeholder="Bác sĩ CKI, Thạc sĩ...">
             </div>
           </div>
           <div class="grid grid-2">
             <div class="form-group">
-              <label class="form-label">Số năm kinh nghiệm</label>
+              <label class="form-label" for="experienceYears">Số năm kinh nghiệm</label>
               <input type="number" id="experienceYears" class="form-control" placeholder="5" value="5">
             </div>
             <div class="form-group">
-              <label class="form-label">Giá khám (VNĐ)</label>
+              <label class="form-label" for="consultationFee">Giá khám (VNĐ)</label>
               <input type="number" id="consultationFee" class="form-control" placeholder="200000" value="200000">
             </div>
           </div>
@@ -107,68 +107,10 @@
     </div>
   </div>
 
-  <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="js/api.js"></script>
-  <script src="js/utils.js"></script>
-  <script src="js/auth.js"></script>
-  <script>
-    function onRoleChange(role) {
-      document.querySelectorAll('.patient-field').forEach(el => el.classList.toggle('hidden', role !== 'PATIENT'));
-      document.querySelectorAll('.doctor-field').forEach(el => el.classList.toggle('hidden', role !== 'DOCTOR'));
-    }
-
-    async function loadSpecialties() {
-      try {
-        const specialties = (await Api.doctors.specialties()).data || [];
-        document.getElementById('specialtyId').innerHTML = specialties
-          .map(item => `<option value="${item.id}">${item.name}</option>`).join('');
-      } catch (error) {
-        document.getElementById('error-alert').innerText = error.message;
-        document.getElementById('error-alert').classList.remove('hidden');
-      }
-    }
-
-    document.getElementById('register-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const role = document.getElementById('role').value;
-      const errBox = document.getElementById('error-alert');
-      const btn = document.getElementById('btn-submit');
-      errBox.classList.add('hidden');
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span> Đang tạo tài khoản...';
-
-      const body = {
-        email: document.getElementById('email').value,
-        password: document.getElementById('password').value,
-        role: role,
-        fullName: document.getElementById('fullName').value,
-        phone: document.getElementById('phone').value,
-      };
-
-      if (role === 'PATIENT') {
-        body.dob = document.getElementById('dob').value;
-        body.gender = document.getElementById('gender').value;
-        body.address = document.getElementById('address').value;
-      } else {
-        body.specialtyId = parseInt(document.getElementById('specialtyId').value);
-        body.degree = document.getElementById('degree').value;
-        body.experienceYears = parseInt(document.getElementById('experienceYears').value);
-        body.consultationFee = parseFloat(document.getElementById('consultationFee').value);
-      }
-
-      try {
-        await Api.auth.register(body);
-        Utils.showToast('Đăng ký thành công! Đang chuyển đến trang đăng nhập...', 'success');
-        setTimeout(() => { window.location.href = 'login.html'; }, 1500);
-      } catch (err) {
-        errBox.innerText = err.message;
-        errBox.classList.remove('hidden');
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = 'Tạo Tài Khoản';
-      }
-    });
-    loadSpecialties();
-  </script>
+  <script defer src="vendor/bootstrap.bundle.min.js?v=82f64f62bb03"></script>
+  <script src="js/api.js?v=4d8855c5ee40"></script>
+  <script src="js/utils.js?v=82f165ee9d32"></script>
+  <script src="js/auth.js?v=58ccc9a11049"></script>
+  <script defer src="js/pages/auth-register.js?v=04c8a8a311d5"></script>
 </body>
 </html>

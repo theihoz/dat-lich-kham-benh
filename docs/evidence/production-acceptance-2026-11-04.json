@@ -1,0 +1,37 @@
+{
+  "date": "2026-11-04",
+  "scope": "local acceptance only; no external production deployment",
+  "runtime": {
+    "java": 21,
+    "springBoot": "4.1.2",
+    "amqpClient": "5.34.0",
+    "hostPort": 18080,
+    "containerPort": 8080,
+    "timeZone": "Asia/Ho_Chi_Minh"
+  },
+  "tests": {
+    "standardBackendPassed": 88,
+    "externalServicesPassed": 8,
+    "frontendPassed": 19,
+    "authClientScenariosPassed": 5,
+    "operationsPassed": 4,
+    "uiFixtureChecksPassed": 49,
+    "realBrowserFlowsPassed": 8,
+    "drawioValid": 15,
+    "realDeadLetterGaugeVerified": true,
+    "accountBrowserGroupsPassed": 4
+  },
+  "artifactAudit": {
+    "initialHighCriticalFindings": 54,
+    "finalHighCriticalFindings": 0,
+    "scope": "packaged Java dependencies"
+  },
+  "externalAcceptancePending": [
+    "domain and TLS",
+    "real SMTP delivery",
+    "alert receiver and deployment credentials",
+    "production-sized restore/rollback",
+    "retention and clinical/accessibility pilot"
+  ],
+  "jarSha256": "b5dcd62eb50ad02c459d437dc9ebb3ced201127b2f15127db20c4994f426967a"
+}

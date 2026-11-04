@@ -10,8 +10,8 @@ import org.junit.jupiter.api.*;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import java.time.Instant;
@@ -29,7 +29,7 @@ class AuthAccountTokenTests {
  @Autowired AuthSessionService sessions;
  @Autowired AuthService auth;
  @Autowired PasswordEncoder passwords;
- @MockBean NotificationDeliveryService delivery;
+ @MockitoBean NotificationDeliveryService delivery;
  User user;
  @BeforeEach void account() {
   user=User.builder().email(UUID.randomUUID()+"@example.com").role("PATIENT")

@@ -1,0 +1,33 @@
+name: Dependency security audit
+on:
+  workflow_call:
+  schedule:
+    - cron: '17 1 * * 1'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Build dependency artifact
+        run: mvn -B -f backend/pom.xml package -DskipTests
+      - name: Audit packaged Java dependencies
+        run: |
+          docker run --rm -v "$PWD/backend/target:/scan:ro" aquasec/trivy:0.61.0 rootfs \
+            --scanners vuln --severity HIGH,CRITICAL --exit-code 1 \
+            --format json /scan > dependency-vulnerabilities.json
+      - name: Reject an empty scan
+        if: always()
+        run: python3 -c 'import json; r=json.load(open("dependency-vulnerabilities.json")); assert r.get("Results"), "Dependency scanner returned no packages"'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dependency-vulnerabilities
+          path: dependency-vulnerabilities.json

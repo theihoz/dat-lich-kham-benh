@@ -37,7 +37,7 @@ mvn spring-boot:run -Dspring-boot.run.profiles=demo
 
 Windows: chạy lệnh Maven trên trong PowerShell/CMD. `scripts/maven.sh` cũng tự tìm Maven đi kèm Oracle Java extension của VS Code trên macOS nếu máy chưa có lệnh `mvn`; có thể chỉ định đường dẫn qua biến `MVN`.
 
-Đợi `http://localhost:8080/actuator/health/readiness` báo `UP` (khoảng 8 giây, sau khi seed xong) rồi mở [ứng dụng](http://localhost:8080), [trang Design Patterns và hộp thư demo](http://localhost:8080/patterns.html), [health check](http://localhost:8080/actuator/health).
+Đợi `http://localhost:18080/actuator/health/readiness` báo `UP` (khoảng 8 giây, sau khi seed xong) rồi mở [ứng dụng](http://localhost:18080), [trang Design Patterns và hộp thư demo](http://localhost:18080/patterns.html), [health check](http://localhost:18080/actuator/health).
 
 | Vai trò | Email demo | Mật khẩu |
 |---|---|---|
@@ -106,20 +106,20 @@ Hoặc chỉ chạy image demo độc lập (H2 trong RAM, không cần dịch v
 
 ```bash
 docker build -t clinic-backend backend
-docker run --rm -p 8080:8080 clinic-backend
+docker run --rm -e SPRING_PROFILES_ACTIVE=demo -p 18080:8080 clinic-backend
 ```
 
 Lưu ý: dữ liệu seed chỉ được tạo khi bảng còn trống và các ca khám tính theo ngày seed. Volume MySQL cũ sẽ chứa ca đã quá hạn; chạy `docker compose down -v` để seed lại từ đầu (xóa dữ liệu dev).
 
-Docker Desktop macOS: nếu chạy backend trong container, publish cổng `-p 8080:8080` và trỏ DB/Redis/RabbitMQ về `host.docker.internal` với các cổng host phía trên.
+Docker Desktop macOS: nếu chạy backend trong container, publish cổng `-p 18080:8080` và trỏ DB/Redis/RabbitMQ về `host.docker.internal` với các cổng host phía trên.
 
 ## Kiểm thử và đóng gói
 
 Dùng JDK 21 (xem lưu ý ở trên).
 
 ```bash
-sh scripts/maven.sh -f backend/pom.xml test       # 50 test, dùng H2 profile test
-node scripts/frontend_regression.cjs             # 13 test hồi quy frontend, không cần npm install
+sh scripts/maven.sh -f backend/pom.xml test       # 88 standard tests; 8 real-service tests run separately
+node scripts/frontend_regression.cjs             # 19 frontend regression tests
 sh scripts/maven.sh -f backend/pom.xml package
 java -jar backend/target/backend-0.0.1-SNAPSHOT.jar --spring.profiles.active=demo
 ```
@@ -179,3 +179,23 @@ scripts/                            maven.sh, đồng bộ frontend, benchmark, 
 Sau khi chỉnh giao diện trong `static/`, chạy `python3 scripts/sync_frontend.py` để cập nhật `frontend/`; `--check` phát hiện khác biệt. Build output `backend/target/` không phải mã nguồn.
 
 Repository: [theihoz/dat-lich-kham-benh](https://github.com/theihoz/dat-lich-kham-benh).
+
+## Production upgrade
+
+Runtime: Java21, Spring Boot4.1.2, AMQP client5.34.0. Jackson2 compatibility temporarily preserves the existing API/cache/outbox contract. Local HTTP defaults to **http://localhost:18080**, with container-internal port8080. No startup script terminates processes belonging to another project.
+
+- [Spec](docs/superpowers/specs/2026-11-04-production-readiness-design.md), [plan](docs/superpowers/plans/2026-11-04-production-readiness.md), [progress](docs/superpowers/plans/production-progress.md).
+- [Operations/backup/restore/deploy](docs/OPERATIONS.md), [sessions/reset/email verification](docs/auth/README.md), [outbox/audit](docs/notification-delivery.md).
+- [Acceptance report](docs/PRODUCTION_READINESS_REPORT.md).
+
+The image defaults to **prod**, with no seed and required real credentials. Explicitly select demo for classroom use. Production Compose includes TLS proxy and internal database/cache/broker. Store real settings outside Git using .env.production.example; integration credentials are fixtures only.
+
+```sh
+node scripts/auth_regression.cjs
+python3 scripts/operations_regression.py
+python3 scripts/version_frontend_assets.py --check
+docker compose -f compose.integration.yml up -d --wait
+CLINIC_REAL_SERVICES=true sh scripts/maven.sh -f backend/pom.xml -Dtest=RealServicesIntegrationTests test
+```
+
+CI blocks HIGH/CRITICAL dependency findings and covers browser/CSP/mobile plus MySQL/Redis/RabbitMQ/SMTP integration. Real deployment still requires operator-owned domain/TLS, external SMTP, alert receivers and clinical workflow acceptance.

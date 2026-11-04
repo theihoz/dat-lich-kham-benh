@@ -10,7 +10,16 @@ Bản nâng cấp chạy Java21/Spring Boot, MySQL8, Redis7, RabbitMQ3. Dùng st
 4. `docker compose --env-file .env.production -f compose.production.yml up -d --wait`. Caddy cấp/renewTLS; readiness chỉ có giá trị khi migrations và app xong. Kiểm tra cấu hình firewall và xác nhận application không thể truy cập trực tiếp ngoài proxy.
 5. Khi DB được quản lý bên ngoài, dùng TLS `sslMode=VERIFY_IDENTITY` cùng CA trust phù hợp. Compose nội bộ dùng network không publish và `sslMode=REQUIRED`; không mặc định đó là xác minh danh tính máy chủ.
 
-Không có admin mẫu ở prod. Người vận hành tạo admin đầu tiên qua quy trình bootstrap được kiểm soát, với mật khẩu BCrypt và email đã xác minh; không dùng lại tài khoản seed. Xem schema và runbook bootstrap trong release notes. Không tạo admin bằng public registration.
+Không có admin mẫu ở prod. Người vận hành tạo admin đầu tiên qua quy trình bootstrap được kiểm soát, với mật khẩu BCrypt và email đã xác minh; không dùng lại tài khoản seed. Lệnh offline có khóa MySQL và từ chối khi đã có admin:
+
+```sh
+# Export DB_URL/DB_USERNAME/DB_PASSWORD và BOOTSTRAP_ADMIN_EMAIL/BOOTSTRAP_ADMIN_PASSWORD
+# từ môi trường operator bảo mật; password ít nhất16ký tự, tối đa72byteUTF8.
+export BOOTSTRAP_EMAIL_VERIFIED=yes  # chỉ sau khi operator kiểm tra chủ sở hữu email
+java -Dloader.main=com.datlichkhambenh.backend.ops.BootstrapAdminCommand \
+  -cp backend/target/backend-0.0.1-SNAPSHOT.jar org.springframework.boot.loader.launch.PropertiesLauncher
+unset BOOTSTRAP_ADMIN_PASSWORD BOOTSTRAP_ADMIN_EMAIL BOOTSTRAP_EMAIL_VERIFIED
+``` Không tạo admin bằng public registration.
 
 ## Migration và nâng cấp DB cũ
 
@@ -41,7 +50,7 @@ CD chỉ publish sau CI thành công (manual cũng verify revision trước publ
 
 ## Monitoring và ứng phó
 
-Actuator metrics cần admin; Prometheus chấp nhận METRICS_TOKEN riêng, chỉ có quyền scrape /actuator/prometheus, không dùng được cho API admin. Không công khai token. `ops/monitoring/prometheus.yml` là cấu hình mẫu cần metriccredential, network và receiver thật. Lưu METRICS_TOKEN vào /run/secrets/clinic_metrics_token trên Prometheus và rotate đồng thời hai phía theo lịch; không dùng access token của admin để scrape lâu dài. Alert rules bao gồm unavailable,5xx,latency,DBpool,outboxbacklog,backupstale; bổ sung broker DLQ exporter và receiver/email/PagerDuty của phòng khám.
+Actuator metrics cần admin; Prometheus chấp nhận METRICS_TOKEN riêng, chỉ có quyền scrape /actuator/prometheus, không dùng được cho API admin. Không công khai token. `docker compose --env-file .env.production -f compose.production.yml --profile monitoring up -d` cung cấp Prometheus, Alertmanager, backup textfile exporter và Grafana dashboard (localhost13000). Trước chạy phải đặt GRAFANA_ADMIN_PASSWORD mạnh, METRICS_TOKEN_FILE chứa token cùng METRICS_TOKEN, ALERTMANAGER_CONFIG trỏ file có receiver thật. Grafana chỉ truy cập qua SSH tunnel/proxy có xác thực; không expose trực tiếp Internet. File receiver ví dụ cố ý chưa có địa chỉ thật và không được coi là nghiệm thu gửi cảnh báo. Lưu METRICS_TOKEN vào /run/secrets/clinic_metrics_token trên Prometheus và rotate đồng thời hai phía theo lịch; không dùng access token của admin để scrape lâu dài. Alert rules bao gồm unavailable,5xx,latency,DBpool,outboxbacklog,backupstale; bổ sung broker DLQ exporter và receiver/email/PagerDuty của phòng khám.
 
 Logs có requestId để truy nguyên, không ghi request body/token/email y tế. Restrict logs/audit/revisions/backup theo operator tối thiểu; lịch sử bệnh án chứa dữ liệu nhạy cảm. Thời hạn lưu/xóa dữ liệu phải được phòng khám xác nhận theo chính sách áp dụng trước pilot.
 
@@ -51,3 +60,7 @@ Logs có requestId để truy nguyên, không ghi request body/token/email y t�
 - Tranh chấp lịch MySQL nhiều phiên; mất Redis/broker và phục hồi; outbox không mất sau restart.
 - Backuprestore trên clone, downtime và rollback qua staging.
 - Người dùng thử trên mobile/keyboard, bác sĩ nghiệm thu quy trình bệnh án, người vận hành ký nghiệm thu alertreceivers/permissions/dataretention.
+
+### Monitoring file permissions
+
+The metrics token bind-mount must be readable by the Prometheus container UID65534 (for example owner65534 and mode0400 on a Linux host); keep its parent directory restricted to operators. Backup metric files intentionally contain only a success timestamp and are0644 in a0755 metrics directory so node-exporter can read them. Encrypted backup files remain0600. The application exports `clinic_notifications_consumer_dead` for RabbitMQ DLQ messages separately from `clinic_notifications_outbox_dead` for publisher exhaustion; both have alert rules. Configure a real receiver before enabling the monitoring profile.

@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Đặt Lịch Khám Bệnh - Hệ thống Y tế Thông minh</title>
   <!-- Bootstrap 5 & Icons -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+  <link href="vendor/bootstrap.min.css?v=3017df4a76db" rel="stylesheet">
+  <link href="vendor/bootstrap-icons.css?v=bb6fd8cd8539" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=ac95df229b43">
   <style>
     body { background-color: #0f172a; color: #f8fafc; }
     .hero-section { padding: 100px 0 80px; background: radial-gradient(circle at 50% 30%, rgba(14,165,233,0.15), transparent 70%); }
@@ -103,17 +103,12 @@
     </div>
   </section>
 
-  <div class="container text-center py-4"><a href="/patterns.html">Xem Design Patterns và hộp thư demo của đồ án</a></div>
-  <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="js/auth.js"></script>
-  <script>
-    const user = Auth.getUser();
-    if (user) {
-      document.getElementById('nav-actions').innerHTML = `
-        <button onclick="Auth.redirectByRole('${user.role}')" class="btn btn-primary rounded-pill px-4 fw-semibold">Vào Trang Quản Lý (${user.role})</button>
-        <button onclick="Auth.logout()" class="btn btn-outline-light rounded-pill px-3">Đăng xuất</button>
-      `;
-    }
-  </script>
+
+  <script defer src="vendor/bootstrap.bundle.min.js?v=82f64f62bb03"></script>
+  <script src="js/api.js?v=4d8855c5ee40"></script>
+  <script src="js/utils.js?v=82f165ee9d32"></script>
+  <script src="js/auth.js?v=58ccc9a11049"></script>
+  <script src="js/pages/index.js?v=9b2010620380"></script>
+<script src="js/ui-actions.js?v=5460146e952c"></script>
 </body>
 </html>

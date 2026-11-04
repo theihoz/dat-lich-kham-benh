@@ -23,7 +23,7 @@ public class AuthController {
  private final AuthSessionService sessions;
  private final AuthActionTokenService actions;
  private final Environment environment;
- @Value("${app.public-url:http://localhost:8080}") private String publicUrl;
+ @Value("${app.public-url:http://localhost:18080}") private String publicUrl;
  @Value("${app.jwt.refresh-expiration-ms:604800000}") private long refreshTtl;
  public AuthController(AuthService auth, AuthSessionService sessions, AuthActionTokenService actions,Environment environment) {
   this.auth=auth;this.sessions=sessions;this.actions=actions;this.environment=environment;

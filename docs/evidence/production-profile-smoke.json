@@ -1,0 +1,10 @@
+{
+  "metricsUnauthorized": 401,
+  "metricsScopedAuthorized": 200,
+  "metricsCannotAccessAdmin": 401,
+  "demoPageBlocked": 404,
+  "strictScriptCsp": true,
+  "apiNoStore": true,
+  "profile": "prod",
+  "realRedisRateLimit": 429
+}

@@ -73,12 +73,14 @@
 /Users/scara2906/CODE/dat-lich-kham-benh/backend/src/main/java/com/datlichkhambenh/backend/messaging/EmailQueueConsumer.java
 /Users/scara2906/CODE/dat-lich-kham-benh/backend/src/main/java/com/datlichkhambenh/backend/messaging/EmailQueuePublisher.java
 /Users/scara2906/CODE/dat-lich-kham-benh/backend/src/main/java/com/datlichkhambenh/backend/messaging/NotificationDeliveryService.java
+/Users/scara2906/CODE/dat-lich-kham-benh/backend/src/main/java/com/datlichkhambenh/backend/messaging/NotificationQueueMetrics.java
 /Users/scara2906/CODE/dat-lich-kham-benh/backend/src/main/java/com/datlichkhambenh/backend/messaging/outbox/DemoOutboxTransport.java
 /Users/scara2906/CODE/dat-lich-kham-benh/backend/src/main/java/com/datlichkhambenh/backend/messaging/outbox/OutboxDispatcher.java
 /Users/scara2906/CODE/dat-lich-kham-benh/backend/src/main/java/com/datlichkhambenh/backend/messaging/outbox/OutboxService.java
 /Users/scara2906/CODE/dat-lich-kham-benh/backend/src/main/java/com/datlichkhambenh/backend/messaging/outbox/OutboxTransport.java
 /Users/scara2906/CODE/dat-lich-kham-benh/backend/src/main/java/com/datlichkhambenh/backend/messaging/outbox/OutboxWakeupEvent.java
 /Users/scara2906/CODE/dat-lich-kham-benh/backend/src/main/java/com/datlichkhambenh/backend/messaging/outbox/RabbitOutboxTransport.java
+/Users/scara2906/CODE/dat-lich-kham-benh/backend/src/main/java/com/datlichkhambenh/backend/ops/BootstrapAdminCommand.java
 /Users/scara2906/CODE/dat-lich-kham-benh/backend/src/main/java/com/datlichkhambenh/backend/pattern/facade/AppointmentBookingFacade.java
 /Users/scara2906/CODE/dat-lich-kham-benh/backend/src/main/java/com/datlichkhambenh/backend/pattern/facade/AppointmentBookingFacadeImpl.java
 /Users/scara2906/CODE/dat-lich-kham-benh/backend/src/main/java/com/datlichkhambenh/backend/pattern/notification/CancellationContent.java
@@ -143,3 +145,5 @@
 /Users/scara2906/CODE/dat-lich-kham-benh/backend/src/main/java/com/datlichkhambenh/backend/service/impl/NoOpRedisCacheService.java
 /Users/scara2906/CODE/dat-lich-kham-benh/backend/src/main/java/com/datlichkhambenh/backend/service/impl/PatientServiceImpl.java
 /Users/scara2906/CODE/dat-lich-kham-benh/backend/src/main/java/com/datlichkhambenh/backend/service/impl/RedisCacheServiceImpl.java
+/Users/scara2906/CODE/dat-lich-kham-benh/backend/src/main/java/com/datlichkhambenh/backend/service/query/AdminReadService.java
+/Users/scara2906/CODE/dat-lich-kham-benh/backend/src/main/java/com/datlichkhambenh/backend/service/query/DoctorSearchQueryService.java

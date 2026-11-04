@@ -1,0 +1,10 @@
+{
+  "checks": [
+    "register through UI",
+    "verify delivered link and remove URL token",
+    "request and reset password through UI",
+    "reject consumed token and old password; login with new password without persisted credentials"
+  ],
+  "errors": [],
+  "scope": "Local demo/H2 inbox; backend token tests and real SMTP integration run separately."
+}

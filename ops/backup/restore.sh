@@ -6,7 +6,7 @@ umask 077
 [[ "$CLINIC_RESTORE_DATABASE" =~ ^clinic_restore_[a-zA-Z0-9_]+$ ]] || { echo 'Refusing restore: database must start clinic_restore_' >&2; exit 2; }
 clinic_file=${1:?Usage: restore.sh /path/clinic-TIMESTAMP.sql.gz.enc}
 [[ -f "$clinic_file" && -f "$clinic_file.sha256" ]] || { echo 'Backup or checksum missing' >&2; exit 2; }
-shasum -a 256 -c "$clinic_file.sha256"
+(cd "$(dirname "$clinic_file")" && shasum -a 256 -c "$(basename "$clinic_file").sha256")
 clinic_container=${CLINIC_RESTORE_CONTAINER:?Set separate MySQL restore container name}
 clinic_temp=$(mktemp)
 trap 'rm -f "$clinic_temp"' EXIT

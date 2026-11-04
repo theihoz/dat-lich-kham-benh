@@ -39,6 +39,9 @@ class ProductionSafetyTests {
         assertThrows(IllegalStateException.class, () -> new ProductionSafetyEnvironment().postProcessEnvironment(mixed, new SpringApplication()));
         assertThrows(IllegalStateException.class, () -> new ProductionSafetyEnvironment().postProcessEnvironment(valid().withProperty("spring.jpa.hibernate.ddl-auto", "update"), new SpringApplication()));
     }
+    @Test void refusesDebugModeThatCouldExposeRequestBodies() {
+        assertThrows(IllegalStateException.class, () -> new ProductionSafetyEnvironment().postProcessEnvironment(valid().withProperty("debug", "true"), new SpringApplication()));
+    }
     @Test void leavesDemoUnchanged() {
         MockEnvironment env = new MockEnvironment(); env.setActiveProfiles("demo");
         assertDoesNotThrow(() -> new ProductionSafetyEnvironment().postProcessEnvironment(env, new SpringApplication()));

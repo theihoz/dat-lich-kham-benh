@@ -7,6 +7,7 @@
 /Users/scara2906/CODE/dat-lich-kham-benh/backend/src/test/java/com/datlichkhambenh/backend/DatabaseIndexTests.java
 /Users/scara2906/CODE/dat-lich-kham-benh/backend/src/test/java/com/datlichkhambenh/backend/NotificationDurabilityTests.java
 /Users/scara2906/CODE/dat-lich-kham-benh/backend/src/test/java/com/datlichkhambenh/backend/PasswordSecurityRegressionTests.java
+/Users/scara2906/CODE/dat-lich-kham-benh/backend/src/test/java/com/datlichkhambenh/backend/RealServicesIntegrationTests.java
 /Users/scara2906/CODE/dat-lich-kham-benh/backend/src/test/java/com/datlichkhambenh/backend/config/ProductionSafetyTests.java
 /Users/scara2906/CODE/dat-lich-kham-benh/backend/src/test/java/com/datlichkhambenh/backend/pattern/DesignPatternTests.java
 /Users/scara2906/CODE/dat-lich-kham-benh/backend/src/test/java/com/datlichkhambenh/backend/pattern/FacadePatternTests.java

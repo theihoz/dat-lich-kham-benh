@@ -13,7 +13,9 @@ COPY --from=build /src/target/backend-0.0.1-SNAPSHOT.jar app.jar
 USER clinic
 # Production is the default; demo must be selected explicitly.
 ENV SPRING_PROFILES_ACTIVE=prod
+ENV SERVER_PORT=8080
+ENV TZ=Asia/Ho_Chi_Minh
 EXPOSE 8080
 HEALTHCHECK --interval=10s --timeout=3s --start-period=30s --retries=6 \
   CMD ["sh","-c","curl -fsS http://localhost:8080/actuator/health/readiness | grep -q UP"]
-ENTRYPOINT ["java","-jar","/app/app.jar"]
+ENTRYPOINT ["java","-Duser.timezone=Asia/Ho_Chi_Minh","-jar","/app/app.jar"]

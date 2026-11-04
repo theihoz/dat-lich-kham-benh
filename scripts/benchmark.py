@@ -14,7 +14,7 @@ from urllib.parse import urlparse
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--base", default="http://localhost:8080")
+    parser.add_argument("--base", default="http://localhost:18080")
     parser.add_argument("--requests", type=int, default=60)
     parser.add_argument("--workers", type=int, default=4)
     parser.add_argument("--email", default="bn.hoangminh@gmail.com")

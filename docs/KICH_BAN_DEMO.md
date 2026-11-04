@@ -13,7 +13,7 @@ cd backend
 mvn spring-boot:run -Dspring-boot.run.profiles=demo
 ```
 
-Ứng dụng chạy tại: **http://localhost:8080**
+Ứng dụng chạy tại: **http://localhost:18080**
 
 ## 3. Tài khoản seed
 
@@ -29,7 +29,7 @@ Ngoài ra có 8 bác sĩ mặc định (mật khẩu `Doctor@123`), 5 bệnh nh�
 
 ### Kịch bản 1: Đặt lịch khám (Builder + Facade + Observer)
 
-1. Mở trình duyệt → `http://localhost:8080`
+1. Mở trình duyệt → `http://localhost:18080`
 2. Đăng nhập bằng tài khoản bệnh nhân: `patient@clinic` / `user@2026`
 3. Vào **Tìm bác sĩ** → Chọn bác sĩ có ca trống
 4. Chọn ca khám → Nhập triệu chứng → **Đặt lịch**
@@ -51,7 +51,7 @@ Ngoài ra có 8 bác sĩ mặc định (mật khẩu `Doctor@123`), 5 bệnh nh�
 ### Kịch bản 3: Xem thông báo demo (Factory Method + Adapter)
 
 1. Đăng nhập bằng admin: `admin@clinic` / `admin@2026`
-2. Truy cập API: `GET http://localhost:8080/api/v1/admin/demo-notifications`
+2. Truy cập API: `GET http://localhost:18080/api/v1/admin/demo-notifications`
 3. **Kết quả**: Danh sách thông báo đã gửi (xác nhận, hủy) với nội dung đầy đủ
 4. **Pattern chứng minh**:
    - **Factory Method**: `NotificationCreatorRegistry` chọn đúng Creator theo type
@@ -84,10 +84,10 @@ cd backend
 JAVA_HOME=/path/to/java-21 mvn test
 ```
 
-Kết quả mong đợi: `Tests run: 50, Failures: 0, Errors: 0, Skipped: 0 — BUILD SUCCESS`
+Kết quả mong đợi: `Tests run: 96, Failures: 0, Errors: 0, Skipped: 8 — BUILD SUCCESS`
 
 ## 6. Lưu ý
 
 - Dữ liệu H2 **mất khi dừng ứng dụng** (create-drop). Mỗi lần khởi động lại, DataInitializer tạo dữ liệu mới.
 - Inbox thông báo demo tối đa 100 mục, không bền vững.
-- Trang `patterns.html` (http://localhost:8080/patterns.html) hiển thị tổng quan 6 design patterns đã áp dụng.
+- Trang `patterns.html` (http://localhost:18080/patterns.html) hiển thị tổng quan 6 design patterns đã áp dụng.

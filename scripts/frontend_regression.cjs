@@ -215,3 +215,11 @@ test('admin users load one bounded page and use account status from profile DTOs
   assert.ok(element('userRows').innerHTML.includes('Hoạt động'));
   assert.ok(!element('userRows').innerHTML.includes('<img'));
 });
+
+test('all application HTML avoids inline event attributes under production CSP', () => {
+  const failures=[];
+  for(const file of fs.readdirSync(root,{recursive:true}).filter(f=>f.endsWith('.html'))) {
+    if(/<[^>]+\son[a-z]+\s*=/i.test(fs.readFileSync(path.join(root,file),'utf8'))) failures.push(file);
+  }
+  assert.deepEqual(failures,[]);
+});

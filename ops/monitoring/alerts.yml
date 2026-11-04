@@ -22,7 +22,7 @@ groups:
         labels: {severity: warning}
         annotations: {summary: "Clinic DB pool above 90%"}
       - alert: ClinicOutboxBacklog
-        expr: clinic_outbox_pending > 100
+        expr: clinic_notifications_outbox_pending > 100
         for: 10m
         labels: {severity: warning}
         annotations: {summary: "Email delivery outbox backlog"}
@@ -31,3 +31,18 @@ groups:
         for: 10m
         labels: {severity: critical}
         annotations: {summary: "No successful clinic backup in 25 hours"}
+      - alert: ClinicOutboxDeadLetters
+        expr: clinic_notifications_outbox_dead > 0
+        for: 2m
+        labels: {severity: critical}
+        annotations: {summary: "Clinic notifications exhausted publish retries"}
+      - alert: ClinicBackupMetricMissing
+        expr: absent(clinic_backup_last_success_unixtime)
+        for: 25h
+        labels: {severity: critical}
+        annotations: {summary: "No backup success metric received"}
+      - alert: ClinicConsumerDeadLetters
+        expr: clinic_notifications_consumer_dead > 0
+        for: 2m
+        labels: {severity: critical}
+        annotations: {summary: "Notification consumer messages reached the dead-letter queue"}

@@ -7,7 +7,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.retry.RejectAndDontRequeueRecoverer;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.*;
-import org.springframework.boot.autoconfigure.amqp.SimpleRabbitListenerContainerFactoryConfigurer;
+import org.springframework.boot.amqp.autoconfigure.SimpleRabbitListenerContainerFactoryConfigurer;
 import org.springframework.context.annotation.*;
 
 @Configuration
@@ -57,7 +57,7 @@ public class RabbitMqConfig {
         configurer.configure(factory, connectionFactory);
         factory.setDefaultRequeueRejected(false);
         // Fixed safe failure log: Spring's default recoverer logs the complete message body (PHI/tokens).
-        factory.setAdviceChain(RetryInterceptorBuilder.stateless().maxAttempts(3)
+        factory.setAdviceChain(RetryInterceptorBuilder.stateless().maxRetries(2)
                 .backOffOptions(500, 2.0, 2000)
                 .recoverer((message, cause) -> { throw new org.springframework.amqp.AmqpRejectAndDontRequeueException(
                         "Notification delivery exhausted retry limit"); }).build());

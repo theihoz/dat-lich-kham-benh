@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class NotificationDeliveryService {
     private final OutboxService outbox;
-    @Value("${app.public-url:http://localhost:8080}") private String publicUrl;
+    @Value("${app.public-url:http://localhost:18080}") private String publicUrl;
 
     @Transactional
     public void enqueueAccountMessage(String type, String email, String token) {

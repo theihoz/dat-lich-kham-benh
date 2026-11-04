@@ -37,6 +37,15 @@ Auth.checkAuth(['ADMIN']);
         const year = new Date().getFullYear();
         const resAnalytics = await Api.admin.analytics(year);
         analyticsData = resAnalytics.data || {};
+        let detailLimitNote = document.getElementById('analytics-detail-limit-note');
+        if (!detailLimitNote) {
+          detailLimitNote = document.createElement('p');
+          detailLimitNote.id = 'analytics-detail-limit-note';
+          detailLimitNote.className = 'alert alert-info';
+          detailLimitNote.textContent = 'Bảng chi tiết hiển thị tối đa 100 lịch đã khám gần nhất trong năm. Tổng và biểu đồ vẫn tính đủ dữ liệu; bộ lọc chi tiết áp dụng trên các lịch đang hiển thị.';
+          document.querySelector('main').prepend(detailLimitNote);
+        }
+        detailLimitNote.hidden = !analyticsData.transactionsLimited;
 
         document.getElementById('stat-revenue').innerText = formatVND(analyticsData.yearRevenue || stats.totalRevenue || 0);
 

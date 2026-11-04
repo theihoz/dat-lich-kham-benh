@@ -2,7 +2,7 @@
 
 ## Mục tiêu và phạm vi
 
-Thực hiện toàn bộ danh sách cải thiện đã trao đổi, theo thứ tự nghiệm thu: giao diện → xác thực/bảo mật → dữ liệu/thông báo → triển khai/vận hành → kiểm thử tổng hợp. Giữ Spring Boot 3.3/Java 21, MySQL 8, Redis 7, RabbitMQ 3 và frontend HTML/CSS/JS; không viết lại bằng framework mới. Giữ dữ liệu nghiệp vụ, ownership, khóa slot và sáu design patterns. Đây là triển khai mã/cấu hình có thể review; không tự công bố có thể phục vụ bệnh nhân thật khi chưa nghiệm thu hạ tầng thật.
+Thực hiện toàn bộ danh sách cải thiện đã trao đổi, theo thứ tự nghiệm thu: giao diện → xác thực/bảo mật → dữ liệu/thông báo → triển khai/vận hành → kiểm thử tổng hợp. Dùng Spring Boot 4.1.2 sau audit dependency, giữ Java 21, MySQL 8, Redis 7, RabbitMQ 3 và frontend HTML/CSS/JS. Giữ dữ liệu nghiệp vụ, ownership, khóa slot và sáu design patterns. Đây là triển khai mã/cấu hình có thể review; không tự công bố có thể phục vụ bệnh nhân thật khi chưa nghiệm thu hạ tầng thật.
 
 Yêu cầu trực tiếp của người dùng: tạo spec, plan rồi thực hiện lần lượt toàn bộ. Quyết định kỹ thuật dưới đây do agent đề xuất dựa trên repo, được ghi rõ thay vì giả định người dùng đã chọn từng chi tiết. Không cần dừng lại để hỏi lại quyền thực hiện trong phạm vi đã giao.
 
@@ -57,3 +57,7 @@ Yêu cầu trực tiếp của người dùng: tạo spec, plan rồi thực hi�
 - Tranh chấp đặt/cập nhật slot trên MySQL; notification rollback không lưu outbox; retry không tạo thông báo nghiệp vụ trùng.
 - Production startup từ chối secret thiếu và không seed; migration chạy được trên DB mới.
 - Backup/restore, gửi email tới hộp thư thật, TLS domain, cảnh báo tới nơi nhận và pilot với người dùng cần môi trường/credentials thật; báo rõ phần chưa chạy, không đánh dấu đạt thay người vận hành.
+
+## Quyết định bổ sung sau audit dependency
+
+Audit artifact thực ngày04/11/2026 tìm54cảnh báo HIGH/CRITICAL trong Boot3.3.2. Thử migration trong bản sao /tmp: Boot4.1.2 + AMQPclient5.34.0, Java21, không đổi API/schema. Cập nhật quyết định stack ban đầu sang Boot4.1.2 vì một số bản vá SpringMVC yêu cầu Spring7. Giữ module Jackson2 compatibility tạm thời để bảo toàn outbox/cache/API; không coi đó là lựa chọn dài hạn. Module tests/auto-config được cập nhật theo migration guide chính thức. Candidate đã qua88test thường +7real-services trước khi áp dụng root; nghiệm thu cuối phải chạy lại trên root và audit lại artifact.

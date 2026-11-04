@@ -16,6 +16,12 @@ trap 'rm -f "$clinic_file.partial"' EXIT
 docker compose --env-file "$clinic_env" -f "$clinic_compose" exec -T -e BACKUP_DB="$clinic_database" mysql sh -c 'MYSQL_PWD="$MYSQL_PASSWORD" exec mysqldump -u "$MYSQL_USER" --single-transaction --routines --triggers --no-tablespaces "${BACKUP_DB:-$MYSQL_DATABASE}"' |
  gzip | openssl enc -aes-256-cbc -salt -pbkdf2 -iter 200000 -pass env:BACKUP_ENCRYPTION_PASSWORD -out "$clinic_file.partial"
 mv "$clinic_file.partial" "$clinic_file"
-shasum -a 256 "$clinic_file" > "$clinic_file.sha256"
+(cd "$clinic_dir" && shasum -a 256 "$(basename "$clinic_file")" > "$(basename "$clinic_file").sha256")
 find "$clinic_dir" -name 'clinic-*.sql.gz.enc*' -type f -mtime "+$clinic_retention" -delete
+clinic_metric_dir=${CLINIC_BACKUP_METRICS_DIR:-$clinic_dir/metrics}
+mkdir -p "$clinic_metric_dir"
+chmod 0755 "$clinic_metric_dir"
+printf 'clinic_backup_last_success_unixtime %s\n' "$(date +%s)" > "$clinic_metric_dir/clinic_backup.prom.partial"
+mv "$clinic_metric_dir/clinic_backup.prom.partial" "$clinic_metric_dir/clinic_backup.prom"
+chmod 0644 "$clinic_metric_dir/clinic_backup.prom"
 printf 'Encrypted backup created: %s\n' "$clinic_file"

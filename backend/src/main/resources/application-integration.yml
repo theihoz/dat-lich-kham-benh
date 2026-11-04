@@ -35,6 +35,8 @@ spring:
       mail.smtp.auth: false
       mail.smtp.starttls.enable: false
 app:
+  search:
+    database-pagination: true
   public-url: http://localhost:18081
   jwt:
     secret: local-integration-only-secret-over-256-bits

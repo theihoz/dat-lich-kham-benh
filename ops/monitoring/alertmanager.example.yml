@@ -1,0 +1,11 @@
+# Copy outside git and set ALERTMANAGER_CONFIG after configuring a real receiver.
+route:
+  receiver: clinic-operations
+  group_by: [alertname]
+  group_wait: 30s
+  repeat_interval: 4h
+receivers:
+  - name: clinic-operations
+    webhook_configs:
+      - url: https://REPLACE_WITH_YOUR_ALERT_RECEIVER
+        send_resolved: true

@@ -5,7 +5,7 @@ const path = require('node:path');
 const assert = require('node:assert/strict');
 
 (async () => {
-  const base = process.env.CLINIC_BASE_URL || 'http://localhost:8080';
+  const base = process.env.CLINIC_BASE_URL || 'http://localhost:18080';
   const out = process.env.CLINIC_QA_OUTPUT || path.resolve(__dirname, '../docs/evidence');
   fs.mkdirSync(out, { recursive: true });
   const browser = await chromium.launch({ headless: true, channel: 'chrome' });
@@ -46,6 +46,7 @@ const assert = require('node:assert/strict');
     await page.locator('#booking-date').dispatchEvent('change');
     await page.locator('.slot-btn:not([disabled])').first().click();
     await page.locator('#symptoms').fill('Kiểm thử demo môn học');
+    await page.locator('#btn-review-booking').click();
     const createdResponse = page.waitForResponse(r => r.url().endsWith('/api/v1/appointments') && r.request().method() === 'POST');
     await page.locator('#btn-confirm-booking').click();
     const created = (await (await createdResponse).json()).data;

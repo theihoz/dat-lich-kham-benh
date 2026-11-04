@@ -27,12 +27,20 @@ public class DoctorServiceImpl implements DoctorService {
     private final SpecialtyRepository specialtyRepository;
     private final RedisCacheService redisCacheService;
     private final DoctorSortRegistry doctorSortRegistry;
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.datlichkhambenh.backend.service.query.DoctorSearchQueryService databaseSearch;
+    @org.springframework.beans.factory.annotation.Value("${app.search.database-pagination:false}")
+    private boolean databasePagination;
 
     @Override
     @Transactional(readOnly = true)
     public List<DoctorDto> searchApprovedDoctors(Long specialtyId, String keyword, BigDecimal minFee,
                                                   BigDecimal maxFee, Integer minExperience, String sort,
                                                   int page, int size) {
+        if (databasePagination) {
+            doctorSortRegistry.get(sort); // Preserve Strategy registry validation and the public sort keys.
+            return databaseSearch.search(specialtyId,keyword,minFee,maxFee,minExperience,sort,page,size);
+        }
         List<DoctorDto> cached = redisCacheService.getCachedDoctors(specialtyId);
         if (cached == null) {
             List<Doctor> doctors = specialtyId == null

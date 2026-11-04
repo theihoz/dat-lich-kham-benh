@@ -10,7 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -30,8 +30,8 @@ class NotificationDurabilityTests {
     @Autowired NotificationReceiptRepository receipts;
     @Autowired PlatformTransactionManager transactions;
     @Autowired ObjectMapper json;
-    @MockBean OutboxTransport transport;
-    @MockBean NotificationSender sender;
+    @MockitoBean OutboxTransport transport;
+    @MockitoBean NotificationSender sender;
 
     @BeforeEach void clean() { notifications.deleteAll(); receipts.deleteAll(); reset(transport, sender); }
     private EmailNotificationMessage message() {

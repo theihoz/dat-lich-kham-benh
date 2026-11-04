@@ -1,7 +1,7 @@
 package com.datlichkhambenh.backend.config;
 
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.env.EnvironmentPostProcessor;
+import org.springframework.boot.EnvironmentPostProcessor;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.ConfigurableEnvironment;
 import java.net.URI;
@@ -14,6 +14,7 @@ public class ProductionSafetyEnvironment implements EnvironmentPostProcessor, Or
     @Override public void postProcessEnvironment(ConfigurableEnvironment env, SpringApplication application) {
         Set<String> profiles = Set.copyOf(Arrays.asList(env.getActiveProfiles()));
         if (!profiles.contains("prod")) return;
+        if (env.getProperty("debug",Boolean.class,false) || env.getProperty("trace",Boolean.class,false)) fail("debug/trace mode forbidden");
         if (profiles.contains("dev") || profiles.contains("demo") || profiles.contains("test")) fail("prod cannot be combined with dev/demo/test");
         for (String key : new String[]{"spring.datasource.url", "spring.datasource.username", "spring.mail.host", "spring.mail.username", "spring.mail.password", "app.public-url"}) required(env, key);
         for (String key : new String[]{"app.jwt.secret", "spring.datasource.password", "spring.data.redis.password", "spring.rabbitmq.password", "app.metrics-token"}) {

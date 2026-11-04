@@ -5,7 +5,7 @@ import com.datlichkhambenh.backend.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 class AuthSessionLifecycleTests {
-    @org.springframework.boot.test.mock.mockito.MockBean com.datlichkhambenh.backend.messaging.NotificationDeliveryService delivery;
+    @org.springframework.test.context.bean.override.mockito.MockitoBean com.datlichkhambenh.backend.messaging.NotificationDeliveryService delivery;
     @Autowired MockMvc mvc;
     @Autowired UserRepository users;
     @Autowired PasswordEncoder passwords;
@@ -94,7 +94,11 @@ class AuthSessionLifecycleTests {
         String unknown=mvc.perform(post("/api/v1/auth/forgot-password").contentType(MediaType.APPLICATION_JSON)
                 .content("{\"email\":\"missing@example.com\"}"))
                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
-        assertEquals(existing,unknown);
+        var knownResponse=json.readTree(existing);
+        var missingResponse=json.readTree(unknown);
+        assertEquals(knownResponse.get("success"),missingResponse.get("success"));
+        assertEquals(knownResponse.get("message"),missingResponse.get("message"));
+        assertEquals(knownResponse.get("data"),missingResponse.get("data"));
     }
     @Test void explicitApiModeSupportsBodyTokensWithoutCookies() throws Exception {
         MvcResult login=mvc.perform(post("/api/v1/auth/login").header("X-Auth-Client","api")

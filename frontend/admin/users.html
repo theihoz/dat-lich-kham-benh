@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quản Lý Người Dùng - DatLichKhamBenh</title>
   <!-- Bootstrap 5 & Bootstrap Icons -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-  <link rel="stylesheet" href="../css/style.css">
+  <link href="../vendor/bootstrap.min.css?v=3017df4a76db" rel="stylesheet">
+  <link href="../vendor/bootstrap-icons.css?v=bb6fd8cd8539" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css?v=ac95df229b43">
   <style>
     body { background-color: #f8fafc; color: #1e293b; }
     .sidebar { background: #0f172a; color: #fff; min-height: 100vh; }
@@ -61,7 +61,7 @@
         <hr class="text-secondary my-4">
         <div class="d-flex align-items-center justify-content-between px-2">
           <div class="fw-semibold text-white small"><i class="bi bi-person-circle me-1"></i>Admin</div>
-          <button onclick="Auth.logout()" class="btn btn-outline-danger btn-sm border-0" title="Đăng xuất">
+          <button data-ui-click="action2" class="btn btn-outline-danger btn-sm border-0" title="Đăng xuất">
             <i class="bi bi-box-arrow-right fs-5"></i>
           </button>
         </div>
@@ -74,15 +74,15 @@
             <h2 class="fw-bold text-dark mb-1"><i class="bi bi-people-fill text-primary me-2"></i>Quản Lý Người Dùng</h2>
             <p class="text-muted mb-0">Quản lý, xem hồ sơ chi tiết và sơ đồ lịch khám bệnh của Bác sĩ / Bệnh nhân</p>
           </div>
-          <button class="btn btn-primary rounded-pill px-4 fw-semibold" onclick="openCreate()">
+          <button class="btn btn-primary rounded-pill px-4 fw-semibold" data-ui-click="action32">
             <i class="bi bi-person-plus-fill me-1"></i>Thêm tài khoản mới
           </button>
         </div>
 
         <div class="mb-4">
           <div class="btn-tab-group">
-            <button id="doctor-tab" class="btn-tab active" onclick="selectType('DOCTOR')">Danh Sách Bác Sĩ</button>
-            <button id="patient-tab" class="btn-tab" onclick="selectType('PATIENT')">Danh Sách Bệnh Nhân</button>
+            <button id="doctor-tab" class="btn-tab active" data-ui-click="action33">Danh Sách Bác Sĩ</button>
+            <button id="patient-tab" class="btn-tab" data-ui-click="action34">Danh Sách Bệnh Nhân</button>
           </div>
         </div>
 
@@ -100,6 +100,7 @@
             </table>
           </div>
         </div>
+        <nav class="d-flex gap-3 align-items-center mt-3" aria-label="Phân trang người dùng"><button type="button" class="btn btn-outline-primary" id="users-prev" data-ui-click="action68">Trang trước</button><span id="users-page" aria-live="polite">Trang 1</span><button type="button" class="btn btn-outline-primary" id="users-next" data-ui-click="action69">Trang sau</button></nav>
       </main>
     </div>
   </div>
@@ -181,435 +182,12 @@
     </div>
   </div>
 
-  <!-- Doctor Schedule Modal -->
-  <div class="modal fade" id="schedule-modal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content border-0 shadow-lg rounded-4">
-        <div class="modal-header border-0 bg-primary text-white rounded-top-4 py-3">
-          <h5 id="scheduleModalTitle" class="modal-title fw-bold">Sơ đồ lịch khám bệnh của Bác sĩ</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body p-4">
-          <!-- Stats Cards (từ 2000 ngẫu nhiên trở lên) -->
-          <div class="row g-3 mb-4 text-center">
-            <div class="col-md-4">
-              <div class="bg-primary-subtle text-primary p-3 rounded-4">
-                <small class="fw-bold text-uppercase d-block mb-1 text-secondary" style="font-size: 0.75rem;">Tổng ca khám</small>
-                <h3 class="fw-bold mb-0" id="sched-total">2000</h3>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="bg-warning-subtle text-warning p-3 rounded-4">
-                <small class="fw-bold text-uppercase d-block mb-1 text-secondary" style="font-size: 0.75rem;">Cần khám (Chờ)</small>
-                <h3 class="fw-bold mb-0" id="sched-pending">10</h3>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="bg-success-subtle text-success p-3 rounded-4">
-                <small class="fw-bold text-uppercase d-block mb-1 text-secondary" style="font-size: 0.75rem;">Đã chuẩn đoán xong</small>
-                <h3 class="fw-bold mb-0" id="sched-completed">1990</h3>
-              </div>
-            </div>
-          </div>
-
-          <!-- Detailed Schedule Table -->
-          <h6 class="fw-bold text-dark mb-3"><i class="bi bi-clock-history text-primary me-2"></i>Lịch hẹn khám chi tiết (Ngày, Giờ, Bệnh nhân, Ca khám gì)</h6>
-          <div class="table-responsive">
-            <table class="table table-hover align-middle border">
-              <thead class="table-light">
-                <tr>
-                  <th>Ngày khám</th>
-                  <th>Khung giờ</th>
-                  <th>Bệnh nhân</th>
-                  <th>Lý do khám / Ca khám gì</th>
-                  <th>Trạng thái</th>
-                </tr>
-              </thead>
-              <tbody id="schedTableRows">
-                <!-- JS render -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div class="modal-footer border-0 bg-light rounded-bottom-4 py-3">
-          <button type="button" class="btn btn-primary rounded-pill px-4" data-bs-dismiss="modal">Đóng</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="../js/api.js"></script>
-  <script src="../js/utils.js"></script>
-  <script src="../js/auth.js"></script>
-  <script>
-    Auth.checkAuth(['ADMIN']);
-    let currentType = 'DOCTOR', records = [], accountMap = new Map(), specialties = [];
-    let modal = null;
-    let schedModal = null;
-
-    document.addEventListener('DOMContentLoaded', () => {
-      modal = new bootstrap.Modal(document.getElementById('user-modal'));
-      schedModal = new bootstrap.Modal(document.getElementById('schedule-modal'));
-      initialize();
-    });
-
-    async function initialize() {
-      // Đọc tham số URL để chuyển tab Bác sĩ / Bệnh nhân tự động
-      const urlParams = new URLSearchParams(window.location.search);
-      const typeParam = urlParams.get('type');
-      if (typeParam === 'DOCTOR' || typeParam === 'PATIENT') {
-        currentType = typeParam;
-      }
-
-      // Đổi trạng thái hiển thị của tab group
-      const doctorTab = document.getElementById('doctor-tab');
-      const patientTab = document.getElementById('patient-tab');
-      if (currentType === 'DOCTOR') {
-        doctorTab.classList.add('active');
-        patientTab.classList.remove('active');
-      } else {
-        patientTab.classList.add('active');
-        doctorTab.classList.remove('active');
-      }
-
-      try {
-        specialties = (await Api.admin.specialties()).data || [];
-        userSpecialty.innerHTML = specialties.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
-      } catch (err) {
-        console.error("Lỗi lấy danh mục chuyên khoa", err);
-      }
-      await load();
-    }
-
-    // Sinh số liệu thống kê ngẫu nhiên từ 2000 trở lên cho bác sĩ
-    function generateDocStats(userId) {
-      const seed = (userId * 19) % 100;
-      const total = 2100 + (seed * 8); // Tối thiểu từ 2100 đến 2900 (trên 2000 ngẫu nhiên)
-      const pending = 10 + (seed % 15); // Cần khám
-      const completed = total - pending; // Đã chuẩn đoán xong
-      return { total, pending, completed };
-    }
-
-    // Sinh lịch trình ca khám ngẫu nhiên cho Bác sĩ
-    function generateDocSchedule(userId) {
-      const seed = (userId * 19) % 100;
-      const patients = [
-        "Phan Thanh Hùng", "Trần Thu Trang", "Nguyễn Minh Khôi", "Lê Gia Bảo", "Vũ Hoàng Yến",
-        "Hoàng Minh Đức", "Đỗ Khánh An", "Bùi Hồng Anh", "Đặng Minh Triết", "Nguyễn Lê Vy"
-      ];
-      const symptoms = [
-        "Khám sức khỏe tổng quát", "Đau rát họng, khản tiếng kéo dài", "Ho khan kéo dài, sốt nhẹ về chiều",
-        "Đau nhức khớp vai khi vận động mạnh", "Mỏi mắt, nhìn mờ sau khi làm việc máy tính", "Dị ứng mẩn đỏ toàn thân",
-        "Đau đầu, chóng mặt kéo dài", "Tim đập nhanh, khó thở nhẹ khi leo cầu thang"
-      ];
-      const times = [
-        { start: "08:00", end: "08:30" },
-        { start: "08:30", end: "09:00" },
-        { start: "09:00", end: "09:30" },
-        { start: "10:00", end: "10:30" },
-        { start: "14:00", end: "14:30" },
-        { start: "14:30", end: "15:00" },
-        { start: "15:30", end: "16:00" }
-      ];
-
-      const schedule = [];
-      const today = new Date();
-      
-      for (let i = 0; i < 6; i++) {
-        const dayOffset = Math.floor(i / 2); // 2 ca mỗi ngày
-        const targetDate = new Date();
-        targetDate.setDate(today.getDate() + dayOffset);
-        const dateStr = Utils.formatDate(targetDate.toISOString().split('T')[0]);
-        
-        const timeIdx = (seed + i * 2) % times.length;
-        const patIdx = (seed + i * 3) % patients.length;
-        const symIdx = (seed + i * 5) % symptoms.length;
-        const statusText = i < 3 ? "Đã chuẩn đoán xong" : "Đang chờ khám";
-        const badgeColor = i < 3 ? "bg-success-subtle text-success" : "bg-warning-subtle text-warning";
-
-        schedule.push({
-          date: dateStr,
-          time: `${times[timeIdx].start} - ${times[timeIdx].end}`,
-          patient: patients[patIdx],
-          symptom: symptoms[symIdx],
-          status: `<span class="badge ${badgeColor}">${statusText}</span>`
-        });
-      }
-      return schedule;
-    }
-
-    async function load() {
-      try {
-        const [dataResponse, accountResponse] = await Promise.all([
-          currentType === 'DOCTOR' ? Api.admin.doctors() : Api.admin.patients(),
-          Api.admin.users(currentType)
-        ]);
-        records = dataResponse.data || [];
-        accountMap = new Map((accountResponse.data || []).map(item => [item.id, item]));
-        render();
-      } catch (err) {
-        console.error("Lỗi tải danh sách người dùng", err);
-        Utils.showToast("Không thể tải danh sách người dùng", "danger");
-      }
-    }
-
-    function selectType(type) {
-      currentType = type;
-      const doctorTab = document.getElementById('doctor-tab');
-      const patientTab = document.getElementById('patient-tab');
-      if (type === 'DOCTOR') {
-        doctorTab.classList.add('active');
-        patientTab.classList.remove('active');
-      } else {
-        patientTab.classList.add('active');
-        doctorTab.classList.remove('active');
-      }
-      load();
-    }
-
-    function showDoctorSchedule(userId, fullName) {
-      const stats = generateDocStats(userId);
-      const schedule = generateDocSchedule(userId);
-      
-      document.getElementById('scheduleModalTitle').innerHTML = `<i class="bi bi-calendar3 me-2"></i>Sơ đồ lịch khám bệnh — Bác sĩ: ${fullName}`;
-      document.getElementById('sched-total').innerText = stats.total.toLocaleString('vi-VN');
-      document.getElementById('sched-pending').innerText = stats.pending.toLocaleString('vi-VN');
-      document.getElementById('sched-completed').innerText = stats.completed.toLocaleString('vi-VN');
-
-      document.getElementById('schedTableRows').innerHTML = schedule.map(sch => `
-        <tr>
-          <td class="fw-semibold text-dark">${sch.date}</td>
-          <td><span class="badge bg-light text-dark fw-bold">${sch.time}</span></td>
-          <td><i class="bi bi-person-fill text-primary me-1"></i>${sch.patient}</td>
-          <td>${sch.symptom}</td>
-          <td>${sch.status}</td>
-        </tr>
-      `).join('');
-
-      schedModal.show();
-    }
-
-    function render() {
-      tableHead.innerHTML = currentType === 'DOCTOR' 
-        ? '<tr><th>Bác sĩ</th><th>Chuyên khoa</th><th>Giá khám</th><th>Tổng ca khám</th><th>Cần khám</th><th>Đã chuẩn đoán</th><th>Duyệt</th><th>Tài khoản</th><th class="text-end">Thao tác</th></tr>' 
-        : '<tr><th>Bệnh nhân</th><th>Điện thoại</th><th>Ngày sinh</th><th>Địa chỉ</th><th>Tài khoản</th><th class="text-end">Thao tác</th></tr>';
-      
-      userRows.innerHTML = records.map(item => {
-        const account = accountMap.get(item.userId) || {};
-        const isActiveBadge = account.isActive 
-          ? '<span class="badge bg-success-subtle text-success">Hoạt động</span>' 
-          : '<span class="badge bg-danger-subtle text-danger">Khóa</span>';
-
-        if (currentType === 'DOCTOR') {
-          const approvedBadge = item.isApproved 
-            ? '<span class="badge bg-success">Đã duyệt</span>' 
-            : '<span class="badge bg-warning text-dark">Chờ duyệt</span>';
-          
-          const stats = generateDocStats(item.userId);
-
-          return `
-            <tr>
-              <td>
-                <div class="d-flex align-items-center gap-2">
-                  <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 38px; height: 38px;">
-                    ${item.fullName ? item.fullName.charAt(item.fullName.lastIndexOf(' ') + 1) : 'D'}
-                  </div>
-                  <div>
-                    <div class="fw-bold text-dark">${item.fullName}</div>
-                    <div class="small text-muted">${item.email}</div>
-                  </div>
-                </div>
-              </td>
-              <td><span class="badge bg-info-subtle text-info">${item.specialtyName || ''}</span></td>
-              <td class="fw-semibold text-primary">${Utils.formatCurrency(item.consultationFee)}</td>
-              <td class="fw-bold text-dark">${stats.total}</td>
-              <td class="fw-bold text-warning">${stats.pending}</td>
-              <td class="fw-bold text-success">${stats.completed}</td>
-              <td>${approvedBadge}</td>
-              <td>${isActiveBadge}</td>
-              ${actions(item, account)}
-            </tr>`;
-        } else {
-          return `
-            <tr>
-              <td>
-                <div class="d-flex align-items-center gap-2">
-                  <div class="bg-success-subtle text-success rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 38px; height: 38px;">
-                    ${item.fullName ? item.fullName.charAt(item.fullName.lastIndexOf(' ') + 1) : 'P'}
-                  </div>
-                  <div>
-                    <div class="fw-bold text-dark">${item.fullName}</div>
-                    <div class="small text-muted">${item.email}</div>
-                  </div>
-                </div>
-              </td>
-              <td>${item.phone || ''}</td>
-              <td>${item.dob ? Utils.formatDate(item.dob) : ''}</td>
-              <td class="text-truncate" style="max-width: 200px;">${item.address || ''}</td>
-              <td>${isActiveBadge}</td>
-              ${actions(item, account)}
-            </tr>`;
-        }
-      }).join('') || '<tr><td colspan="9" class="text-center text-muted py-4">Không tìm thấy người dùng nào</td></tr>';
-    }
-
-    function actions(item, account) {
-      const lockIcon = account.isActive ? 'bi-lock-fill' : 'bi-unlock-fill';
-      const lockTitle = account.isActive ? 'Khóa tài khoản' : 'Kích hoạt tài khoản';
-      const btnClass = account.isActive ? 'btn-outline-warning' : 'btn-outline-success';
-
-      let scheduleBtn = '';
-      if (currentType === 'DOCTOR') {
-        scheduleBtn = `
-          <button class="btn btn-sm btn-info text-white me-1 rounded-pill px-3 fw-bold" onclick="showDoctorSchedule(${item.userId}, '${item.fullName}')" title="Xem sơ đồ lịch khám bệnh">
-            <i class="bi bi-calendar3 me-1"></i>Lịch Khám
-          </button>`;
-      }
-
-      return `
-        <td class="text-end text-nowrap">
-          ${scheduleBtn}
-          <button class="btn btn-sm btn-outline-primary me-1 rounded-circle" onclick="openEdit(${item.userId})" title="Chỉnh sửa thông tin">
-            <i class="bi bi-pencil-fill"></i>
-          </button> 
-          <button class="btn btn-sm ${btnClass} me-1 rounded-circle" onclick="toggleStatus(${item.userId}, ${!account.isActive})" title="${lockTitle}">
-            <i class="bi ${lockIcon}"></i>
-          </button> 
-          <button class="btn btn-sm btn-outline-danger rounded-circle" onclick="removeUser(${item.userId})" title="Xóa tài khoản">
-            <i class="bi bi-trash-fill"></i>
-          </button>
-        </td>`;
-    }
-
-    function configureFields() {
-      document.querySelectorAll('.doctor-fields').forEach(el => {
-        if (currentType === 'DOCTOR') el.classList.remove('d-none');
-        else el.classList.add('d-none');
-      });
-      document.querySelectorAll('.patient-fields').forEach(el => {
-        if (currentType === 'PATIENT') el.classList.remove('d-none');
-        else el.classList.add('d-none');
-      });
-    }
-
-    function openCreate() {
-      userForm.reset();
-      editingId.value = '';
-      userEmail.disabled = false;
-      userPassword.required = true;
-      document.getElementById('passwordField').classList.remove('d-none');
-      document.getElementById('modalTitle').textContent = `Thêm tài khoản ${currentType === 'DOCTOR' ? 'Bác sĩ' : 'Bệnh nhân'}`;
-      configureFields();
-      modal.show();
-    }
-
-    function openEdit(id) {
-      const item = records.find(record => record.userId === id);
-      if (!item) return;
-
-      editingId.value = id;
-      userEmail.value = item.email || '';
-      userEmail.disabled = true;
-      userPassword.required = false;
-      document.getElementById('passwordField').classList.add('d-none');
-      userName.value = item.fullName || '';
-      userPhone.value = item.phone || '';
-
-      if (currentType === 'DOCTOR') {
-        userSpecialty.value = item.specialtyId || '';
-        userDegree.value = item.degree || '';
-        userExperience.value = item.experienceYears ?? 0;
-        userFee.value = item.consultationFee ?? 0;
-      } else {
-        userDob.value = item.dob || '';
-        userGender.value = item.gender || 'OTHER';
-        userAddress.value = item.address || '';
-        userHistory.value = item.medicalHistory || '';
-      }
-
-      document.getElementById('modalTitle').textContent = `Cập nhật thông tin ${currentType === 'DOCTOR' ? 'Bác sĩ' : 'Bệnh nhân'}`;
-      configureFields();
-      modal.show();
-    }
-
-    userForm.addEventListener('submit', async event => {
-      event.preventDefault();
-      const id = editingId.value;
-      try {
-        if (currentType === 'DOCTOR') {
-          const body = {
-            fullName: userName.value,
-            phone: userPhone.value,
-            specialtyId: Number(userSpecialty.value),
-            degree: userDegree.value,
-            experienceYears: Number(userExperience.value),
-            consultationFee: Number(userFee.value)
-          };
-          if (id) {
-            await Api.admin.updateDoctor(id, body);
-          } else {
-            await Api.admin.createDoctor({
-              ...body,
-              email: userEmail.value,
-              password: userPassword.value,
-              approved: true
-            });
-          }
-        } else {
-          const body = {
-            fullName: userName.value,
-            phone: userPhone.value,
-            dob: userDob.value || null,
-            gender: userGender.value,
-            address: userAddress.value,
-            medicalHistory: userHistory.value
-          };
-          if (id) {
-            await Api.admin.updatePatient(id, body);
-          } else {
-            await Api.admin.createPatient({
-              ...body,
-              email: userEmail.value,
-              password: userPassword.value
-            });
-          }
-        }
-        modal.hide();
-        await load();
-        Utils.showToast('Lưu thông tin thành công', 'success');
-      } catch (error) {
-        console.error(error);
-        Utils.showToast(error.message || 'Có lỗi xảy ra', 'danger');
-      }
-    });
-
-    async function toggleStatus(id, active) {
-      try {
-        await Api.admin.setUserStatus(id, active);
-        await load();
-        Utils.showToast(active ? 'Đã kích hoạt tài khoản' : 'Đã khóa tài khoản', 'success');
-      } catch (error) {
-        console.error(error);
-        Utils.showToast(error.message || 'Lỗi cập nhật trạng thái', 'danger');
-      }
-    }
-
-    async function removeUser(id) {
-      if (!confirm('Bạn có chắc chắn muốn xóa tài khoản này? Những tài khoản đã phát sinh lịch hẹn khám sẽ không thể xóa.')) return;
-      try {
-        if (currentType === 'DOCTOR') {
-          await Api.admin.deleteDoctor(id);
-        } else {
-          await Api.admin.deletePatient(id);
-        }
-        await load();
-        Utils.showToast('Xóa tài khoản thành công', 'success');
-      } catch (error) {
-        console.error(error);
-        Utils.showToast(error.message || 'Không thể xóa tài khoản này', 'danger');
-      }
-    }
-  </script>
+  <div class="modal fade" id="schedule-modal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="scheduleModalTitle">Lịch khám đã lưu</h5><button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Đóng"></button></div><div class="modal-body"><p class="text-muted">Danh sách lấy từ lịch hẹn đã lưu; mỗi trang tối đa 20 lịch.</p><div class="table-responsive"><table class="table"><thead><tr><th>Ngày</th><th>Giờ</th><th>Bệnh nhân</th><th>Triệu chứng</th><th>Trạng thái</th></tr></thead><tbody id="schedTableRows" aria-live="polite"></tbody></table></div></div><div class="modal-footer"><button type="button" id="schedule-prev" class="btn btn-outline-primary" data-ui-click="action65">Trang trước</button><span id="schedule-page" aria-live="polite"></span><button type="button" id="schedule-next" class="btn btn-outline-primary" data-ui-click="action66">Trang sau</button></div></div></div></div>
+  <script defer src="../vendor/bootstrap.bundle.min.js?v=82f64f62bb03"></script>
+  <script src="../js/api.js?v=4d8855c5ee40"></script>
+  <script src="../js/utils.js?v=82f165ee9d32"></script>
+  <script src="../js/auth.js?v=58ccc9a11049"></script>
+  <script src="../js/pages/admin-users.js?v=39b0c5e9a023"></script>
+<script src="../js/ui-actions.js?v=5460146e952c"></script>
 </body>
 </html>

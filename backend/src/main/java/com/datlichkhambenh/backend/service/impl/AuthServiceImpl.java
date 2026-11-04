@@ -122,17 +122,21 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional(isolation = org.springframework.transaction.annotation.Isolation.READ_COMMITTED)
     public LoginResponseDto login(LoginRequestDto request) {
         String email = normalizeEmail(request.getEmail());
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(email, request.getPassword())
-        );
-
-        User user = userRepository.findByEmailIgnoreCase(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tài khoản"));
-
+        User candidate = userRepository.findByEmailIgnoreCase(email).orElse(null);
+        if (candidate == null) {
+            // Preserve the provider's dummy BCrypt work and generic failure for unknown accounts.
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, request.getPassword()));
+            throw new org.springframework.security.authentication.BadCredentialsException("Invalid credentials");
+        }
+        User user = userRepository.findAuthUserForUpdate(candidate.getId())
+                .orElseThrow(() -> new org.springframework.security.authentication.BadCredentialsException("Invalid credentials"));
+        // Password validation and session creation must observe the same locked credential version.
+        entityManager.refresh(user, jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, request.getPassword()));
         ensureAccountCanAuthenticate(user);
-
         return sessions.issue(user);
     }
 

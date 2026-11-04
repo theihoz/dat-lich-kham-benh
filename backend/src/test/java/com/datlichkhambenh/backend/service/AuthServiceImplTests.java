@@ -47,6 +47,7 @@ class AuthServiceImplTests {
         ReflectionTestUtils.setField(jwtTokenProvider, "refreshExpirationMs", 86_400_000L);
         authService = new AuthServiceImpl(userRepository, patientRepository, doctorRepository,
                 specialtyRepository, passwordEncoder, authenticationManager, jwtTokenProvider);
+        ReflectionTestUtils.setField(authService, "entityManager", org.mockito.Mockito.mock(jakarta.persistence.EntityManager.class));
         ReflectionTestUtils.setField(authService, "sessions", new com.datlichkhambenh.backend.security.AuthSessionService(
                 org.mockito.Mockito.mock(com.datlichkhambenh.backend.repository.AuthRefreshSessionRepository.class),
                 userRepository, doctorRepository, jwtTokenProvider, new org.springframework.mock.env.MockEnvironment()));
@@ -61,6 +62,7 @@ class AuthServiceImplTests {
         Doctor doctor = Doctor.builder().user(user).isApproved(false).build();
         when(authenticationManager.authenticate(any())).thenReturn(null);
         when(userRepository.findByEmailIgnoreCase("doctor@example.com")).thenReturn(Optional.of(user));
+        when(userRepository.findAuthUserForUpdate(7L)).thenReturn(Optional.of(user));
         when(doctorRepository.findById(7L)).thenReturn(Optional.of(doctor));
 
         assertThrows(AppException.class, () -> authService.login(request));
