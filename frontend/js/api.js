@@ -1,13 +1,30 @@
 // ============================================================
 // api.js — HTTP client với auto Bearer token & error handling
 // ============================================================
-const API_BASE = window.CLINIC_API_BASE
-  || (window.location.port === '8080' ? '/api/v1' : 'http://localhost:8080/api/v1');
+const _apiCache = new Map();
+const CACHE_TTL = 60000;
+function getCached(key) {
+    const entry = _apiCache.get(key);
+    if (entry && Date.now() - entry.ts < CACHE_TTL) return entry.data;
+    _apiCache.delete(key);
+    return null;
+}
+function setCache(key, data) {
+    _apiCache.set(key, { data, ts: Date.now() });
+    if (_apiCache.size > 50) {
+        const oldest = _apiCache.keys().next().value;
+        _apiCache.delete(oldest);
+    }
+}
+
+// Served pages use the backend's origin, including custom ports and HTTPS.
+// Separate frontend hosting can opt in to a different API with CLINIC_API_BASE.
+const API_BASE = window.CLINIC_API_BASE || '/api/v1';
 
 const Api = {
   _getToken() { return localStorage.getItem('accessToken'); },
 
-  async _request(method, path, body = null, auth = true) {
+  async _request(method, path, body = null, auth = true, retried = false) {
     const headers = { 'Content-Type': 'application/json' };
     if (auth) {
       const token = this._getToken();
@@ -16,21 +33,29 @@ const Api = {
     const opts = { method, headers };
     if (body) opts.body = JSON.stringify(body);
 
+    const cacheKey = method === 'GET' ? `${auth ? this._getToken() : 'public'}:${path}` : null;
+    if (cacheKey) {
+        const cached = getCached(cacheKey);
+        if (cached) return cached;
+    }
+
     try {
       const res = await fetch(`${API_BASE}${path}`, opts);
       const data = await res.json().catch(() => ({}));
 
-      if (res.status === 401) {
-        // Thử refresh token
-        const refreshed = await this._tryRefresh();
-        if (refreshed) return this._request(method, path, body, auth);
+      if (res.status === 401 && auth) {
+        const refreshed = !retried && await this._tryRefresh();
+        if (refreshed) return this._request(method, path, body, auth, true);
+        _apiCache.clear();
         Auth.logout();
-        return;
+        throw new Error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
       }
       if (!res.ok) {
         const msg = data.message || data.error || `Lỗi ${res.status}`;
         throw new Error(msg);
       }
+      if (cacheKey) setCache(cacheKey, data);
+      else if (method !== 'GET') _apiCache.clear();
       return data;
     } catch (err) {
       if (err.name === 'TypeError') throw new Error('Không thể kết nối đến server. Kiểm tra backend đang chạy chưa?');
@@ -49,7 +74,9 @@ const Api = {
       });
       if (!res.ok) return false;
       const data = await res.json();
-      localStorage.setItem('accessToken', data.data?.accessToken || '');
+      if (!data.data?.accessToken) return false;
+      localStorage.setItem('accessToken', data.data.accessToken);
+      if (data.data.refreshToken) localStorage.setItem('refreshToken', data.data.refreshToken);
       return true;
     } catch { return false; }
   },

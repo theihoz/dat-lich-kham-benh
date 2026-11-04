@@ -118,7 +118,8 @@ Docker Desktop macOS: nếu chạy backend trong container, publish cổng `-p 8
 Dùng JDK 21 (xem lưu ý ở trên).
 
 ```bash
-sh scripts/maven.sh -f backend/pom.xml test       # 35 test, dùng H2 profile test
+sh scripts/maven.sh -f backend/pom.xml test       # 50 test, dùng H2 profile test
+node scripts/frontend_regression.cjs             # 13 test hồi quy frontend, không cần npm install
 sh scripts/maven.sh -f backend/pom.xml package
 java -jar backend/target/backend-0.0.1-SNAPSHOT.jar --spring.profiles.active=demo
 ```
@@ -141,6 +142,8 @@ Kiểm thử browser bằng Playwright (cần Google Chrome đã cài; script d�
 mkdir -p ~/pw && (cd ~/pw && npm init -y && npm i playwright)
 NODE_PATH=~/pw/node_modules node scripts/browser_qa.cjs
 ```
+
+Có thể đặt `CLINIC_BASE_URL` để kiểm tra demo ở cổng khác và `CLINIC_QA_OUTPUT` để lưu bằng chứng ở thư mục riêng. Xem [báo cáo kiểm tra và sửa lỗi](docs/DEBUG_REPORT.md).
 
 Chạy khi server demo đang bật và **đã seed xong**: `/actuator/health` báo UP sớm hơn khoảng 8 giây, nên hãy chờ `/actuator/health/readiness` báo UP. Đăng nhập sớm hơn sẽ bị 401 vì tài khoản chưa được tạo. Script ghi đè ảnh và `browser-qa.json` trong `docs/evidence/`.
 

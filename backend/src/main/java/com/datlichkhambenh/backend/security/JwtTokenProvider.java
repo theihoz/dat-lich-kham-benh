@@ -30,12 +30,18 @@ public class JwtTokenProvider {
     }
 
     public String generateToken(String email, String role) {
+        return generateToken(email, role, 0, null);
+    }
+
+    public String generateToken(String email, String role, long credentialsVersion, String family) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
 
         return Jwts.builder()
                 .subject(email)
                 .claim("role", role)
+                .claim("cv", credentialsVersion)
+                .claim("family", family)
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(getSigningKey())
@@ -79,7 +85,7 @@ public class JwtTokenProvider {
             extractClaims(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            log.error("Invalid JWT token: {}", e.getMessage());
+            log.debug("Invalid JWT token rejected");
         }
         return false;
     }

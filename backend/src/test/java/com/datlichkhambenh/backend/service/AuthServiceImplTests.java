@@ -47,6 +47,9 @@ class AuthServiceImplTests {
         ReflectionTestUtils.setField(jwtTokenProvider, "refreshExpirationMs", 86_400_000L);
         authService = new AuthServiceImpl(userRepository, patientRepository, doctorRepository,
                 specialtyRepository, passwordEncoder, authenticationManager, jwtTokenProvider);
+        ReflectionTestUtils.setField(authService, "sessions", new com.datlichkhambenh.backend.security.AuthSessionService(
+                org.mockito.Mockito.mock(com.datlichkhambenh.backend.repository.AuthRefreshSessionRepository.class),
+                userRepository, doctorRepository, jwtTokenProvider, new org.springframework.mock.env.MockEnvironment()));
     }
 
     @Test

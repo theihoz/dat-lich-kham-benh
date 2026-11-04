@@ -86,6 +86,20 @@ class BookingServiceImplTests {
         assertThrows(ResourceNotFoundException.class, () -> bookingService.createBooking(999L, request));
     }
 
+    @Test
+    void unrelatedPatientCancellationIsForbidden() {
+        when(appointmentRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(appointment(10L, 20L)));
+        assertEquals(org.springframework.http.HttpStatus.FORBIDDEN, assertThrows(AppException.class,
+                () -> bookingService.cancelBooking(1L, 99L)).getStatus());
+    }
+
+    @Test
+    void unrelatedDoctorCannotCompleteAppointment() {
+        when(appointmentRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(appointment(10L, 20L)));
+        assertEquals(org.springframework.http.HttpStatus.FORBIDDEN, assertThrows(AppException.class,
+                () -> bookingService.updateAppointmentStatus(1L, 99L, "COMPLETED")).getStatus());
+    }
+
     private Appointment appointment(Long patientId, Long doctorId) {
         Patient patient = Patient.builder().userId(patientId).fullName("Patient").build();
         Doctor doctor = Doctor.builder().userId(doctorId).fullName("Doctor").build();

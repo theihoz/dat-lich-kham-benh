@@ -26,6 +26,21 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     // Tìm lịch hẹn theo booking_code (mã đặt chỗ duy nhất)
     Optional<Appointment> findByBookingCode(String bookingCode);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select a from Appointment a where a.bookingCode = :code")
+    Optional<Appointment> findByBookingCodeForUpdate(@Param("code") String bookingCode);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select a from Appointment a join a.schedule s where a.status = 'CONFIRMED' " +
+           "and s.workDate between :fromDate and :toDate " +
+           "and (s.workDate > :fromDate or s.startTime > :fromTime) " +
+           "and (s.workDate < :toDate or s.startTime <= :toTime) " +
+           "and not exists (select n.id from NotificationOutbox n where n.eventKey = concat('APPOINTMENT_REMINDER:', a.bookingCode)) " +
+           "order by s.workDate, s.startTime, a.id")
+    List<Appointment> findReminderCandidates(@Param("fromDate") LocalDate fromDate,
+            @Param("fromTime") java.time.LocalTime fromTime, @Param("toDate") LocalDate toDate,
+            @Param("toTime") java.time.LocalTime toTime, org.springframework.data.domain.Pageable pageable);
+
     // Lịch sử đặt khám của bệnh nhân (xem lịch sử / hủy lịch)
     List<Appointment> findByPatientUserId(Long patientId);
 

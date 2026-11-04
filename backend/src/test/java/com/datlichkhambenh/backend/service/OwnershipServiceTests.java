@@ -20,6 +20,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.springframework.http.HttpStatus;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -29,6 +31,7 @@ class OwnershipServiceTests {
     @Mock RedisCacheService redisCacheService;
     @Mock AppointmentRepository appointmentRepository;
     @Mock MedicalRecordRepository medicalRecordRepository;
+    @Mock com.datlichkhambenh.backend.audit.MedicalAuditService audit;
     @InjectMocks DoctorScheduleServiceImpl doctorScheduleService;
     @InjectMocks MedicalRecordServiceImpl medicalRecordService;
 
@@ -37,7 +40,8 @@ class OwnershipServiceTests {
         Doctor owner = Doctor.builder().userId(2L).build();
         Schedule schedule = Schedule.builder().id(5L).doctor(owner).build();
         when(scheduleRepository.findByIdForUpdate(5L)).thenReturn(Optional.of(schedule));
-        assertThrows(AppException.class, () -> doctorScheduleService.toggleSlotAvailability(1L, 5L, false));
+        assertEquals(HttpStatus.FORBIDDEN, assertThrows(AppException.class,
+                () -> doctorScheduleService.toggleSlotAvailability(1L, 5L, false)).getStatus());
     }
 
     @Test
@@ -55,6 +59,7 @@ class OwnershipServiceTests {
         when(appointmentRepository.findByIdForUpdate(8L)).thenReturn(Optional.of(appointment));
         UpdateMedicalRecordDto request = UpdateMedicalRecordDto.builder().appointmentId(8L)
                 .diagnosis("Diagnosis").build();
-        assertThrows(AppException.class, () -> medicalRecordService.updateMedicalRecord(1L, request));
+        assertEquals(HttpStatus.FORBIDDEN, assertThrows(AppException.class,
+                () -> medicalRecordService.updateMedicalRecord(1L, request)).getStatus());
     }
 }

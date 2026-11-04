@@ -19,17 +19,22 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
 
     private final AppointmentRepository appointmentRepository;
     private final MedicalRecordRepository medicalRecordRepository;
+    private final com.datlichkhambenh.backend.audit.MedicalAuditService audit;
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public MedicalRecordDto getMedicalRecord(Long doctorUserId, Long appointmentId) {
+        Long actorId = audit.resolveActor(doctorUserId);
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Lịch hẹn không tồn tại"));
-        if (!appointment.getDoctor().getUserId().equals(doctorUserId)) {
+        if (!appointment.getDoctor().getUserId().equals(actorId)) {
+            audit.denied(actorId, "READ_DENIED", appointmentId);
             throw new AppException("Bạn không quản lý lịch hẹn này", org.springframework.http.HttpStatus.FORBIDDEN);
         }
+        var stored = medicalRecordRepository.findByAppointmentId(appointmentId);
+        audit.record(actorId, "READ", stored.map(MedicalRecord::getId).orElse(null), appointmentId);
         // Chưa lập bệnh án là một kết quả hợp lệ, không phải lỗi HTTP.
-        return medicalRecordRepository.findByAppointmentId(appointmentId).map(record -> MedicalRecordDto.builder()
+        return stored.map(record -> MedicalRecordDto.builder()
                 .id(record.getId()).appointmentId(appointmentId).bookingCode(appointment.getBookingCode())
                 .patientName(appointment.getPatient().getFullName()).doctorName(appointment.getDoctor().getFullName())
                 .diagnosis(record.getDiagnosis()).doctorNotes(record.getDoctorNotes())
@@ -39,12 +44,14 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
     @Override
     @Transactional
     public void updateMedicalRecord(Long doctorUserId, UpdateMedicalRecordDto request) {
+        Long actorId = audit.resolveActor(doctorUserId);
         // 1. Tìm lịch hẹn — ném 404 nếu không tồn tại
         Appointment appointment = appointmentRepository.findByIdForUpdate(request.getAppointmentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Lịch hẹn không tồn tại"));
 
-        if (!appointment.getDoctor().getUserId().equals(doctorUserId)) {
-            throw new AppException("Bạn không quản lý lịch hẹn này");
+        if (!appointment.getDoctor().getUserId().equals(actorId)) {
+            audit.denied(actorId, "WRITE_DENIED", appointment.getId());
+            throw new AppException("Bạn không quản lý lịch hẹn này", org.springframework.http.HttpStatus.FORBIDDEN);
         }
         if (!"CONFIRMED".equals(appointment.getStatus()) && !"COMPLETED".equals(appointment.getStatus())) {
             throw new AppException("Không thể ghi bệnh án cho lịch đã hủy");
@@ -59,10 +66,14 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
         MedicalRecord record = medicalRecordRepository.findByAppointmentId(appointment.getId())
                 .orElseGet(() -> MedicalRecord.builder().appointment(appointment).build());
 
+        String beforeDiagnosis = record.getDiagnosis();
+        String beforeNotes = record.getDoctorNotes();
         // 3. Cập nhật nội dung chẩn đoán
         record.setDiagnosis(request.getDiagnosis());
         record.setDoctorNotes(request.getDoctorNotes());
-        medicalRecordRepository.save(record);
+        medicalRecordRepository.saveAndFlush(record);
+        audit.revision(actorId, record.getId(), beforeDiagnosis, beforeNotes, record.getDiagnosis(), record.getDoctorNotes());
+        audit.record(actorId, "WRITE", record.getId(), appointment.getId());
 
         // 4. Chuyển trạng thái lịch hẹn sang COMPLETED
         appointment.setStatus("COMPLETED");

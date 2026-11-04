@@ -1,52 +1,35 @@
-// ============================================================
-// auth.js — Auth session manager
-// ============================================================
+// Only public account metadata persists; credentials stay in memory or HttpOnly cookies.
+localStorage.removeItem('accessToken');
+localStorage.removeItem('refreshToken');
 const Auth = {
-  basePath() {
-    return window.location.pathname.startsWith('/frontend/') ? '/frontend' : '';
-  },
+  basePath() { return window.location.pathname.startsWith('/frontend/') ? '/frontend' : ''; },
   getUser() {
-    const u = localStorage.getItem('user');
-    return u ? JSON.parse(u) : null;
+    try { return JSON.parse(localStorage.getItem('user') || 'null'); }
+    catch { localStorage.removeItem('user'); return null; }
   },
-
-  setSession(authData) {
-    localStorage.setItem('accessToken', authData.accessToken);
-    localStorage.setItem('refreshToken', authData.refreshToken);
-    localStorage.setItem('user', JSON.stringify({
-      id: authData.userId,
-      email: authData.email,
-      role: authData.role
-    }));
+  setSession(data) {
+    Api._setToken(data.accessToken);
+    localStorage.removeItem('accessToken'); localStorage.removeItem('refreshToken');
+    localStorage.setItem('user', JSON.stringify({id: data.userId, email: data.email, role: data.role}));
   },
-
-  logout() {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
-    window.location.href = `${this.basePath()}/login.html`;
+  clearSession() {
+    Api._setToken(null); localStorage.removeItem('user');
+    localStorage.removeItem('accessToken'); localStorage.removeItem('refreshToken');
   },
-
-  checkAuth(allowedRoles = []) {
+  async logout() {
+    try {
+      await fetch(`${API_BASE}/auth/logout`, {method: 'POST', credentials: 'same-origin',
+        headers: {'Content-Type':'application/json', 'X-CSRF-Token':'clinic'}});
+    } finally { this.clearSession(); window.location.href = `${this.basePath()}/login.html`; }
+  },
+  checkAuth(roles = []) {
     const user = this.getUser();
-    if (!user) {
-      window.location.href = `${this.basePath()}/login.html`;
-      return null;
-    }
-    if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
-      alert('Bạn không có quyền truy cập trang này!');
-      this.redirectByRole(user.role);
-      return null;
-    }
+    if (!user) { window.location.href = `${this.basePath()}/login.html`; return null; }
+    if (roles.length && !roles.includes(user.role)) { this.redirectByRole(user.role); return null; }
     return user;
   },
-
   redirectByRole(role) {
-    switch (role) {
-      case 'ADMIN': window.location.href = `${this.basePath()}/admin/dashboard.html`; break;
-      case 'DOCTOR': window.location.href = `${this.basePath()}/doctor/dashboard.html`; break;
-      case 'PATIENT': window.location.href = `${this.basePath()}/patient/dashboard.html`; break;
-      default: window.location.href = `${this.basePath()}/index.html`;
-    }
+    const destinations = {ADMIN:'/admin/dashboard.html', DOCTOR:'/doctor/dashboard.html', PATIENT:'/patient/dashboard.html'};
+    window.location.href = `${this.basePath()}${destinations[role] || '/index.html'}`;
   }
 };

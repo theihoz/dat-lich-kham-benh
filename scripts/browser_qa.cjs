@@ -5,8 +5,8 @@ const path = require('node:path');
 const assert = require('node:assert/strict');
 
 (async () => {
-  const base = 'http://localhost:8080';
-  const out = path.resolve(__dirname, '../docs/evidence');
+  const base = process.env.CLINIC_BASE_URL || 'http://localhost:8080';
+  const out = process.env.CLINIC_QA_OUTPUT || path.resolve(__dirname, '../docs/evidence');
   fs.mkdirSync(out, { recursive: true });
   const browser = await chromium.launch({ headless: true, channel: 'chrome' });
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });

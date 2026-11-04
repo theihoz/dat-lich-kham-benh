@@ -39,6 +39,12 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
 
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.datlichkhambenh.backend.security.AuthSessionService sessions;
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.datlichkhambenh.backend.security.AuthActionTokenService actionTokens;
+    @jakarta.persistence.PersistenceContext private jakarta.persistence.EntityManager entityManager;
+
     @Override
     @Transactional
     public UserDto register(RegisterRequestDto request) {
@@ -70,6 +76,7 @@ public class AuthServiceImpl implements AuthService {
                 .isActive(true)
                 .build();
 
+        user.setEmailVerified(false);
         User savedUser = userRepository.save(user);
 
         if ("PATIENT".equals(role)) {
@@ -103,6 +110,7 @@ public class AuthServiceImpl implements AuthService {
             doctorRepository.save(doctor);
         }
 
+        actionTokens.request(savedUser.getEmail(), com.datlichkhambenh.backend.security.AuthActionTokenService.VERIFY);
         return UserDto.builder()
                 .id(savedUser.getId())
                 .email(savedUser.getEmail())
@@ -125,42 +133,12 @@ public class AuthServiceImpl implements AuthService {
 
         ensureAccountCanAuthenticate(user);
 
-        String token = jwtTokenProvider.generateToken(user.getEmail(), user.getRole());
-        String refreshToken = jwtTokenProvider.generateRefreshToken(user.getEmail());
-
-        return LoginResponseDto.builder()
-                .accessToken(token)
-                .refreshToken(refreshToken)
-                .tokenType("Bearer")
-                .userId(user.getId())
-                .email(user.getEmail())
-                .role(user.getRole())
-                .build();
+        return sessions.issue(user);
     }
 
     @Override
     public LoginResponseDto refreshToken(RefreshTokenRequestDto request) {
-        String token = request.getRefreshToken();
-        if (!jwtTokenProvider.validateToken(token) || !jwtTokenProvider.isRefreshToken(token)) {
-            throw new AppException("Refresh Token không hợp lệ hoặc đã hết hạn");
-        }
-
-        String email = jwtTokenProvider.getEmailFromToken(token);
-        User user = userRepository.findByEmailIgnoreCase(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng"));
-        ensureAccountCanAuthenticate(user);
-
-        String newToken = jwtTokenProvider.generateToken(user.getEmail(), user.getRole());
-        String newRefreshToken = jwtTokenProvider.generateRefreshToken(user.getEmail());
-
-        return LoginResponseDto.builder()
-                .accessToken(newToken)
-                .refreshToken(newRefreshToken)
-                .tokenType("Bearer")
-                .userId(user.getId())
-                .email(user.getEmail())
-                .role(user.getRole())
-                .build();
+        return sessions.rotate(request.getRefreshToken());
     }
 
     private void ensureAccountCanAuthenticate(User user) {
@@ -183,13 +161,17 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public void changePassword(String email, com.datlichkhambenh.backend.dto.request.ChangePasswordDto request) {
-        User user = userRepository.findByEmailIgnoreCase(email)
+        User found = userRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tài khoản"));
-
+        User user = userRepository.findAuthUserForUpdate(found.getId()).orElseThrow();
+        entityManager.refresh(user, jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPasswordHash())) {
             throw new AppException("Mật khẩu hiện tại không đúng");
         }
         user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+        user.setCredentialsVersion(user.getCredentialsVersion() + 1);
         userRepository.save(user);
+        sessions.revokeAll(user);
+        actionTokens.invalidateResetTokens(user);
     }
 }

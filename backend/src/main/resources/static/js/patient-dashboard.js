@@ -5,6 +5,12 @@ if (user) {
 }
 
 let allDoctors = [];
+let doctorPage = 0, doctorsRequestId = 0;
+let availableSlots = [];
+let bookingReviewed = false;
+let bookingPending = false;
+let slotRequestId = 0;
+let clinicInfo = null;
 let specialtiesList = [];
 let bookingBsModal = null;
 let successBsModal = null;
@@ -12,7 +18,7 @@ let detailBsModal = null;
 
 const tomorrow = new Date();
 tomorrow.setDate(tomorrow.getDate() + 1);
-document.getElementById('booking-date').value = tomorrow.toISOString().split('T')[0];
+document.getElementById('booking-date').value = Utils.localDate(tomorrow);
 
 document.addEventListener('DOMContentLoaded', () => {
   bookingBsModal = new bootstrap.Modal(document.getElementById('booking-modal'));
@@ -30,10 +36,10 @@ async function init() {
     const specPills = document.getElementById('specialty-pills');
 
     specialtiesList.forEach(s => {
-      specSelect.innerHTML += `<option value="${s.id}">${s.name}</option>`;
+      specSelect.innerHTML += `<option value="${s.id}">${Utils.escapeHtml(s.name)}</option>`;
       specPills.innerHTML += `
-        <span class="spec-pill" onclick="onPillClick(${s.id}, this)">
-          <i class="bi bi-hospital me-1"></i> ${s.name}
+        <span class="spec-pill" data-ui-click="action60" data-ui-arg0="${Utils.escapeHtml(JSON.stringify(s.id))}">
+          <i class="bi bi-hospital me-1"></i> ${Utils.escapeHtml(s.name)}
         </span>
       `;
     });
@@ -51,16 +57,28 @@ function onPillClick(specId, element) {
 
 const _skeletonCard = `<div class="col-md-6 col-lg-4"><div class="card p-4 h-100"><div class="skeleton" style="height:80px;width:80px;border-radius:50%;margin:0 auto 12px"></div><div class="skeleton mx-auto" style="height:20px;width:60%;margin-bottom:8px"></div><div class="skeleton mx-auto" style="height:16px;width:40%;margin-bottom:16px"></div><div class="skeleton" style="height:14px;width:80%;margin-bottom:6px"></div><div class="skeleton" style="height:14px;width:70%"></div></div></div>`;
 
-async function loadDoctors(specialtyId) {
+async function loadDoctors(specialtyId, keepPage = false) {
+  if (!keepPage) doctorPage = 0;
+  specialtyId = specialtyId ?? document.getElementById('specialty-select').value;
+  const requestId = ++doctorsRequestId;
   const grid = document.getElementById('doctor-grid');
   grid.innerHTML = _skeletonCard.repeat(6);
 
   try {
-    const res = await Api.doctors.list(specialtyId || null, '', document.getElementById('doctor-sort').value);
+    const params = new URLSearchParams({sort: document.getElementById('doctor-sort').value, size: '20', page: String(doctorPage)});
+    if (specialtyId) params.set('specialtyId', specialtyId);
+    const keyword = document.getElementById('doctor-search-input').value.trim();
+    if (keyword) params.set('keyword', keyword);
+    const res = await Api.get(`/doctors?${params}`);
+    if (requestId !== doctorsRequestId) return;
     allDoctors = res.data || [];
+    document.getElementById('doctors-prev').disabled = doctorPage === 0;
+    document.getElementById('doctors-next').disabled = allDoctors.length < 20;
+    document.getElementById('doctors-page').textContent = 'Trang ' + (doctorPage + 1);
     filterDoctors();
   } catch (err) {
-    grid.innerHTML = `<div class="col-12"><div class="alert alert-danger shadow-sm">${err.message}</div></div>`;
+    if (requestId !== doctorsRequestId) return;
+    grid.innerHTML = `<div class="col-12"><div class="alert alert-danger shadow-sm">${Utils.escapeHtml(err.message)} <button type="button" class="btn btn-outline-primary btn-sm" data-ui-click="action73">Thử lại</button></div></div>`;
   }
 }
 
@@ -84,16 +102,16 @@ function renderDoctors(doctors) {
           <i class="bi bi-person-fill"></i>
         </div>
 
-        <h5 class="fw-bold text-dark mb-1">${d.fullName}</h5>
+        <h5 class="fw-bold text-dark mb-1">${Utils.escapeHtml(d.fullName)}</h5>
         <div class="mb-3">
           <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1 fw-semibold">
-            ${d.specialtyName || 'Chuyên khoa tổng quát'}
+            ${Utils.escapeHtml(d.specialtyName || 'Chuyên khoa tổng quát')}
           </span>
         </div>
 
         <div class="d-flex justify-content-center gap-2 mb-3">
-          <div class="stat-badge small text-muted"><i class="bi bi-mortarboard-fill text-warning me-1"></i> ${d.degree || 'Bác sĩ'}</div>
-          <div class="stat-badge small text-muted"><i class="bi bi-award-fill text-info me-1"></i> ${d.experienceYears} năm KN</div>
+          <div class="stat-badge small text-muted"><i class="bi bi-mortarboard-fill text-warning me-1"></i> ${Utils.escapeHtml(d.degree || 'Bác sĩ')}</div>
+          <div class="stat-badge small text-muted"><i class="bi bi-award-fill text-info me-1"></i> ${Utils.escapeHtml(d.experienceYears)} năm KN</div>
         </div>
 
         <div class="mt-auto pt-3 border-top d-flex align-items-center justify-content-between">
@@ -102,10 +120,10 @@ function renderDoctors(doctors) {
             <span class="fw-bold text-success fs-5">${Utils.formatCurrency(d.consultationFee)}</span>
           </div>
           <div class="d-flex gap-2">
-            <button class="btn btn-outline-info btn-sm rounded-circle" title="Xem thông tin chi tiết" onclick="viewDoctorDetail(${d.userId})">
+            <button class="btn btn-outline-info btn-sm rounded-circle" title="Xem thông tin chi tiết" data-ui-click="action61" data-ui-arg0="${Utils.escapeHtml(JSON.stringify(d.userId))}">
               <i class="bi bi-info-circle fs-6"></i>
             </button>
-            <button class="btn btn-primary rounded-pill px-3 fw-semibold shadow-sm" onclick="openBookingModal(${d.userId}, '${d.fullName}', '${d.specialtyName || 'Chuyên khoa'}')">
+            <button class="btn btn-primary rounded-pill px-3 fw-semibold shadow-sm" data-ui-click="action62" data-ui-arg0="${Utils.escapeHtml(JSON.stringify(d.userId))}">
               <i class="bi bi-calendar-plus me-1"></i> Đặt Lịch
             </button>
           </div>
@@ -113,6 +131,11 @@ function renderDoctors(doctors) {
       </div>
     </div>
   `).join('');
+}
+
+function bookDoctor(docId) {
+  const doc = allDoctors.find(d => d.userId === docId);
+  if (doc) openBookingModal(doc.userId, doc.fullName, doc.specialtyName || 'Chuyên khoa');
 }
 
 function viewDoctorDetail(docId) {
@@ -124,9 +147,9 @@ function viewDoctorDetail(docId) {
       <div class="avatar-circle shadow-sm mb-2" style="width:90px; height:90px; font-size:2.5rem;">
         <i class="bi bi-person-fill"></i>
       </div>
-      <h4 class="fw-bold text-dark mb-1">${doc.fullName}</h4>
+      <h4 class="fw-bold text-dark mb-1">${Utils.escapeHtml(doc.fullName)}</h4>
       <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1 fs-6">
-        ${doc.specialtyName || 'Chuyên khoa'}
+        ${Utils.escapeHtml(doc.specialtyName || 'Chuyên khoa')}
       </span>
     </div>
 
@@ -134,19 +157,19 @@ function viewDoctorDetail(docId) {
       <div class="col-md-6">
         <div class="bg-light p-3 rounded-3">
           <small class="text-muted d-block mb-1"><i class="bi bi-mortarboard me-1"></i>Bằng cấp / Học vị:</small>
-          <strong class="text-dark">${doc.degree || 'Bác sĩ chuyên khoa'}</strong>
+          <strong class="text-dark">${Utils.escapeHtml(doc.degree || 'Bác sĩ chuyên khoa')}</strong>
         </div>
       </div>
       <div class="col-md-6">
         <div class="bg-light p-3 rounded-3">
           <small class="text-muted d-block mb-1"><i class="bi bi-award me-1"></i>Kinh nghiệm:</small>
-          <strong class="text-dark">${doc.experienceYears} năm kinh nghiệm</strong>
+          <strong class="text-dark">${Utils.escapeHtml(doc.experienceYears)} năm kinh nghiệm</strong>
         </div>
       </div>
       <div class="col-md-6">
         <div class="bg-light p-3 rounded-3">
           <small class="text-muted d-block mb-1"><i class="bi bi-telephone me-1"></i>Điện thoại liên hệ:</small>
-          <strong class="text-dark">${doc.phone || 'Chưa cung cấp'}</strong>
+          <strong class="text-dark">${Utils.escapeHtml(doc.phone || 'Chưa cung cấp')}</strong>
         </div>
       </div>
       <div class="col-md-6">
@@ -183,7 +206,11 @@ function filterDoctors() {
   renderDoctors(filtered);
 }
 
-const debouncedFilter = Utils.debounce(filterDoctors, 300);
+const debouncedFilter = Utils.debounce(() => loadDoctors(), 300);
+async function changeDoctorPage(offset) {
+  if (doctorPage + offset < 0) return;
+  doctorPage += offset; await loadDoctors(undefined, true);
+}
 
 function onSpecialtyChange(val) {
   loadDoctors(val);
@@ -204,6 +231,7 @@ function openBookingModal(docId, docName, specName) {
   document.getElementById('modal-doc-detail-name').innerText = docName;
   document.getElementById('modal-doc-detail-spec').innerText = specName;
 
+  editBooking();
   bookingBsModal.show();
   loadSlots();
 }
@@ -213,6 +241,10 @@ async function loadSlots() {
   const date = document.getElementById('booking-date').value;
   const container = document.getElementById('slots-container');
   if (!date || !docId) return;
+  const requestId = ++slotRequestId;
+  editBooking();
+  availableSlots = [];
+  document.getElementById('btn-review-booking').disabled = true;
   document.getElementById('selected-schedule-id').value = '';
   document.getElementById('btn-confirm-booking').disabled = true;
 
@@ -225,7 +257,9 @@ async function loadSlots() {
 
   try {
     const res = await Api.doctors.slots(docId, date);
+    if (requestId !== slotRequestId) return;
     const slots = res.data || [];
+    availableSlots = slots;
 
     if (slots.length === 0) {
       container.innerHTML = '<p class="text-muted small my-2"><i class="bi bi-info-circle me-1"></i>Bác sĩ chưa có lịch rảnh vào ngày này. Vui lòng chọn ngày khác.</p>';
@@ -242,13 +276,14 @@ async function loadSlots() {
       }
       return `
         <button type="button" class="btn btn-outline-success rounded-3 px-3 py-2 fw-semibold slot-btn"
-          onclick="selectSlot(this, ${s.id})">
+          data-ui-click="action63" data-ui-arg0="${Utils.escapeHtml(JSON.stringify(s.id))}">
           <i class="bi bi-clock me-1"></i>${Utils.formatTime(s.startTime)} - ${Utils.formatTime(s.endTime)}
         </button>
       `;
     }).join('');
   } catch (err) {
-    container.innerHTML = `<div class="alert alert-danger py-2 px-3 small mb-0">${err.message}</div>`;
+    if (requestId !== slotRequestId) return;
+    container.innerHTML = `<div class="alert alert-danger py-2 px-3 small mb-0">${Utils.escapeHtml(err.message)} <button type="button" class="btn btn-outline-primary btn-sm" data-ui-click="action8">Thử lại</button></div>`;
   }
 }
 
@@ -263,10 +298,10 @@ function selectSlot(btn, scheduleId) {
   btn.classList.remove('btn-outline-success');
   btn.classList.add('selected', 'btn-success');
   document.getElementById('selected-schedule-id').value = scheduleId;
-  document.getElementById('btn-confirm-booking').disabled = false;
+  document.getElementById('btn-review-booking').disabled = false;
 }
 
-document.getElementById('booking-form').addEventListener('submit', async (e) => {
+async function submitBooking(e) {
   e.preventDefault();
   const scheduleId = document.getElementById('selected-schedule-id').value;
   const symptoms = document.getElementById('symptoms').value;
@@ -274,7 +309,8 @@ document.getElementById('booking-form').addEventListener('submit', async (e) => 
   const docName = document.getElementById('modal-doc-detail-name').innerText;
   const dateVal = document.getElementById('booking-date').value;
 
-  if (!scheduleId) return;
+  if (!scheduleId || !bookingReviewed || bookingPending) return;
+  bookingPending = true;
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý đặt lịch...';
 
@@ -284,19 +320,73 @@ document.getElementById('booking-form').addEventListener('submit', async (e) => 
       symptoms: symptoms
     });
 
+    bookingReviewed = false;
     bookingBsModal.hide();
+    document.getElementById('symptoms').value = '';
     Utils.showToast('Đặt lịch khám thành công!', 'success');
 
     const createdApp = res.data || {};
     document.getElementById('success-booking-code').innerText = createdApp.bookingCode || 'BK-SUCCESS';
     document.getElementById('success-doctor-name').innerText = docName;
-    document.getElementById('success-date-time').innerText = Utils.formatDate(dateVal);
+    document.getElementById('success-date-time').innerText = `${Utils.formatDate(dateVal)} ${Utils.formatTime(createdApp.startTime)} – ${Utils.formatTime(createdApp.endTime)}`;
     successBsModal.show();
 
   } catch (err) {
-    Utils.showToast(err.message, 'error');
+    const conflict = err.status === 409 || /đã được đặt|không còn trống|409|conflict/i.test(err.message);
+    if (conflict) {
+      await loadSlots();
+      const feedback = document.getElementById('booking-feedback');
+      feedback.textContent = 'Ca khám vừa được người khác chọn. Triệu chứng đã được giữ lại; vui lòng chọn ca khác và kiểm tra lại.';
+      feedback.classList.remove('hidden');
+    } else {
+      const feedback = document.getElementById('booking-feedback');
+      feedback.textContent = err.message || 'Không thể đặt lịch. Vui lòng thử lại.';
+      feedback.classList.remove('hidden');
+    }
   } finally {
-    btn.disabled = false;
+    bookingPending = false;
+    btn.disabled = !bookingReviewed;
     btn.innerHTML = '<i class="bi bi-check-circle me-1"></i> Xác Nhận Đặt Lịch';
   }
-});
+}
+document.getElementById('booking-form').addEventListener('submit', submitBooking);
+
+function editBooking() {
+  bookingReviewed = false;
+  document.getElementById('booking-selection').classList.remove('hidden');
+  document.getElementById('booking-review').classList.add('hidden');
+  document.getElementById('btn-confirm-booking').classList.add('hidden');
+  document.getElementById('btn-confirm-booking').disabled = true;
+  document.getElementById('btn-review-booking').classList.remove('hidden');
+  document.getElementById('btn-edit-booking').classList.add('hidden');
+}
+async function reviewBooking() {
+  const doc = allDoctors.find(d => d.userId === Number(document.getElementById('selected-doctor-id').value));
+  const slot = availableSlots.find(s => s.id === Number(document.getElementById('selected-schedule-id').value));
+  if (!doc || !slot || bookingPending) return;
+  const feedback = document.getElementById('booking-feedback');
+  try {
+    clinicInfo = (await Api.get('/clinic-info', false)).data || {};
+  } catch (error) {
+    feedback.textContent = 'Không thể tải thông tin phòng khám: ' + error.message + '. Vui lòng thử lại trước khi xác nhận.';
+    feedback.classList.remove('hidden');
+    return;
+  }
+  document.getElementById('booking-review').innerHTML = `
+    <h6 class="fw-bold">3. Kiểm tra trước khi xác nhận</h6>
+    <dl class="booking-summary"><dt>Bác sĩ</dt><dd>${Utils.escapeHtml(doc.fullName)}</dd>
+    <dt>Ngày, giờ khám</dt><dd>${Utils.formatDate(document.getElementById('booking-date').value)} ${Utils.formatTime(slot.startTime)} – ${Utils.formatTime(slot.endTime)}</dd>
+    <dt>Phí khám</dt><dd>${Utils.formatCurrency(doc.consultationFee)}</dd>
+    <dt>Nơi khám</dt><dd>${Utils.escapeHtml(clinicInfo.name || 'Phòng khám')} — ${Utils.escapeHtml(clinicInfo.address || 'Chưa cấu hình địa chỉ. Vui lòng liên hệ phòng khám trước khi đến.')}</dd>
+    <dt>Triệu chứng</dt><dd>${Utils.escapeHtml(document.getElementById('symptoms').value || 'Không ghi nhận')}</dd></dl>
+    <p class="alert alert-info">Chỉ hủy lịch khi còn hơn ${Number(clinicInfo.cancellationHours) || 24} giờ trước giờ khám. Phí hiển thị là phí khám, chưa phải thanh toán.</p>`;
+  bookingReviewed = true;
+  feedback.classList.add('hidden');
+  document.getElementById('booking-selection').classList.add('hidden');
+  document.getElementById('booking-review').classList.remove('hidden');
+  document.getElementById('btn-confirm-booking').classList.remove('hidden');
+  document.getElementById('btn-confirm-booking').disabled = false;
+  document.getElementById('btn-review-booking').classList.add('hidden');
+  document.getElementById('btn-edit-booking').classList.remove('hidden');
+  document.getElementById('btn-confirm-booking').focus();
+}

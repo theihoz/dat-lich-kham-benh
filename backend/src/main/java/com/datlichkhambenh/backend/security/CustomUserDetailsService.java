@@ -30,6 +30,9 @@ public class CustomUserDetailsService implements UserDetailsService {
         this.doctorRepository = doctorRepository;
     }
 
+    @org.springframework.beans.factory.annotation.Autowired
+    private org.springframework.core.env.Environment environment;
+
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -43,7 +46,8 @@ public class CustomUserDetailsService implements UserDetailsService {
                 || doctorRepository.findById(user.getId())
                 .map(doctor -> Boolean.TRUE.equals(doctor.getIsApproved()))
                 .orElse(false);
-        boolean canAccess = isActive && isApprovedDoctor;
+        boolean verified = !environment.acceptsProfiles(org.springframework.core.env.Profiles.of("prod")) || user.isEmailVerified();
+        boolean canAccess = isActive && isApprovedDoctor && verified;
 
         // Dung truc tiep user.getRole() (vi du: "ADMIN") - khong them "ROLE_"
         // de khop voi @PreAuthorize("hasAuthority('ADMIN')") tren Controller

@@ -84,3 +84,9 @@ a { transition: .2s ease; }
   .auth-container::before { content: 'Sức khỏe trong tầm tay'; left: 1.5rem; top: 2rem; font-size: 1.7rem; }
   .auth-card { margin-left: 0; } .grid-2 { grid-template-columns: 1fr; }
 }
+
+/* Performance: content-visibility for off-screen cards */
+.doctor-card, .card { content-visibility: auto; contain-intrinsic-size: auto 300px; }
+/* Reduce paint for animated elements */
+.spinner, .skeleton { will-change: transform; }
+.feature-card-modern { will-change: transform; }

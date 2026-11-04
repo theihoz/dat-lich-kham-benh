@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Đăng Nhập - DatLichKhamBenh</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="vendor/bootstrap.min.css" rel="stylesheet">
+  <link href="vendor/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -17,18 +17,18 @@
         <p>Nhập thông tin tài khoản để tiếp tục</p>
       </div>
 
-      <div id="error-alert" class="alert alert-error hidden"></div>
+      <div id="error-alert" role="alert" aria-live="polite" class="alert alert-error hidden"></div>
 
       <form id="login-form">
         <div class="form-group">
-          <label class="form-label">Email</label>
+          <label class="form-label" for="email">Email</label>
           <input type="email" id="email" class="form-control" placeholder="name@clinic.vn" required autocomplete="email">
         </div>
         <div class="form-group">
-          <label class="form-label">Mật khẩu</label>
+          <label class="form-label" for="password">Mật khẩu</label>
           <div style="position:relative;">
             <input type="password" id="password" class="form-control" placeholder="Mật khẩu" required autocomplete="current-password" style="padding-right:2.8rem;">
-            <button type="button" id="toggle-password" onclick="togglePassword()"
+            <button type="button" id="toggle-password" aria-label="Hiện hoặc ẩn mật khẩu"
               style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:#66758a;cursor:pointer;padding:4px;">
               <i class="bi bi-eye" id="eye-icon"></i>
             </button>
@@ -36,7 +36,7 @@
         </div>
 
         <div class="d-flex justify-content-end mb-2">
-          <a href="#" class="text-primary fw-semibold small" onclick="openForgotPassword(event)" style="text-decoration:none;">
+          <a href="#" class="text-primary fw-semibold small" id="forgot-link" style="text-decoration:none;">
             <i class="bi bi-key me-1"></i>Quên mật khẩu?
           </a>
         </div>
@@ -47,7 +47,7 @@
       </form>
 
       <div class="auth-footer">
-        Chưa có tài khoản? <a href="register.html">Đăng ký Bệnh nhân</a>
+        Chưa có tài khoản? <a href="register.html">Đăng ký Bệnh nhân</a><br><a href="account.html">Gửi lại email xác minh</a>
       </div>
     </div>
   </div>
@@ -62,89 +62,24 @@
         </div>
         <div class="modal-body px-4 pb-4">
           <p class="text-muted small mb-3">
-            Tính năng đặt lại mật khẩu qua email đang được phát triển. Trong thời gian này, vui lòng liên hệ quản trị viên để được hỗ trợ đặt lại mật khẩu.
+            Nhập email để yêu cầu liên kết đặt lại mật khẩu. Liên kết hết hạn sau 30 phút và chỉ dùng được một lần.
           </p>
-          <div class="alert alert-info d-flex align-items-start gap-2 rounded-3" style="font-size:.88rem;">
-            <i class="bi bi-info-circle-fill mt-1 flex-shrink-0"></i>
-            <div>
-              <strong>Liên hệ quản trị viên:</strong><br>
-              Sử dụng thông tin liên hệ được phòng khám cung cấp.<br>
-              Cung cấp email tài khoản để được hỗ trợ đặt lại mật khẩu nhanh chóng.
-            </div>
-          </div>
           <div class="mb-3">
-            <label class="form-label fw-semibold">Email tài khoản của bạn</label>
+            <label class="form-label fw-semibold" for="forgot-email">Email tài khoản của bạn</label>
             <input type="email" id="forgot-email" class="form-control" placeholder="Nhập email tài khoản..." autocomplete="email">
           </div>
-          <button class="btn btn-primary w-100 rounded-pill fw-semibold" id="btn-forgot-send" onclick="sendForgotPassword()">
-            <i class="bi bi-info-circle me-1"></i> Hướng Dẫn Hỗ Trợ
+          <button class="btn btn-primary w-100 rounded-pill fw-semibold" id="btn-forgot-send">
+            <i class="bi bi-info-circle me-1"></i> Gửi liên kết đặt lại
           </button>
         </div>
       </div>
     </div>
   </div>
 
-  <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script defer src="js/api.js"></script>
-  <script defer src="js/utils.js"></script>
-  <script defer src="js/auth.js"></script>
-  <script>
-    // Redirect if already logged in
-    const existingUser = Auth.getUser();
-    if (existingUser) Auth.redirectByRole(existingUser.role);
-
-    let forgotModal = null;
-    document.addEventListener('DOMContentLoaded', () => {
-      forgotModal = new bootstrap.Modal(document.getElementById('forgot-modal'));
-    });
-
-    function openForgotPassword(e) {
-      e.preventDefault();
-      const emailVal = document.getElementById('email').value;
-      if (emailVal) document.getElementById('forgot-email').value = emailVal;
-      forgotModal.show();
-    }
-
-    function togglePassword() {
-      const input = document.getElementById('password');
-      const icon = document.getElementById('eye-icon');
-      if (input.type === 'password') {
-        input.type = 'text';
-        icon.className = 'bi bi-eye-slash';
-      } else {
-        input.type = 'password';
-        icon.className = 'bi bi-eye';
-      }
-    }
-
-    function sendForgotPassword() {
-      Utils.showToast('Chưa có chức năng gửi yêu cầu đặt lại mật khẩu. Vui lòng liên hệ quản trị viên qua kênh hỗ trợ của phòng khám.', 'info');
-    }
-
-    document.getElementById('login-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const errBox = document.getElementById('error-alert');
-      const btn = document.getElementById('btn-submit');
-      errBox.classList.add('hidden');
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span> Đang đăng nhập...';
-
-      try {
-        const res = await Api.auth.login({
-          email: document.getElementById('email').value,
-          password: document.getElementById('password').value
-        });
-        Auth.setSession(res.data);
-        Utils.showToast('Đăng nhập thành công!', 'success');
-        setTimeout(() => Auth.redirectByRole(res.data.role), 500);
-      } catch (err) {
-        errBox.innerText = err.message || 'Email hoặc mật khẩu không đúng.';
-        errBox.classList.remove('hidden');
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = 'Đăng Nhập';
-      }
-    });
-  </script>
+  <script defer src="vendor/bootstrap.bundle.min.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/auth.js"></script>
+  <script defer src="js/pages/auth-login.js"></script>
 </body>
 </html>

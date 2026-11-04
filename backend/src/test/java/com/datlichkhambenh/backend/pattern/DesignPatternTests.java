@@ -63,7 +63,17 @@ class DesignPatternTests {
 
     @Test void queueConsumerComposesFactoryMethodAndAdapter() {
         NotificationSender sender = mock(NotificationSender.class);
-        new EmailQueueConsumer(creators, sender).consume(message("BOOKING_CANCELLED"));
+        var receipts = mock(com.datlichkhambenh.backend.repository.NotificationReceiptRepository.class);
+        var appointments = mock(com.datlichkhambenh.backend.repository.AppointmentRepository.class);
+        var json = new com.fasterxml.jackson.databind.ObjectMapper();
+        var delivery = new DurableNotificationConsumer(receipts, appointments, creators, sender, json,
+                new io.micrometer.core.instrument.simple.SimpleMeterRegistry());
+        try {
+            var properties = new org.springframework.amqp.core.MessageProperties();
+            properties.setMessageId("pattern-message"); properties.setHeader("notificationKind", "BOOKING");
+            new EmailQueueConsumer(delivery).consume(new org.springframework.amqp.core.Message(
+                    json.writeValueAsBytes(message("BOOKING_CANCELLED")), properties));
+        } catch (com.fasterxml.jackson.core.JsonProcessingException ex) { throw new AssertionError(ex); }
         ArgumentCaptor<NotificationContent> content = ArgumentCaptor.forClass(NotificationContent.class);
         verify(sender).send(eq("patient@example.test"), content.capture());
         assertTrue(content.getValue().body().contains("đã được hủy"));

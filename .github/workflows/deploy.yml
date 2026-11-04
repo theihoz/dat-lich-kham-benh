@@ -1,0 +1,40 @@
+name: Deploy approved release
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        options: [staging, production]
+        required: true
+      image:
+        description: 'Previously CI-tested GHCR image digest (ghcr.io/owner/repo@sha256:...)'
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: clinic-deploy-${{ inputs.environment }}
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate release digest
+        env:
+          RELEASE_IMAGE: ${{ inputs.image }}
+        run: |
+          [[ "$RELEASE_IMAGE" =~ ^ghcr\.io/[a-zA-Z0-9_./-]+@sha256:[a-f0-9]{64}$ ]]
+      - name: Deploy using host-pinned SSH and existing environment configuration
+        env:
+          RELEASE_IMAGE: ${{ inputs.image }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          umask 077
+          mkdir -p ~/.ssh
+          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/clinic_key
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          ssh -i ~/.ssh/clinic_key -o StrictHostKeyChecking=yes "$DEPLOY_USER@$DEPLOY_HOST" "cd /opt/clinic && ./ops/deploy.sh '$RELEASE_IMAGE'"

@@ -28,6 +28,13 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         this.userDetailsService = userDetailsService;
     }
 
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.datlichkhambenh.backend.repository.UserRepository users;
+    @org.springframework.beans.factory.annotation.Autowired
+    private AuthSessionService sessions;
+    @org.springframework.beans.factory.annotation.Autowired
+    private org.springframework.core.env.Environment environment;
+
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
@@ -42,7 +49,15 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 String email = jwtTokenProvider.getEmailFromToken(jwt);
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
-                if (userDetails.isEnabled() && userDetails.isAccountNonLocked()
+                io.jsonwebtoken.Claims claims = jwtTokenProvider.extractClaims(jwt);
+                Number tokenVersion = claims.get("cv", Number.class);
+                com.datlichkhambenh.backend.entity.User user = users.findByEmailIgnoreCase(email).orElseThrow();
+                boolean versionMatches = (tokenVersion == null ? 0 : tokenVersion.longValue()) == user.getCredentialsVersion();
+                String family = claims.get("family", String.class);
+                boolean sessionActive = family == null
+                        ? !environment.acceptsProfiles(org.springframework.core.env.Profiles.of("prod"))
+                        : sessions.isFamilyActive(family, user.getId());
+                if (versionMatches && sessionActive && userDetails.isEnabled() && userDetails.isAccountNonLocked()
                         && userDetails.isAccountNonExpired() && userDetails.isCredentialsNonExpired()) {
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                             userDetails,
@@ -54,7 +69,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 }
             }
         } catch (Exception ex) {
-            log.error("Cannot set user authentication in SecurityContext: {}", ex.getMessage());
+            log.debug("Bearer authentication rejected");
         }
 
         filterChain.doFilter(request, response);
@@ -71,7 +86,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
-        // Chỉ chạy JwtTokenFilter đối với các REST API request /api/v1/ (ngoại trừ /api/v1/auth/)
-        return !path.startsWith("/api/v1/") || path.startsWith("/api/v1/auth/");
+        // Auth includes password changes; protected Actuator endpoints also require JWT.
+        return !path.startsWith("/api/v1/") && !path.startsWith("/actuator/");
     }
 }

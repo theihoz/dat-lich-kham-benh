@@ -30,6 +30,17 @@ public class User {
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
+    @Column(name = "credentials_version", nullable = false)
+    private long credentialsVersion = 0;
+
+    @Column(name = "email_verified", nullable = false)
+    private boolean emailVerified = true;
+
+    public long getCredentialsVersion() { return credentialsVersion; }
+    public void setCredentialsVersion(long value) { credentialsVersion = value; }
+    public boolean isEmailVerified() { return emailVerified; }
+    public void setEmailVerified(boolean value) { emailVerified = value; }
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

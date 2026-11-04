@@ -26,6 +26,10 @@ public class SecurityConfig {
 
     private final JwtTokenFilter jwtTokenFilter;
     private final UserDetailsService userDetailsService;
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.datlichkhambenh.backend.security.AuthRateLimitFilter rateLimitFilter;
+    @org.springframework.beans.factory.annotation.Autowired
+    private org.springframework.core.env.Environment environment;
 
     public SecurityConfig(JwtTokenFilter jwtTokenFilter, UserDetailsService userDetailsService) {
         this.jwtTokenFilter = jwtTokenFilter;
@@ -41,9 +45,11 @@ public class SecurityConfig {
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 // 1. Công khai các API Auth & Actuator
+                .requestMatchers("/api/v1/auth/change-password").authenticated()
                 .requestMatchers("/api/v1/auth/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/doctors/specialties").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/doctors/specialties", "/api/v1/clinic-info").permitAll()
                 .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
+                .requestMatchers("/actuator/prometheus").hasAnyAuthority("ADMIN", "METRICS")
                 .requestMatchers("/actuator/**").hasAuthority("ADMIN")
 
                 // 2. Yêu cầu xác thực JWT cho tất cả REST API ngoại trừ auth
@@ -56,7 +62,9 @@ public class SecurityConfig {
                 .authenticationEntryPoint((request, response, exception) -> response.sendError(401))
                 .accessDeniedHandler((request, response, exception) -> response.sendError(403)))
             .authenticationProvider(authenticationProvider())
-            .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(new com.datlichkhambenh.backend.security.MetricsAuthenticationFilter(environment), JwtTokenFilter.class)
+            .addFilterBefore(rateLimitFilter, JwtTokenFilter.class);
 
         return http.build();
     }

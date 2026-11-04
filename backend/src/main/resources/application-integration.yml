@@ -1,0 +1,45 @@
+# Real local/CI services; use independently of profile test/demo.
+spring:
+  datasource:
+    url: ${INTEGRATION_DB_URL:jdbc:mysql://localhost:13316/clinic_integration?sslMode=REQUIRED&serverTimezone=Asia/Ho_Chi_Minh}
+    username: clinic
+    password: local-integration-db-password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    defer-datasource-initialization: false
+    open-in-view: false
+  flyway:
+    enabled: true
+    baseline-on-migrate: false
+    clean-disabled: true
+  data:
+    redis:
+      host: localhost
+      port: 16386
+      password: local-integration-cache-password
+  rabbitmq:
+    host: localhost
+    port: 15686
+    username: clinic
+    password: local-integration-broker-password
+    publisher-confirm-type: correlated
+    publisher-returns: true
+  mail:
+    host: localhost
+    port: 11026
+    username: integration
+    password: integration
+    properties:
+      mail.smtp.auth: false
+      mail.smtp.starttls.enable: false
+app:
+  public-url: http://localhost:18081
+  jwt:
+    secret: local-integration-only-secret-over-256-bits
+  delivery:
+    scheduling-enabled: false
+logging:
+  level:
+    com.datlichkhambenh: INFO

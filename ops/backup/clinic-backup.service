@@ -1,0 +1,11 @@
+[Unit]
+Description=Encrypted clinic MySQL backup
+Requires=docker.service
+After=docker.service
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/clinic
+EnvironmentFile=/etc/clinic/backup.env
+ExecStart=/opt/clinic/ops/backup/backup.sh
+User=clinic-ops
+UMask=0077

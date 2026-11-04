@@ -25,6 +25,7 @@ public class PatientServiceImpl implements PatientService {
     private final PatientRepository patientRepository;
     private final MedicalRecordRepository medicalRecordRepository;
     private final DoctorRepository doctorRepository;
+    private final com.datlichkhambenh.backend.audit.MedicalAuditService audit;
 
     @Override
     @Transactional(readOnly = true)
@@ -56,9 +57,12 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public List<MedicalRecordDto> getPatientMedicalRecords(Long patientUserId) {
-        List<MedicalRecord> records = medicalRecordRepository.findByAppointmentPatientUserId(patientUserId);
+        Long actorId = audit.resolveActor(patientUserId);
+        List<MedicalRecord> records = medicalRecordRepository.findByAppointmentPatientUserId(actorId);
+        if (records.isEmpty()) audit.record(actorId, "READ_LIST", null, null);
+        for (MedicalRecord record : records) audit.record(actorId, "READ", record.getId(), record.getAppointment().getId());
         List<MedicalRecordDto> list = records.stream().map(r -> MedicalRecordDto.builder()
                 .id(r.getId())
                 .appointmentId(r.getAppointment().getId())

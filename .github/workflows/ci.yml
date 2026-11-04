@@ -43,6 +43,8 @@ jobs:
         run: python3 scripts/validate_diagrams.py
       - name: Frontend khớp static/
         run: python3 scripts/sync_frontend.py --check
+      - name: Kiểm thử hồi quy frontend
+        run: node scripts/frontend_regression.cjs
 
   docker:
     name: Build image và smoke test
@@ -53,7 +55,7 @@ jobs:
       - name: Build image
         run: docker build -t clinic-backend:ci backend
       - name: Chạy container (profile demo)
-        run: docker run -d --name clinic -p 8080:8080 clinic-backend:ci
+        run: docker run -d --name clinic -e SPRING_PROFILES_ACTIVE=demo -p 8080:8080 clinic-backend:ci
       - name: Chờ readiness (seed xong)
         run: |
           for i in $(seq 1 60); do

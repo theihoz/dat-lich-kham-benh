@@ -29,6 +29,7 @@ import java.time.Year;
 public class AdminController {
 
     private final AdminManagementService adminManagementService;
+    private final com.datlichkhambenh.backend.service.query.AdminReadService queries;
 
     @GetMapping("/doctors/pending")
     public ResponseEntity<ApiResponseDto<List<DoctorDto>>> getPendingDoctors() {
@@ -63,13 +64,15 @@ public class AdminController {
 
     @GetMapping("/stats")
     public ResponseEntity<ApiResponseDto<Map<String, Object>>> getSystemStats() {
-        Map<String, Object> stats = adminManagementService.getSystemStats();
+        Map<String, Object> stats = queries.stats();
         return ResponseEntity.ok(ApiResponseDto.success(stats));
     }
 
     @GetMapping("/users")
-    public ResponseEntity<ApiResponseDto<List<UserDto>>> getUsers(@RequestParam(required = false) String role) {
-        return ResponseEntity.ok(ApiResponseDto.success(adminManagementService.getUsers(role)));
+    public ResponseEntity<ApiResponseDto<List<UserDto>>> getUsers(@RequestParam(required = false) String role,
+            @RequestParam(defaultValue="0") int page,@RequestParam(defaultValue="20") int size) {
+        var result=queries.users(role,page,size);
+        return ResponseEntity.ok().header("X-Total-Count",Long.toString(result.total())).body(ApiResponseDto.success(result.content()));
     }
 
     @PutMapping("/users/{id}/status")
@@ -93,12 +96,13 @@ public class AdminController {
     public ResponseEntity<ApiResponseDto<Map<String, Object>>> analytics(
             @RequestParam(required = false) Integer year) {
         int selectedYear = year != null ? year : Year.now().getValue();
-        return ResponseEntity.ok(ApiResponseDto.success(adminManagementService.getAnalytics(selectedYear)));
+        return ResponseEntity.ok(ApiResponseDto.success(queries.analytics(selectedYear)));
     }
 
     @GetMapping("/doctors")
-    public ResponseEntity<ApiResponseDto<List<DoctorDto>>> getDoctors() {
-        return ResponseEntity.ok(ApiResponseDto.success(adminManagementService.getDoctors()));
+    public ResponseEntity<ApiResponseDto<List<DoctorDto>>> getDoctors(@RequestParam(defaultValue="0") int page,@RequestParam(defaultValue="20") int size) {
+        var result=queries.doctors(page,size);
+        return ResponseEntity.ok().header("X-Total-Count",Long.toString(result.total())).body(ApiResponseDto.success(result.content()));
     }
 
     @PostMapping("/doctors")
@@ -120,8 +124,9 @@ public class AdminController {
     }
 
     @GetMapping("/patients")
-    public ResponseEntity<ApiResponseDto<List<PatientDto>>> getPatients() {
-        return ResponseEntity.ok(ApiResponseDto.success(adminManagementService.getPatients()));
+    public ResponseEntity<ApiResponseDto<List<PatientDto>>> getPatients(@RequestParam(defaultValue="0") int page,@RequestParam(defaultValue="20") int size) {
+        var result=queries.patients(page,size);
+        return ResponseEntity.ok().header("X-Total-Count",Long.toString(result.total())).body(ApiResponseDto.success(result.content()));
     }
 
     @PostMapping("/patients")
@@ -141,4 +146,11 @@ public class AdminController {
         adminManagementService.deletePatient(id);
         return ResponseEntity.ok(ApiResponseDto.success(null, "Đã xóa bệnh nhân"));
     }
+    @GetMapping("/appointments")
+    public ResponseEntity<ApiResponseDto<List<com.datlichkhambenh.backend.dto.response.AppointmentDto>>> appointments(
+            @RequestParam(required=false) Long doctorId,@RequestParam(defaultValue="0") int page,@RequestParam(defaultValue="20") int size) {
+        var result=queries.appointments(doctorId,page,size);
+        return ResponseEntity.ok().header("X-Total-Count",Long.toString(result.total())).body(ApiResponseDto.success(result.content()));
+    }
+
 }

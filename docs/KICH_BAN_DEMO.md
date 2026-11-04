@@ -84,7 +84,7 @@ cd backend
 JAVA_HOME=/path/to/java-21 mvn test
 ```
 
-Kết quả mong đợi: `Tests run: 35, Failures: 0, Errors: 0, Skipped: 0 — BUILD SUCCESS`
+Kết quả mong đợi: `Tests run: 50, Failures: 0, Errors: 0, Skipped: 0 — BUILD SUCCESS`
 
 ## 6. Lưu ý
 

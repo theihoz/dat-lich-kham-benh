@@ -10,6 +10,7 @@ import lombok.*;
 public class LoginResponseDto {
 
     private String accessToken;
+    @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
     private String refreshToken;
     private String tokenType;
     private Long userId;

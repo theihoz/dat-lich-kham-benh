@@ -14,8 +14,10 @@ import com.datlichkhambenh.backend.service.RedisCacheService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Isolation;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -76,12 +78,17 @@ public class DoctorScheduleServiceImpl implements DoctorScheduleService {
         // Pattern Cache-Aside: 1. Đọc từ Redis trước
         List<ScheduleDto> cached = redisCacheService.getCachedAvailableSlots(doctorUserId, date);
         if (cached != null) {
-            return cached;
+            LocalDateTime now = LocalDateTime.now();
+            return cached.stream().filter(slot -> LocalDateTime.of(slot.getWorkDate(), slot.getStartTime())
+                    .isAfter(now)).toList();
         }
 
         // 2. Cache miss -> query DB
         List<Schedule> slots = scheduleRepository.findByDoctorUserIdAndWorkDateAndIsAvailableTrue(doctorUserId, date);
-        List<ScheduleDto> result = slots.stream().map(this::mapToDto).collect(Collectors.toList());
+        LocalDateTime now = LocalDateTime.now();
+        List<ScheduleDto> result = slots.stream()
+                .filter(slot -> LocalDateTime.of(slot.getWorkDate(), slot.getStartTime()).isAfter(now))
+                .map(this::mapToDto).collect(Collectors.toList());
 
         // 3. Ghi lại vào Redis cache
         redisCacheService.cacheAvailableSlots(doctorUserId, date, result);
@@ -104,7 +111,7 @@ public class DoctorScheduleServiceImpl implements DoctorScheduleService {
                 .orElseThrow(() -> new ResourceNotFoundException("Ca khám không tồn tại"));
 
         if (!schedule.getDoctor().getUserId().equals(doctorUserId)) {
-            throw new AppException("Bạn không quản lý ca khám này");
+            throw new AppException("Bạn không quản lý ca khám này", org.springframework.http.HttpStatus.FORBIDDEN);
         }
         if (appointmentRepository.existsByScheduleId(scheduleId)) {
             throw new AppException("Không thể thay đổi ca khám đã có lịch hẹn");
@@ -121,14 +128,18 @@ public class DoctorScheduleServiceImpl implements DoctorScheduleService {
     }
 
     @Override
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public ScheduleDto updateSlot(Long doctorUserId, Long scheduleId, CreateScheduleDto request) {
         Schedule schedule = scheduleRepository.findByIdForUpdate(scheduleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Ca khám không tồn tại"));
 
         if (!schedule.getDoctor().getUserId().equals(doctorUserId)) {
-            throw new AppException("Bạn không quản lý ca khám này");
+            throw new AppException("Bạn không quản lý ca khám này", org.springframework.http.HttpStatus.FORBIDDEN);
         }
+        // Keep schedule -> doctor lock order consistent with booking's foreign-key checks.
+        // READ_COMMITTED makes overlap checks see changes committed while waiting for this lock.
+        doctorRepository.findByIdForUpdate(doctorUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("Bác sĩ không tồn tại"));
         if (appointmentRepository.existsByScheduleId(scheduleId)) {
             throw new AppException("Không thể chỉnh sửa ca khám đã có lịch hẹn");
         }
@@ -164,7 +175,7 @@ public class DoctorScheduleServiceImpl implements DoctorScheduleService {
                 .orElseThrow(() -> new ResourceNotFoundException("Ca khám không tồn tại"));
 
         if (!schedule.getDoctor().getUserId().equals(doctorUserId)) {
-            throw new AppException("Bạn không quản lý ca khám này");
+            throw new AppException("Bạn không quản lý ca khám này", org.springframework.http.HttpStatus.FORBIDDEN);
         }
         if (appointmentRepository.existsByScheduleId(scheduleId)) {
             throw new AppException("Không thể xóa ca khám đã có lịch hẹn");

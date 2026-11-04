@@ -10,8 +10,10 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@org.springframework.transaction.annotation.Transactional
 public class AsyncEmailNotificationServiceImpl implements AsyncEmailNotificationService {
     private final ApplicationEventPublisher eventPublisher;
+    private final com.datlichkhambenh.backend.messaging.outbox.OutboxService outbox;
 
     @Override
     public void sendBookingConfirmation(Appointment appointment) {
@@ -40,6 +42,7 @@ public class AsyncEmailNotificationServiceImpl implements AsyncEmailNotification
                 appointment.getSchedule().getEndTime().toString(),
                 appointment.getPrice() == null ? null : appointment.getPrice().toPlainString()
         );
+        outbox.enqueue(message);
         eventPublisher.publishEvent(new EmailNotificationRequestedEvent(message));
     }
 }

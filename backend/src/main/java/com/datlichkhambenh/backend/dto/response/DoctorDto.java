@@ -13,6 +13,7 @@ public class DoctorDto {
 
     private Long userId;
     private String email;
+    private Boolean isActive;
     private String fullName;
     private String phone;
     private String degree;

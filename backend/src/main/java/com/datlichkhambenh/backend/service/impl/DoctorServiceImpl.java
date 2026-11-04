@@ -47,9 +47,9 @@ public class DoctorServiceImpl implements DoctorService {
             String normalized = keyword.trim().toLowerCase(Locale.ROOT);
             stream = stream.filter(d -> d.getFullName().toLowerCase(Locale.ROOT).contains(normalized));
         }
-        if (minFee != null) stream = stream.filter(d -> d.getConsultationFee().compareTo(minFee) >= 0);
-        if (maxFee != null) stream = stream.filter(d -> d.getConsultationFee().compareTo(maxFee) <= 0);
-        if (minExperience != null) stream = stream.filter(d -> d.getExperienceYears() >= minExperience);
+        if (minFee != null) stream = stream.filter(d -> d.getConsultationFee() != null && d.getConsultationFee().compareTo(minFee) >= 0);
+        if (maxFee != null) stream = stream.filter(d -> d.getConsultationFee() != null && d.getConsultationFee().compareTo(maxFee) <= 0);
+        if (minExperience != null) stream = stream.filter(d -> d.getExperienceYears() != null && d.getExperienceYears() >= minExperience);
 
         List<DoctorDto> filtered = stream.sorted(doctorSortRegistry.get(sort).comparator()).toList();
         int safePage = Math.max(page, 0);

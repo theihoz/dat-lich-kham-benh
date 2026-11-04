@@ -41,6 +41,10 @@ class TruthfulDataTests {
     @Mock PatientService patientService;
     @Mock PasswordEncoder passwordEncoder;
     @Mock MedicalServiceRepository medicalServiceRepository;
+    @Mock com.datlichkhambenh.backend.audit.MedicalAuditService audit;
+    @org.junit.jupiter.api.BeforeEach void useTrustedServiceActor() {
+        lenient().when(audit.resolveActor(anyLong())).thenAnswer(call -> call.getArgument(0));
+    }
     @InjectMocks PatientServiceImpl patientServiceImpl;
     @InjectMocks AdminManagementServiceImpl adminService;
 

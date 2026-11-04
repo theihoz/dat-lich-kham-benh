@@ -4,70 +4,44 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Danh Sách Bác Sĩ - DatLichKhamBenh</title>
-  <link rel="stylesheet" href="/css/style.css">
+  <link href="../vendor/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-  <div class="app-layout">
-    <aside class="sidebar">
+  <div class="container-fluid"><div class="row">
+    <aside class="sidebar p-3">
       <div class="sidebar-brand">
         <div class="logo">⚡</div>
         <span>Bệnh Nhân</span>
       </div>
-      <div class="sidebar-section">Menu</div>
-      <a href="/patient/dashboard.html" class="sidebar-link"><span class="icon">🏠</span> Đặt Lịch Khám</a>
-      <a href="/patient/appointments.html" class="sidebar-link"><span class="icon">📅</span> Lịch Hẹn Của Tôi</a>
-      <a href="/patient/doctors.html" class="sidebar-link active"><span class="icon">👨‍⚕️</span> Danh Sách Bác Sĩ</a>
+      <nav class="nav flex-column" aria-label="Menu bệnh nhân">
+      <a href="dashboard.html" class="nav-link"><span class="icon">🏠</span> Đặt Lịch Khám</a>
+      <a href="appointments.html" class="nav-link"><span class="icon">📅</span> Lịch Hẹn Của Tôi</a>
+      <a href="doctors.html" class="nav-link active"><span class="icon">👨‍⚕️</span> Danh Sách Bác Sĩ</a>
       
-      <div class="sidebar-footer">
-        <button onclick="Auth.logout()" class="btn btn-ghost btn-sm w-full">Đăng xuất</button>
+      <a href="medical-records.html" class="nav-link">Hồ sơ bệnh án</a><a href="profile.html" class="nav-link">Thông tin cá nhân</a></nav><div class="sidebar-footer">
+        <button data-ui-click="action2" class="btn btn-ghost btn-sm w-full">Đăng xuất</button>
       </div>
     </aside>
 
-    <main class="main-content">
+    <main class="py-4">
       <div class="page-header">
         <h1 class="page-title">Đội Ngũ Bác Sĩ</h1>
         <p class="page-subtitle">Xem thông tin các bác sĩ chuyên khoa giỏi</p>
       </div>
 
-      <div id="doctors-grid" class="grid grid-3">
+      <div id="doctors-grid" class="grid grid-3" aria-live="polite">
         <div class="card p-4"><div class="skeleton" style="height:60px;width:60px;border-radius:50%;margin:0 auto 10px"></div><div class="skeleton mx-auto" style="height:18px;width:60%;margin-bottom:6px"></div><div class="skeleton mx-auto" style="height:14px;width:40%"></div></div>
         <div class="card p-4"><div class="skeleton" style="height:60px;width:60px;border-radius:50%;margin:0 auto 10px"></div><div class="skeleton mx-auto" style="height:18px;width:60%;margin-bottom:6px"></div><div class="skeleton mx-auto" style="height:14px;width:40%"></div></div>
         <div class="card p-4"><div class="skeleton" style="height:60px;width:60px;border-radius:50%;margin:0 auto 10px"></div><div class="skeleton mx-auto" style="height:18px;width:60%;margin-bottom:6px"></div><div class="skeleton mx-auto" style="height:14px;width:40%"></div></div>
       </div>
     </main>
-  </div>
+  </div></div>
 
-  <script defer src="/js/api.js"></script>
-  <script defer src="/js/utils.js"></script>
-  <script defer src="/js/auth.js"></script>
-  <script>
-    Auth.checkAuth(['PATIENT']);
-
-    async function loadDoctors() {
-      const grid = document.getElementById('doctors-grid');
-      try {
-        const res = await Api.doctors.list();
-        const list = res.data || [];
-
-        grid.innerHTML = list.map(doc => `
-          <div class="card doctor-card">
-            <div class="avatar">👨‍⚕️</div>
-            <div class="name">${doc.fullName}</div>
-            <div class="specialty">${doc.specialtyName || 'Chuyên khoa'}</div>
-            <div class="meta">
-              <div class="meta-row">⭐ Kinh nghiệm: ${doc.experienceYears} năm</div>
-              <div class="meta-row">📞 SĐT: ${doc.phone || '-'}</div>
-            </div>
-            <div class="fee">${Utils.formatCurrency(doc.consultationFee)}</div>
-            <a href="/patient/dashboard.html" class="btn btn-primary btn-sm w-full mt-2">Đặt Lịch</a>
-          </div>
-        `).join('');
-      } catch (err) {
-        grid.innerHTML = `<div class="alert alert-error">${err.message}</div>`;
-      }
-    }
-
-    loadDoctors();
-  </script>
+  <script src="../js/api.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/pages/patient-doctors.js"></script>
+<script src="../js/ui-actions.js"></script>
 </body>
 </html>

@@ -18,7 +18,7 @@ public class RegisterRequestDto {
     private String email;
 
     @NotBlank(message = "Mật khẩu không được để trống")
-    @Size(min = 6, message = "Mật khẩu phải từ 6 ký tự trở lên")
+    @Size(min = 8, max = 72, message = "Mật khẩu phải từ 8 đến 72 ký tự")
     private String password;
 
     @NotBlank(message = "Role không được để trống (PATIENT hoặc DOCTOR)")

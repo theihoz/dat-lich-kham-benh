@@ -108,7 +108,7 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new ResourceNotFoundException("Lịch hẹn không tồn tại"));
 
         if (!appointment.getPatient().getUserId().equals(patientUserId)) {
-            throw new AppException("Bạn không có quyền hủy lịch hẹn này");
+            throw new AppException("Bạn không có quyền hủy lịch hẹn này", org.springframework.http.HttpStatus.FORBIDDEN);
         }
 
         if ("CANCELLED".equals(appointment.getStatus())) {
@@ -212,7 +212,7 @@ public class BookingServiceImpl implements BookingService {
     public void updateAppointmentStatus(Long appointmentId, Long doctorUserId, String status) {
         Appointment appointment = appointmentRepository.findByIdForUpdate(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Lịch hẹn không tồn tại"));
-        if (!appointment.getDoctor().getUserId().equals(doctorUserId)) throw new AppException("Bạn không quản lý lịch hẹn này");
+        if (!appointment.getDoctor().getUserId().equals(doctorUserId)) throw new AppException("Bạn không quản lý lịch hẹn này", org.springframework.http.HttpStatus.FORBIDDEN);
         if (!"COMPLETED".equals(status)) throw new AppException("Bác sĩ chỉ được chuyển lịch sang COMPLETED");
         if (!"CONFIRMED".equals(appointment.getStatus())) throw new AppException("Chỉ có thể hoàn thành lịch đang xác nhận");
         LocalDateTime appointmentTime = LocalDateTime.of(

@@ -1,0 +1,38 @@
+{
+  "bootstrap.min.css": {
+    "source": "https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css",
+    "sha384": "4f773a0a8222eae2eb03d4e778d1286bb4719dab738dc0d20a61b5317c52475180b17115fc3c30ca473630f2bc3361cd"
+  },
+  "bootstrap.bundle.min.js": {
+    "source": "https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js",
+    "sha384": "0ba473b329ccf64583acc35e4fcedb87de4e18dc993e17133578f5356ed1b810acc8dfe8d23969715f10caae3a7037cb"
+  },
+  "bootstrap-icons.css": {
+    "source": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css",
+    "sha384": "e0b2121794d3257fdf2e6192c4ee77ad5e26891c5d83ce2666cc663bc471e631ada7f2dbae2c45113bd66b96bab0449d"
+  },
+  "fonts/bootstrap-icons.woff2": {
+    "source": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/fonts/bootstrap-icons.woff2",
+    "sha384": "bdf9b732892fb43d2359475b00a5af5df046d87428949ab356f91046c08d400fe780a11c9928122f790b19e4e4a2b452"
+  },
+  "fonts/bootstrap-icons.woff": {
+    "source": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/fonts/bootstrap-icons.woff",
+    "sha384": "d4d04effb5d1de3fa25659c9a76372c7c1e97868b44212b941c5e69194156473b57d8847fb7d99b961a0af84fb553eb8"
+  },
+  "chart.umd.min.js": {
+    "source": "https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js",
+    "sha384": "254875eb7a02448b5c6cf99ef2962744e1d0302e9f34a4c15ad446dc8dc8d1eac99333602fbbb12a537072b70529ea85"
+  },
+  "LICENSE-bootstrap.txt": {
+    "source": "https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/LICENSE",
+    "sha384": "c68c546b153e5dbac11f3db1a5490deab7510fe47cb2f343495d5399498420be8d979ca8ca89d72bc0c6f0e2fc36d52d"
+  },
+  "LICENSE-bootstrap-icons.txt": {
+    "source": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/LICENSE",
+    "sha384": "1a22828c6ab0436e346aa28194b45a2e11997b8eef6b0dc300659cd550cfacbf0742e436512e69a96aa2f1edf5e7431f"
+  },
+  "LICENSE-chart.txt": {
+    "source": "https://cdn.jsdelivr.net/npm/chart.js@4.4.3/LICENSE.md",
+    "sha384": "3a454d284cc9547783fbbe25dcce4fa46519a38d4c20b4f36751c5cbc5a3b168930502a289e51407b996c3af48047152"
+  }
+}

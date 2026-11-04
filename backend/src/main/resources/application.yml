@@ -4,6 +4,8 @@
 # =====================================================================
 
 spring:
+  flyway:
+    enabled: false
   application:
     name: datlichkhambenh-backend
 

@@ -13,6 +13,7 @@ public class PatientDto {
 
     private Long userId;
     private String email;
+    private Boolean isActive;
     private String fullName;
     private LocalDate dob;
     private String gender;

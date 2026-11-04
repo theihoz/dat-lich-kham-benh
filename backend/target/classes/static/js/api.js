@@ -17,64 +17,67 @@ function setCache(key, data) {
     }
 }
 
-const API_BASE = window.CLINIC_API_BASE
-  || (window.location.port === '8080' ? '/api/v1' : 'http://localhost:8080/api/v1');
+// Served pages use the backend's origin, including custom ports and HTTPS.
+// Separate frontend hosting can opt in to a different API with CLINIC_API_BASE.
+const API_BASE = window.CLINIC_API_BASE || '/api/v1';
 
 const Api = {
-  _getToken() { return localStorage.getItem('accessToken'); },
+  _accessToken: null,
+  _refreshPromise: null,
+  _getToken() { return this._accessToken; },
+  _setToken(token) { this._accessToken = token || null; _apiCache.clear(); },
 
-  async _request(method, path, body = null, auth = true) {
+  async _request(method, path, body = null, auth = true, retried = false) {
+    if (auth && !this._getToken() && !await this._tryRefresh()) {
+      if (typeof Auth !== 'undefined') Auth.clearSession();
+      const error = new Error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+      error.status = 401;
+      throw error;
+    }
     const headers = { 'Content-Type': 'application/json' };
-    if (auth) {
-      const token = this._getToken();
-      if (token) headers['Authorization'] = `Bearer ${token}`;
+    if (auth && this._getToken()) headers.Authorization = `Bearer ${this._getToken()}`;
+    const opts = { method, headers, credentials: 'same-origin' };
+    if (body !== null) opts.body = JSON.stringify(body);
+    const cacheKey = method === 'GET' ? `${auth ? this._getToken() : 'public'}:${path}` : null;
+    if (cacheKey) { const cached = getCached(cacheKey); if (cached) return cached; }
+    let res;
+    try { res = await fetch(`${API_BASE}${path}`, opts); }
+    catch { throw new Error('Không thể kết nối đến server. Vui lòng thử lại.'); }
+    const data = await res.json().catch(() => ({}));
+    if (res.status === 401 && auth && !retried && await this._tryRefresh())
+      return this._request(method, path, body, auth, true);
+    if (!res.ok) {
+      if (res.status === 401 && auth && typeof Auth !== 'undefined') Auth.clearSession();
+      const error = new Error(data.message || data.error || `Lỗi ${res.status}`);
+      error.status = res.status;
+      error.retryAfter = res.headers?.get?.('Retry-After');
+      throw error;
     }
-    const opts = { method, headers };
-    if (body) opts.body = JSON.stringify(body);
-
-    const cacheKey = method === 'GET' ? `${path}` : null;
-    if (cacheKey) {
-        const cached = getCached(cacheKey);
-        if (cached) return cached;
-    }
-
-    try {
-      const res = await fetch(`${API_BASE}${path}`, opts);
-      const data = await res.json().catch(() => ({}));
-
-      if (res.status === 401) {
-        // Thử refresh token
-        const refreshed = await this._tryRefresh();
-        if (refreshed) return this._request(method, path, body, auth);
-        Auth.logout();
-        return;
-      }
-      if (!res.ok) {
-        const msg = data.message || data.error || `Lỗi ${res.status}`;
-        throw new Error(msg);
-      }
-      if (cacheKey) setCache(cacheKey, data);
-      return data;
-    } catch (err) {
-      if (err.name === 'TypeError') throw new Error('Không thể kết nối đến server. Kiểm tra backend đang chạy chưa?');
-      throw err;
-    }
+    if (cacheKey) setCache(cacheKey, data); else if (method !== 'GET') _apiCache.clear();
+    return data;
   },
 
   async _tryRefresh() {
-    const refreshToken = localStorage.getItem('refreshToken');
-    if (!refreshToken) return false;
-    try {
-      const res = await fetch(`${API_BASE}/auth/refresh`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refreshToken })
-      });
-      if (!res.ok) return false;
-      const data = await res.json();
-      localStorage.setItem('accessToken', data.data?.accessToken || '');
-      return true;
-    } catch { return false; }
+    if (this._refreshPromise) return this._refreshPromise;
+    const refresh = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/auth/refresh`, {
+          method: 'POST', credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': 'clinic' }
+        });
+        if (!res.ok) return false;
+        const data = await res.json();
+        if (!data.data?.accessToken) return false;
+        this._setToken(data.data.accessToken);
+        if (typeof Auth !== 'undefined') Auth.setSession(data.data);
+        return true;
+      } catch { return false; }
+    };
+    // Cross-tab serialization prevents legitimate simultaneous cookie rotations from looking like replay.
+    this._refreshPromise = (typeof navigator !== 'undefined' && navigator.locks
+      ? navigator.locks.request('clinic-refresh', refresh) : refresh());
+    try { return await this._refreshPromise; }
+    finally { this._refreshPromise = null; }
   },
 
   get: (path, auth = true) => Api._request('GET', path, null, auth),
@@ -89,6 +92,10 @@ const Api = {
     login: (body) => Api.post('/auth/login', body, false),
     refresh: (body) => Api.post('/auth/refresh', body, false),
     changePassword: (body) => Api.post('/auth/change-password', body),
+    forgotPassword: (body) => Api.post('/auth/forgot-password', body, false),
+    resetPassword: (body) => Api.post('/auth/reset-password', body, false),
+    verifyEmail: (body) => Api.post('/auth/verify-email', body, false),
+    resendVerification: (body) => Api.post('/auth/resend-verification', body, false),
   },
 
   // ── Doctors ──

@@ -35,29 +35,5 @@
   </section>
   <footer>Nhắc lịch hiện có Creator và kiểm thử; chưa có bộ lập lịch tự động. Báo cáo và bộ sơ đồ draw.io nằm trong thư mục docs của dự án.</footer>
 </main>
-<script>
-  document.getElementById('refresh').addEventListener('click', async () => {
-    const status = document.getElementById('status');
-    const inbox = document.getElementById('inbox');
-    const token = localStorage.getItem('accessToken');
-    if (!token) { status.textContent = 'Cần đăng nhập tài khoản Admin trước khi tải hộp thư.'; return; }
-    const button = document.getElementById('refresh');
-    button.disabled = true;
-    try {
-      const response = await fetch('/api/v1/admin/demo-notifications', {headers:{Authorization:'Bearer ' + token}});
-      if (!response.ok) throw new Error(response.status === 404 ? 'Hộp thư chỉ có ở profile demo.' : 'Cần phiên đăng nhập Admin hợp lệ.');
-      const result = await response.json();
-      inbox.replaceChildren();
-      for (const mail of result.data) {
-        const article = document.createElement('article');
-        article.className = 'mail';
-        const title = document.createElement('h3'); title.textContent = mail.subject;
-        const recipient = document.createElement('p'); recipient.textContent = mail.time + ' · ' + mail.recipient;
-        const body = document.createElement('p'); body.textContent = mail.body;
-        article.append(title, recipient, body); inbox.append(article);
-      }
-      status.textContent = result.data.length ? `${result.data.length} thông báo gần nhất (tối đa 100).` : 'Chưa có thông báo. Hãy đặt một lịch khám trước.';
-    } catch (error) { status.textContent = error.message; }
-    finally { button.disabled = false; }
-  });
-</script></body></html>
+<script src="js/api.js"></script><script src="js/utils.js"></script><script src="js/auth.js"></script><script src="js/pages/patterns.js"></script><script src="js/ui-actions.js"></script>
+</body></html>
